@@ -8,33 +8,6 @@
 (function () {
   'use strict';
 
-  // ---------- Demographic Value Mapping ----------
-  // Maps HTML select values (English) to scoring.js DEMOGRAPHIC_BASELINES keys (Japanese)
-  var DEMO_AGE_MAP = {
-    '20s': '20代',
-    '30s': '30代',
-    '40s': '40代',
-    '50s': '50代以上'
-  };
-
-  var DEMO_TENURE_MAP = {
-    '<1year': '1年未満',
-    '1-3years': '1-3年',
-    '3-5years': '3-5年',
-    '5-10years': '5-10年',
-    '>10years': '10年以上'
-  };
-
-  var DEMO_INDUSTRY_MAP = {
-    'it': 'IT・通信',
-    'finance': '金融・保険',
-    'manufacturing': '製造業',
-    'healthcare': '医療・介護',
-    'service': 'サービス・飲食',
-    'public': '公務員',
-    'other': 'その他'
-  };
-
   // ---------- State ----------
   var state = {
     currentQuestion: 0,
@@ -46,7 +19,7 @@
     swipeCurrentX: 0,
     lastDimensionIndex: -1,  // Track dimension changes for milestone feedback
     demographic: {           // User demographic context (optional)
-      ageGroup: null,
+      age: null,
       tenure: null,
       industry: null
     }
@@ -194,7 +167,7 @@
       return;
     }
 
-    var latest = history[0];
+    var latest = history[history.length - 1];
     var score = latest.weighted || latest.overall;
     var risk = Scoring.getRiskLevel(score);
     var d = new Date(latest.date);
@@ -202,7 +175,7 @@
 
     var trend = DiagnosticHistory.getTrend();
     var trendHTML = '';
-    if (trend) {
+    if (trend && trend.direction !== 'insufficient') {
       var arrow, cls, label;
       if (trend.direction === 'improving') {
         arrow = '↑';
@@ -423,9 +396,9 @@
     var industryVal = els.demoIndustry ? els.demoIndustry.value : '';
 
     state.demographic = {
-      ageGroup: ageVal ? (DEMO_AGE_MAP[ageVal] || null) : null,
-      tenure: tenureVal ? (DEMO_TENURE_MAP[tenureVal] || null) : null,
-      industry: industryVal ? (DEMO_INDUSTRY_MAP[industryVal] || null) : null
+      age: ageVal || null,
+      tenure: tenureVal || null,
+      industry: industryVal || null
     };
   }
 
@@ -433,13 +406,13 @@
   function showResults() {
     var dimensionScores = Scoring.calculateAllScores(state.answers);
     var overallScore = Scoring.calculateOverallScore(dimensionScores);
-    var weightedScore = Scoring.calculateWeightedScore(dimensionScores);
+    var weightedScore = Scoring.calculateWeightedOverallScore(dimensionScores);
     var risk = Scoring.getRiskLevel(weightedScore);
     var advice = Scoring.getAdvice(dimensionScores);
     var compoundRisks = Scoring.detectCompoundRisks(dimensionScores);
 
     // Apply demographic context
-    var demographicContext = Scoring.applyDemographicContext(weightedScore, state.demographic);
+    var demographicContext = Scoring.calculateContextualScore(weightedScore, state.demographic);
 
     showScreen('result');
 
@@ -499,19 +472,20 @@
     if (els.trendSvg) {
       // Need to include the current result in the chart
       var chartHistory = history.slice(); // copy
-      // Add current result to the beginning (newest first) before saving
+      // Add current result to the end (ascending order) before saving
       var currentEntry = {
         date: new Date().toISOString(),
         overall: overallScore,
         weighted: weightedScore
       };
-      chartHistory.unshift(currentEntry);
+      chartHistory.push(currentEntry);
       Charts.drawTrendChart(els.trendSvg, chartHistory);
     }
 
     // Trend summary text
     if (els.trendSummary && history.length > 0) {
-      var prevScore = history[0].weighted || history[0].overall;
+      var prevEntry = history[history.length - 1];
+      var prevScore = prevEntry.weighted || prevEntry.overall;
       var change = weightedScore - prevScore;
       var trendClass, trendText;
       if (change > 3) {
@@ -593,7 +567,7 @@
     if (els.demoAge) els.demoAge.value = '';
     if (els.demoTenure) els.demoTenure.value = '';
     if (els.demoIndustry) els.demoIndustry.value = '';
-    state.demographic = { ageGroup: null, tenure: null, industry: null };
+    state.demographic = { age: null, tenure: null, industry: null };
 
     // Update history summary on start screen
     updateHistorySummary();
@@ -620,7 +594,7 @@
   // Skip demographic → start diagnosis directly
   if (els.btnSkipDemographic) {
     els.btnSkipDemographic.addEventListener('click', function () {
-      state.demographic = { ageGroup: null, tenure: null, industry: null };
+      state.demographic = { age: null, tenure: null, industry: null };
       showScreen('question');
       showQuestion(0);
     });

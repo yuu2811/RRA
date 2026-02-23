@@ -1100,19 +1100,22 @@ body::after {
   gap: 16px;
 }
 
-.compound-risk-card {
+.compound-risk-card,
+.compound-risk-item {
   padding: 18px;
   background: rgba(255, 255, 255, 0.02);
   border-radius: var(--radius-sm);
   border-left: 4px solid var(--accent-primary);
 }
 
-.compound-risk-card.severity-critical {
+.compound-risk-card.severity-critical,
+.compound-risk-item.compound-risk-critical {
   border-left-color: var(--red);
   background: rgba(239, 68, 68, 0.04);
 }
 
-.compound-risk-card.severity-high {
+.compound-risk-card.severity-high,
+.compound-risk-item.compound-risk-warning {
   border-left-color: var(--orange);
   background: rgba(249, 115, 22, 0.04);
 }

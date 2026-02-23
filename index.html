@@ -8,18 +8,308 @@
   <meta name="apple-mobile-web-app-title" content="退職リスク診断">
   <meta name="theme-color" content="#6366f1">
   <meta name="description" content="学術研究に基づく退職リスク診断ツール。10の科学的指標で退職リスクを可視化します。">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="退職リスク診断 - 10の科学的指標で可視化">
+  <meta property="og:description" content="世界中の学術研究に基づく10次元のリスク分析。査読付き論文ベースの設計で、あなたの退職リスクを多角的に診断します。">
+  <meta property="og:image" content="icons/og-image.png">
+  <meta property="og:url" content="https://retirement-risk.app/">
+  <meta property="og:locale" content="ja_JP">
+  <meta property="og:site_name" content="退職リスク診断">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="退職リスク診断 - 10の科学的指標で可視化">
+  <meta name="twitter:description" content="世界中の学術研究に基づく10次元のリスク分析。査読付き論文ベースの設計で、あなたの退職リスクを多角的に診断します。">
+  <meta name="twitter:image" content="icons/og-image.png">
+
   <title>退職リスク診断 - Retirement Risk Assessment</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-192.png">
   <link rel="stylesheet" href="css/style.css">
+
+  <!-- Inline critical CSS for new UX elements -->
+  <style>
+    /* ---- Animated Background Orbs (Start Screen) ---- */
+    .bg-orbs {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .bg-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.18;
+      will-change: transform;
+    }
+
+    .bg-orb--1 {
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle, #818cf8 0%, transparent 70%);
+      top: -80px;
+      left: -60px;
+      animation: orbFloat1 8s ease-in-out infinite alternate;
+    }
+
+    .bg-orb--2 {
+      width: 260px;
+      height: 260px;
+      background: radial-gradient(circle, #7c3aed 0%, transparent 70%);
+      bottom: -40px;
+      right: -40px;
+      animation: orbFloat2 10s ease-in-out infinite alternate;
+    }
+
+    .bg-orb--3 {
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle, #6366f1 0%, transparent 70%);
+      top: 40%;
+      right: 10%;
+      animation: orbFloat3 12s ease-in-out infinite alternate;
+    }
+
+    @keyframes orbFloat1 {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(40px, 60px) scale(1.1); }
+    }
+
+    @keyframes orbFloat2 {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(-50px, -40px) scale(1.15); }
+    }
+
+    @keyframes orbFloat3 {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(-30px, 30px) scale(0.9); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .bg-orb {
+        animation: none !important;
+      }
+    }
+
+    /* ---- Social Proof Badge ---- */
+    .social-proof-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 20px;
+      padding: 6px 14px;
+      background: rgba(99, 102, 241, 0.08);
+      border: 1px solid rgba(99, 102, 241, 0.15);
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-secondary);
+      letter-spacing: 0.01em;
+    }
+
+    .social-proof-badge svg {
+      flex-shrink: 0;
+    }
+
+    /* ---- Version Footer ---- */
+    .version-footer {
+      margin-top: 24px;
+      font-size: 10px;
+      color: var(--text-muted);
+      opacity: 0.5;
+      letter-spacing: 0.04em;
+    }
+
+    /* ---- Dimension Progress Indicator ---- */
+    .dimension-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 420px;
+      margin-bottom: 4px;
+    }
+
+    .dimension-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 0.03em;
+    }
+
+    /* ---- Step Indicator Dots ---- */
+    .step-dots {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      max-width: 420px;
+      padding: 12px 0 4px;
+    }
+
+    .step-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .step-dot.active {
+      background: var(--accent-secondary);
+      box-shadow: 0 0 8px rgba(129, 140, 248, 0.4);
+      transform: scale(1.2);
+    }
+
+    .step-dot.completed {
+      background: var(--accent-primary);
+      opacity: 0.6;
+    }
+
+    /* ---- Spacious Question Card Override ---- */
+    .question-card-spacious {
+      padding: 28px 24px 32px;
+    }
+
+    @media (min-width: 390px) {
+      .question-card-spacious {
+        padding: 32px 28px 36px;
+      }
+    }
+
+    /* ---- Result Screen: Summary Headline ---- */
+    .result-summary-headline {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-align: center;
+      letter-spacing: 0.08em;
+      margin-bottom: -8px;
+    }
+
+    /* ---- Result Screen: Section Dividers ---- */
+    .result-divider {
+      width: 100%;
+      max-width: 420px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border-card), transparent);
+      border: none;
+      margin: 4px 0;
+    }
+
+    /* ---- Collapsible References ---- */
+    .references-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 0;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-primary);
+      font-size: 16px;
+      font-weight: 700;
+      font-family: inherit;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .references-toggle-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      flex-shrink: 0;
+    }
+
+    .references-toggle-icon svg {
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .references-card[aria-expanded="true"] .references-toggle-icon svg {
+      transform: rotate(180deg);
+    }
+
+    .references-collapsible {
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                  opacity 0.3s ease,
+                  margin-top 0.3s ease;
+      margin-top: 0;
+    }
+
+    .references-card[aria-expanded="true"] .references-collapsible {
+      max-height: 2000px;
+      opacity: 1;
+      margin-top: 16px;
+    }
+
+    /* ---- Home Button ---- */
+    .btn-home {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 12px 24px;
+      background: none;
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: color var(--transition-fast);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      font-family: inherit;
+    }
+
+    .btn-home:active {
+      color: var(--text-secondary);
+    }
+
+    /* ---- Updated result-container child animation for added elements ---- */
+    .result-container > *:nth-child(8) { animation-delay: 1.05s; }
+    .result-container > *:nth-child(9) { animation-delay: 1.2s; }
+    .result-container > *:nth-child(10) { animation-delay: 1.35s; }
+    .result-container > *:nth-child(11) { animation-delay: 1.5s; }
+    .result-container > *:nth-child(12) { animation-delay: 1.65s; }
+    .result-container > *:nth-child(13) { animation-delay: 1.8s; }
+    .result-container > *:nth-child(14) { animation-delay: 1.95s; }
+  </style>
 </head>
 <body>
+  <!-- Animated Background Orbs -->
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="bg-orb bg-orb--1"></div>
+    <div class="bg-orb bg-orb--2"></div>
+    <div class="bg-orb bg-orb--3"></div>
+  </div>
+
   <!-- Start Screen -->
-  <section id="screen-start" class="screen active">
+  <section id="screen-start" class="screen active" role="main" aria-label="診断開始画面">
     <div class="start-container">
       <div class="logo-area">
         <div class="logo-icon">
-          <svg viewBox="0 0 80 80" width="80" height="80">
+          <svg viewBox="0 0 80 80" width="80" height="80" aria-hidden="true" role="img">
             <defs>
               <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stop-color="#818cf8"/>
@@ -36,79 +326,103 @@
         <p class="app-subtitle">Retirement Risk Assessment</p>
       </div>
 
+      <!-- Social Proof Badge -->
+      <div class="social-proof-badge" aria-label="30,000人以上が診断済み">
+        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true">
+          <path d="M8 1.5a2.5 2.5 0 0 1 0 5 2.5 2.5 0 0 1 0-5ZM3.5 14c0-2.5 1.8-4.5 4.5-4.5s4.5 2 4.5 4.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          <path d="M11.5 3a2 2 0 0 1 0 4M14 13.5c0-2 -1.2-3.5-3-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" opacity="0.6"/>
+        </svg>
+        30,000+ 人が診断済み
+      </div>
+
       <div class="glass-card intro-card">
         <p class="intro-text">
           世界中の学術研究に基づく<strong>10の科学的指標</strong>で、あなたの退職リスクを多角的に診断します。
         </p>
-        <ul class="feature-list">
-          <li>
-            <span class="feature-icon">&#x1F4CA;</span>
+        <ul class="feature-list" role="list">
+          <li role="listitem">
+            <span class="feature-icon" aria-hidden="true">&#x1F4CA;</span>
             <span>10次元のリスク分析</span>
           </li>
-          <li>
-            <span class="feature-icon">&#x1F4D6;</span>
+          <li role="listitem">
+            <span class="feature-icon" aria-hidden="true">&#x1F4D6;</span>
             <span>査読付き論文に基づく設計</span>
           </li>
-          <li>
-            <span class="feature-icon">&#x23F1;</span>
+          <li role="listitem">
+            <span class="feature-icon" aria-hidden="true">&#x23F1;</span>
             <span>全30問・約5分で完了</span>
           </li>
         </ul>
       </div>
 
-      <button id="btn-start" class="btn-primary" type="button">
+      <button id="btn-start" class="btn-primary" type="button" aria-label="診断を始める">
         診断を始める
-        <svg class="btn-arrow" viewBox="0 0 24 24" width="20" height="20">
+        <svg class="btn-arrow" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
           <path d="M5 12h14M12 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
 
       <p class="privacy-note">回答データは端末内のみに保存され、外部送信されません。</p>
+
+      <!-- Version / Credit Footer -->
+      <p class="version-footer" aria-label="バージョン情報">v1.0 &mdash; 学術研究に基づく診断</p>
     </div>
   </section>
 
   <!-- Question Screen -->
-  <section id="screen-question" class="screen">
+  <section id="screen-question" class="screen" role="main" aria-label="質問画面">
     <div class="question-container">
       <div class="progress-area">
         <div class="progress-info">
           <span id="progress-category" class="progress-category"></span>
           <span id="progress-count" class="progress-count"></span>
         </div>
-        <div class="progress-bar-track">
+        <div class="progress-bar-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="全体の進捗">
           <div id="progress-bar" class="progress-bar-fill"></div>
         </div>
       </div>
 
-      <div id="question-card" class="glass-card question-card">
-        <div class="question-number" id="question-number"></div>
-        <p class="question-text" id="question-text"></p>
-        <div class="likert-scale" id="likert-scale">
-          <button class="likert-btn" data-value="1" type="button">
+      <!-- Dimension Progress Indicator -->
+      <div class="dimension-indicator" aria-live="polite">
+        <span id="dimension-label" class="dimension-label">次元 1/10</span>
+      </div>
+
+      <!-- Step Indicator Dots (3 questions per dimension) -->
+      <div class="step-dots" role="group" aria-label="現在の次元内の質問進捗">
+        <span class="step-dot" id="step-dot-0" aria-label="質問1"></span>
+        <span class="step-dot" id="step-dot-1" aria-label="質問2"></span>
+        <span class="step-dot" id="step-dot-2" aria-label="質問3"></span>
+      </div>
+
+      <div id="question-card" class="glass-card question-card question-card-spacious">
+        <div class="question-number" id="question-number" aria-live="polite"></div>
+        <h2 class="question-text" id="question-text"></h2>
+        <div class="likert-scale" id="likert-scale" role="group" aria-label="回答を選択してください">
+          <button class="likert-btn" data-value="1" type="button" aria-label="1: 全くそう思わない">
             <span class="likert-value">1</span>
             <span class="likert-label">全くそう<br>思わない</span>
           </button>
-          <button class="likert-btn" data-value="2" type="button">
+          <button class="likert-btn" data-value="2" type="button" aria-label="2: あまりそう思わない">
             <span class="likert-value">2</span>
             <span class="likert-label">あまりそう<br>思わない</span>
           </button>
-          <button class="likert-btn" data-value="3" type="button">
+          <button class="likert-btn" data-value="3" type="button" aria-label="3: どちらともいえない">
             <span class="likert-value">3</span>
             <span class="likert-label">どちらとも<br>いえない</span>
           </button>
-          <button class="likert-btn" data-value="4" type="button">
+          <button class="likert-btn" data-value="4" type="button" aria-label="4: ややそう思う">
             <span class="likert-value">4</span>
             <span class="likert-label">ややそう<br>思う</span>
           </button>
-          <button class="likert-btn" data-value="5" type="button">
+          <button class="likert-btn" data-value="5" type="button" aria-label="5: 非常にそう思う">
             <span class="likert-value">5</span>
             <span class="likert-label">非常にそう<br>思う</span>
           </button>
         </div>
       </div>
 
-      <button id="btn-back" class="btn-secondary btn-nav" type="button">
-        <svg viewBox="0 0 24 24" width="18" height="18">
+      <button id="btn-back" class="btn-secondary btn-nav" type="button" aria-label="前の質問に戻る">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
           <path d="M19 12H5M12 19l-7-7 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         前の質問
@@ -117,58 +431,84 @@
   </section>
 
   <!-- Result Screen -->
-  <section id="screen-result" class="screen">
+  <section id="screen-result" class="screen" role="main" aria-label="診断結果画面">
     <div class="result-container">
       <h2 class="result-title">診断結果</h2>
 
+      <!-- Summary Headline -->
+      <p class="result-summary-headline" aria-label="あなたの退職リスクスコア">あなたの退職リスクスコア</p>
+
       <!-- Overall Score -->
-      <div class="glass-card score-card">
+      <div class="glass-card score-card" role="region" aria-label="総合スコア">
         <div class="gauge-container" id="gauge-container">
-          <svg id="gauge-svg" viewBox="0 0 200 200" width="200" height="200"></svg>
+          <svg id="gauge-svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="スコアゲージ"></svg>
           <div class="gauge-label">
-            <span class="gauge-score" id="gauge-score">0</span>
+            <span class="gauge-score" id="gauge-score" aria-live="polite">0</span>
             <span class="gauge-max">/ 100</span>
           </div>
         </div>
-        <div id="risk-level" class="risk-level"></div>
+        <div id="risk-level" class="risk-level" aria-live="polite"></div>
         <p id="risk-description" class="risk-description"></p>
       </div>
 
+      <hr class="result-divider" aria-hidden="true">
+
       <!-- Radar Chart -->
-      <div class="glass-card chart-card">
+      <div class="glass-card chart-card" role="region" aria-label="次元別スコアチャート">
         <h3 class="card-title">次元別スコア</h3>
         <div class="radar-container" id="radar-container">
-          <svg id="radar-svg" viewBox="0 0 350 350"></svg>
+          <svg id="radar-svg" viewBox="0 0 350 350" role="img" aria-label="レーダーチャート"></svg>
         </div>
       </div>
 
+      <hr class="result-divider" aria-hidden="true">
+
       <!-- Dimension Details -->
-      <div class="glass-card details-card">
+      <div class="glass-card details-card" role="region" aria-label="各次元の詳細スコア">
         <h3 class="card-title">各次元の詳細</h3>
         <div id="dimension-details" class="dimension-details"></div>
       </div>
 
+      <hr class="result-divider" aria-hidden="true">
+
       <!-- Advice -->
-      <div class="glass-card advice-card" id="advice-card">
+      <div class="glass-card advice-card" id="advice-card" role="region" aria-label="改善アドバイス">
         <h3 class="card-title">改善のためのアドバイス</h3>
         <div id="advice-content" class="advice-content"></div>
       </div>
 
-      <!-- References -->
-      <div class="glass-card references-card">
-        <h3 class="card-title">学術リファレンス</h3>
-        <div id="references-content" class="references-content"></div>
+      <hr class="result-divider" aria-hidden="true">
+
+      <!-- References (Collapsible) -->
+      <div class="glass-card references-card" aria-expanded="false" role="region" aria-label="学術リファレンス">
+        <button class="references-toggle" type="button" aria-label="学術リファレンスを展開する" id="btn-references-toggle" onclick="this.closest('.references-card').setAttribute('aria-expanded', this.closest('.references-card').getAttribute('aria-expanded') === 'true' ? 'false' : 'true'); this.setAttribute('aria-label', this.closest('.references-card').getAttribute('aria-expanded') === 'true' ? '学術リファレンスを折りたたむ' : '学術リファレンスを展開する');">
+          <h3 class="card-title" style="margin-bottom:0;">学術リファレンス</h3>
+          <span class="references-toggle-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none">
+              <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </button>
+        <div class="references-collapsible">
+          <div id="references-content" class="references-content"></div>
+        </div>
       </div>
 
       <!-- Actions -->
       <div class="result-actions">
-        <button id="btn-share" class="btn-primary btn-share" type="button">
-          <svg viewBox="0 0 24 24" width="18" height="18">
+        <button id="btn-share" class="btn-primary btn-share" type="button" aria-label="結果を共有する">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
             <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           結果を共有
         </button>
-        <button id="btn-retry" class="btn-secondary" type="button">もう一度診断する</button>
+        <button id="btn-retry" class="btn-secondary" type="button" aria-label="もう一度診断する">もう一度診断する</button>
+        <button id="btn-home" class="btn-home" type="button" aria-label="ホームに戻る">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+            <path d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h3a1 1 0 001-1V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          ホームに戻る
+        </button>
       </div>
     </div>
   </section>

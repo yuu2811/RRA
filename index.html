@@ -294,6 +294,10 @@
     .result-container > *:nth-child(12) { animation-delay: 1.65s; }
     .result-container > *:nth-child(13) { animation-delay: 1.8s; }
     .result-container > *:nth-child(14) { animation-delay: 1.95s; }
+    .result-container > *:nth-child(15) { animation-delay: 2.1s; }
+    .result-container > *:nth-child(16) { animation-delay: 2.25s; }
+    .result-container > *:nth-child(17) { animation-delay: 2.4s; }
+    .result-container > *:nth-child(18) { animation-delay: 2.55s; }
   </style>
 </head>
 <body>
@@ -355,6 +359,9 @@
         </ul>
       </div>
 
+      <!-- History Summary (shown if previous results exist) -->
+      <div id="history-summary" class="history-summary-container" style="display:none;"></div>
+
       <button id="btn-start" class="btn-primary" type="button" aria-label="診断を始める">
         診断を始める
         <svg class="btn-arrow" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
@@ -365,7 +372,73 @@
       <p class="privacy-note">回答データは端末内のみに保存され、外部送信されません。</p>
 
       <!-- Version / Credit Footer -->
-      <p class="version-footer" aria-label="バージョン情報">v1.0 &mdash; 学術研究に基づく診断</p>
+      <p class="version-footer" aria-label="バージョン情報">v2.0 &mdash; エビデンス加重診断エンジン</p>
+    </div>
+  </section>
+
+  <!-- Demographic Screen (Optional) -->
+  <section id="screen-demographic" class="screen" role="main" aria-label="プロフィール入力画面">
+    <div class="demographic-container">
+      <h2 class="demographic-title">プロフィール設定</h2>
+      <p class="demographic-subtitle">より正確な診断のための任意入力です</p>
+
+      <div class="glass-card demographic-card">
+        <div class="demographic-field">
+          <label class="demographic-label" for="demo-age">年代</label>
+          <div class="select-wrapper">
+            <select id="demo-age" class="demographic-select">
+              <option value="">選択しない</option>
+              <option value="20s">20代</option>
+              <option value="30s">30代</option>
+              <option value="40s">40代</option>
+              <option value="50s+">50代以上</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="demographic-field">
+          <label class="demographic-label" for="demo-tenure">勤続年数</label>
+          <div class="select-wrapper">
+            <select id="demo-tenure" class="demographic-select">
+              <option value="">選択しない</option>
+              <option value="<1year">1年未満</option>
+              <option value="1-3years">1〜3年</option>
+              <option value="3-5years">3〜5年</option>
+              <option value="5-10years">5〜10年</option>
+              <option value=">10years">10年以上</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="demographic-field">
+          <label class="demographic-label" for="demo-industry">業界</label>
+          <div class="select-wrapper">
+            <select id="demo-industry" class="demographic-select">
+              <option value="">選択しない</option>
+              <option value="it">IT・通信</option>
+              <option value="finance">金融・保険</option>
+              <option value="manufacturing">製造</option>
+              <option value="healthcare">医療・介護</option>
+              <option value="service">サービス・小売</option>
+              <option value="public">公務員・団体</option>
+              <option value="other">その他</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <button id="btn-start-diagnosis" class="btn-primary" type="button" aria-label="診断を開始する">
+        診断を開始する
+        <svg class="btn-arrow" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <path d="M5 12h14M12 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <button id="btn-skip-demographic" class="btn-secondary" type="button" aria-label="スキップして診断を始める">
+        スキップして診断へ
+      </button>
+
+      <p class="privacy-note">入力情報は端末内のみに保存されます。</p>
     </div>
   </section>
 
@@ -451,6 +524,13 @@
         <p id="risk-description" class="risk-description"></p>
       </div>
 
+      <!-- Weighted Score Comparison -->
+      <div class="glass-card weighted-card" role="region" aria-label="エビデンス加重スコア">
+        <h3 class="card-title">エビデンス加重スコア</h3>
+        <div id="weighted-comparison" class="weighted-comparison"></div>
+        <p class="weighted-explanation">メタ分析の効果量に基づき、退職予測力の高い次元を重み付けしたスコアです。</p>
+      </div>
+
       <hr class="result-divider" aria-hidden="true">
 
       <!-- Radar Chart -->
@@ -475,6 +555,25 @@
       <div class="glass-card advice-card" id="advice-card" role="region" aria-label="改善アドバイス">
         <h3 class="card-title">改善のためのアドバイス</h3>
         <div id="advice-content" class="advice-content"></div>
+      </div>
+
+      <hr class="result-divider" aria-hidden="true">
+
+      <!-- Compound Risk Patterns -->
+      <div class="glass-card compound-card" id="compound-card" role="region" aria-label="複合リスクパターン">
+        <h3 class="card-title">複合リスクパターン分析</h3>
+        <div id="compound-risks" class="compound-risks-content"></div>
+      </div>
+
+      <hr class="result-divider" aria-hidden="true">
+
+      <!-- Trend Chart (History) -->
+      <div class="glass-card trend-card" id="trend-card" role="region" aria-label="診断スコア推移">
+        <h3 class="card-title">スコア推移</h3>
+        <div class="trend-chart-container">
+          <svg id="trend-svg" viewBox="0 0 350 200" role="img" aria-label="スコア推移チャート"></svg>
+        </div>
+        <div id="trend-summary" class="trend-summary"></div>
       </div>
 
       <hr class="result-divider" aria-hidden="true">

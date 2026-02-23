@@ -7,6 +7,109 @@
  */
 
 // ============================================================
+// 0. Normative Benchmarks & Dimension Correlations
+// Based on meta-analytic findings and population survey norms
+// ============================================================
+
+/**
+ * @constant {Object<string, Object>}
+ * Normative benchmark data for each dimension.
+ * mean: Average score in general working population (0-100 normalized)
+ * sd: Standard deviation
+ * Source: Derived from meta-analytic effect sizes and large-scale employee surveys
+ */
+const DIMENSION_NORMS = {
+  job_embeddedness:       { mean: 58, sd: 18, highLabel: '強い帰属', lowLabel: '弱い帰属' },
+  org_commitment:         { mean: 55, sd: 20, highLabel: '高い忠誠心', lowLabel: '低い忠誠心' },
+  turnover_intention:     { mean: 62, sd: 22, highLabel: '定着傾向', lowLabel: '離職傾向' },
+  role_clarity:           { mean: 65, sd: 16, highLabel: '明確', lowLabel: '曖昧' },
+  job_satisfaction:       { mean: 60, sd: 19, highLabel: '高い満足', lowLabel: '低い満足' },
+  po_fit:                 { mean: 57, sd: 20, highLabel: '高い適合', lowLabel: 'ミスマッチ' },
+  career_dev:             { mean: 50, sd: 22, highLabel: '成長実感', lowLabel: '停滞感' },
+  work_life_balance:      { mean: 52, sd: 21, highLabel: '良好', lowLabel: '不均衡' },
+  leadership:             { mean: 56, sd: 23, highLabel: '支援的', lowLabel: '不十分' },
+  perceived_alternatives: { mean: 48, sd: 24, highLabel: '低い認知', lowLabel: '高い認知' }
+};
+
+/**
+ * @constant {Object}
+ * Inter-dimension correlation pairs based on meta-analytic findings.
+ * Each pair represents a strong empirical relationship between two dimensions.
+ * r: Pearson correlation coefficient from meta-analyses
+ * interpretation: Japanese description of the relationship
+ */
+const DIMENSION_CORRELATIONS = [
+  { dims: ['job_satisfaction', 'org_commitment'], r: 0.65, interpretation: '職務満足が高いほど組織コミットメントも高まる傾向があります' },
+  { dims: ['org_commitment', 'turnover_intention'], r: 0.58, interpretation: '組織コミットメントが低下すると離職意図が高まります' },
+  { dims: ['leadership', 'job_satisfaction'], r: 0.52, interpretation: 'リーダーシップの質は職務満足に強く影響します' },
+  { dims: ['work_life_balance', 'job_satisfaction'], r: 0.48, interpretation: 'ワークライフバランスは職務満足の重要な規定要因です' },
+  { dims: ['role_clarity', 'job_satisfaction'], r: 0.45, interpretation: '役割が明確なほど職務満足が高まります' },
+  { dims: ['po_fit', 'org_commitment'], r: 0.50, interpretation: '組織との価値観適合は帰属意識を強化します' },
+  { dims: ['career_dev', 'turnover_intention'], r: 0.42, interpretation: 'キャリア開発機会の不足は離職意図を高めます' },
+  { dims: ['job_embeddedness', 'turnover_intention'], r: 0.55, interpretation: '職務埋め込みが強いほど離職意図が抑制されます' },
+  { dims: ['leadership', 'org_commitment'], r: 0.47, interpretation: '上司のリーダーシップは組織への愛着に影響します' },
+  { dims: ['work_life_balance', 'turnover_intention'], r: 0.40, interpretation: 'ワークライフバランスの崩壊は離職の直接的な引き金になります' }
+];
+
+/**
+ * @constant {Object<string, Array>}
+ * Prioritized action templates for each dimension.
+ * Each action has timeframe (immediate/short/medium), effort level, and specific step.
+ */
+const ACTION_TEMPLATES = {
+  job_embeddedness: [
+    { timeframe: 'immediate', effort: 'low', action: 'チーム内の同僚と週1回のランチや雑談の時間を設ける', category: '人間関係' },
+    { timeframe: 'short', effort: 'medium', action: '部署横断プロジェクトやタスクフォースへの参加を申し出る', category: 'ネットワーク' },
+    { timeframe: 'medium', effort: 'high', action: 'メンター・メンティー関係を構築し、組織内での存在価値を高める', category: '帰属意識' }
+  ],
+  org_commitment: [
+    { timeframe: 'immediate', effort: 'low', action: '組織のミッション・ビジョンを再確認し、自分の仕事との接点を整理する', category: '理念理解' },
+    { timeframe: 'short', effort: 'medium', action: '経営層や他部署とのタウンホールミーティングに参加する', category: '組織理解' },
+    { timeframe: 'medium', effort: 'medium', action: '自分の貢献が組織全体にどう影響するかを可視化するレポートを作成する', category: '貢献実感' }
+  ],
+  turnover_intention: [
+    { timeframe: 'immediate', effort: 'low', action: '現在の不満要因を具体的にリストアップし、改善可能なものを特定する', category: '課題整理' },
+    { timeframe: 'short', effort: 'medium', action: '上司またはHR担当者とキャリア面談を設定し、懸念を率直に共有する', category: '対話' },
+    { timeframe: 'medium', effort: 'high', action: '社内異動や役割変更の可能性を探り、新鮮な挑戦の機会を見つける', category: '環境改善' }
+  ],
+  role_clarity: [
+    { timeframe: 'immediate', effort: 'low', action: '上司と15分の1on1で、今月の最優先事項トップ3を確認する', category: '優先順位' },
+    { timeframe: 'short', effort: 'medium', action: 'ジョブ・ディスクリプションを上司と共に見直し、期待値を明文化する', category: '職務定義' },
+    { timeframe: 'medium', effort: 'medium', action: '四半期ごとの目標設定・レビューサイクルを導入提案する', category: '制度化' }
+  ],
+  job_satisfaction: [
+    { timeframe: 'immediate', effort: 'low', action: '日々の業務で「やりがいを感じる瞬間」を記録し、パターンを把握する', category: '自己分析' },
+    { timeframe: 'short', effort: 'medium', action: 'ジョブ・クラフティング：自分の強みを活かせるタスクの割合を増やす交渉をする', category: '業務改善' },
+    { timeframe: 'medium', effort: 'high', action: '職場環境改善の提案書を作成し、具体的な改善アクションを実行する', category: '環境改善' }
+  ],
+  po_fit: [
+    { timeframe: 'immediate', effort: 'low', action: '自分の価値観と組織の理念の一致点・不一致点を書き出して整理する', category: '価値観分析' },
+    { timeframe: 'short', effort: 'medium', action: '社内の異なるチームや部署の文化を知るための情報収集を行う', category: '探索' },
+    { timeframe: 'medium', effort: 'high', action: 'キャリアカウンセリングを受け、最適な組織内配置を検討する', category: '適合改善' }
+  ],
+  career_dev: [
+    { timeframe: 'immediate', effort: 'low', action: '3年後のキャリアビジョンを書き出し、現在の業務との関連を整理する', category: 'ビジョン策定' },
+    { timeframe: 'short', effort: 'medium', action: '社内研修・資格取得支援・メンター制度など利用可能な制度を調査・申請する', category: 'スキルアップ' },
+    { timeframe: 'medium', effort: 'high', action: '新規プロジェクトのリードや越境的な役割に挑戦し、成長の機会を創出する', category: '挑戦' }
+  ],
+  work_life_balance: [
+    { timeframe: 'immediate', effort: 'low', action: '今週のタスクを緊急度と重要度でマトリクス分類し、不要なものを断る', category: '業務整理' },
+    { timeframe: 'short', effort: 'medium', action: '有給休暇を計画的に取得するスケジュールを立て、上司と共有する', category: '休息確保' },
+    { timeframe: 'medium', effort: 'high', action: '産業医・EAPカウンセラーとの面談を通じて、組織的な支援策を得る', category: '専門支援' }
+  ],
+  leadership: [
+    { timeframe: 'immediate', effort: 'low', action: '上司との定期的な1on1ミーティングを提案し、コミュニケーション頻度を高める', category: 'コミュニケーション' },
+    { timeframe: 'short', effort: 'medium', action: '具体的なフィードバックを上司に求め、成長支援の方向性をすり合わせる', category: 'フィードバック' },
+    { timeframe: 'medium', effort: 'high', action: '必要に応じてHR部門を介した調整や、別のマネージャーへの相談を検討する', category: '関係改善' }
+  ],
+  perceived_alternatives: [
+    { timeframe: 'immediate', effort: 'low', action: '現職の隠れたメリット（福利厚生、人間関係、学習機会）を棚卸しする', category: '再評価' },
+    { timeframe: 'short', effort: 'medium', action: '市場価値を正しく把握するため、社内でのスキル評価やフィードバックを受ける', category: '自己理解' },
+    { timeframe: 'medium', effort: 'medium', action: '現職での新たな挑戦や成長機会を見つけ、エンゲージメントを高める', category: 'エンゲージメント' }
+  ]
+};
+
+// ============================================================
 // 1. Meta-Analytic Weighted Scoring
 // Effect sizes from Griffeth et al. (2000) & Rubenstein et al. (2018)
 // ============================================================
@@ -657,5 +760,289 @@ const Scoring = {
     }
     text += '\n\u5b66\u8853\u7814\u7a76\u306b\u57fa\u3065\u304f\u9000\u8077\u30ea\u30b9\u30af\u8a3a\u65ad\u30c4\u30fc\u30eb';
     return text;
+  },
+
+  // ----------------------------------------------------------
+  // Phase 2: Question-level Score Retrieval
+  // ----------------------------------------------------------
+
+  /**
+   * 各質問のスコアを取得（正規化0-100）
+   * Returns individual question scores within a dimension for drill-down display.
+   *
+   * @param {Object<number, number>} answers - Map of question ID to answer value (1-5)
+   * @param {Object} dimension - Dimension object from DIMENSIONS
+   * @returns {Array<Object>} Array of {id, text, reversed, rawAnswer, processedScore}
+   */
+  getQuestionScores(answers, dimension) {
+    const results = [];
+    for (const q of dimension.questions) {
+      const rawAnswer = answers[q.id];
+      if (rawAnswer !== undefined) {
+        const processed = this.processAnswer(rawAnswer, q.reversed);
+        // Normalize single question: (processed - 1) / (5 - 1) * 100
+        const score = Math.round(((processed - 1) / 4) * 100);
+        results.push({
+          id: q.id,
+          text: q.text,
+          reversed: q.reversed,
+          rawAnswer: rawAnswer,
+          processedScore: score
+        });
+      }
+    }
+    return results;
+  },
+
+  // ----------------------------------------------------------
+  // Phase 2: Normative Percentile Comparison
+  // ----------------------------------------------------------
+
+  /**
+   * 次元スコアのパーセンタイルを算出
+   * Calculates how the score compares to population norms using z-score.
+   *
+   * @param {string} dimId - Dimension ID
+   * @param {number} score - Dimension score (0-100)
+   * @returns {Object} { percentile, deviation, label }
+   */
+  getDimensionPercentile(dimId, score) {
+    const norm = DIMENSION_NORMS[dimId];
+    if (!norm) return { percentile: 50, deviation: 0, label: '平均的' };
+
+    // z-score
+    const z = (score - norm.mean) / norm.sd;
+
+    // Approximate percentile from z-score using logistic approximation
+    // P(Z <= z) ≈ 1 / (1 + e^(-1.7 * z))
+    const percentile = Math.round(100 / (1 + Math.exp(-1.7 * z)));
+
+    let label;
+    if (percentile >= 85) label = '非常に高い';
+    else if (percentile >= 70) label = '高い';
+    else if (percentile >= 40) label = '平均的';
+    else if (percentile >= 15) label = '低い';
+    else label = '非常に低い';
+
+    return {
+      percentile: Math.max(1, Math.min(99, percentile)),
+      deviation: Math.round(z * 10) / 10,
+      label: label,
+      highLabel: norm.highLabel,
+      lowLabel: norm.lowLabel
+    };
+  },
+
+  // ----------------------------------------------------------
+  // Phase 2: Correlation-Based Insights
+  // ----------------------------------------------------------
+
+  /**
+   * 次元間の相関に基づくインサイトを生成
+   * Identifies relevant dimension correlations where both dimensions
+   * have notable scores (either both low or diverging).
+   *
+   * @param {Object<string, number>} dimensionScores - Map of dimension ID to score
+   * @returns {Array<Object>} Sorted array of relevant correlation insights
+   */
+  getCorrelationInsights(dimensionScores) {
+    const insights = [];
+
+    for (const corr of DIMENSION_CORRELATIONS) {
+      const dim1 = corr.dims[0];
+      const dim2 = corr.dims[1];
+      const score1 = dimensionScores[dim1];
+      const score2 = dimensionScores[dim2];
+
+      if (score1 === undefined || score2 === undefined) continue;
+
+      const dim1Name = DIMENSIONS.find(d => d.id === dim1);
+      const dim2Name = DIMENSIONS.find(d => d.id === dim2);
+      if (!dim1Name || !dim2Name) continue;
+
+      // Calculate relevance: both low = very relevant, diverging = interesting
+      let relevance = 0;
+      let type = '';
+
+      if (score1 < 50 && score2 < 50) {
+        // Both low - strong negative synergy
+        relevance = (100 - score1 + 100 - score2) * corr.r;
+        type = 'synergy_negative';
+      } else if (score1 >= 70 && score2 >= 70) {
+        // Both high - positive reinforcement
+        relevance = (score1 + score2 - 100) * corr.r * 0.5;
+        type = 'synergy_positive';
+      } else if (Math.abs(score1 - score2) > 25) {
+        // Diverging - unexpected pattern
+        relevance = Math.abs(score1 - score2) * corr.r * 0.7;
+        type = 'diverging';
+      }
+
+      if (relevance > 15) {
+        insights.push({
+          dim1Id: dim1,
+          dim2Id: dim2,
+          dim1Name: dim1Name.name,
+          dim2Name: dim2Name.name,
+          score1: score1,
+          score2: score2,
+          correlation: corr.r,
+          interpretation: corr.interpretation,
+          type: type,
+          relevance: relevance
+        });
+      }
+    }
+
+    // Sort by relevance descending, take top 5
+    insights.sort((a, b) => b.relevance - a.relevance);
+    return insights.slice(0, 5);
+  },
+
+  // ----------------------------------------------------------
+  // Phase 2: Personalized Action Plan Generation
+  // ----------------------------------------------------------
+
+  /**
+   * パーソナライズドアクションプランを生成
+   * Generates a prioritized list of concrete improvement actions based on:
+   * 1. Compound risk patterns (highest priority)
+   * 2. Meta-analytic weight × score gap (impact potential)
+   * 3. Demographic context
+   *
+   * @param {Object<string, number>} dimensionScores - Map of dimension ID to score
+   * @param {Array} compoundRisks - Detected compound risk patterns
+   * @param {Object|null} demographic - Demographic context
+   * @returns {Object} { priorities: Array, summary: string, urgency: string }
+   */
+  generateActionPlan(dimensionScores, compoundRisks, demographic) {
+    const priorities = [];
+
+    // Score all dimensions by impact potential:
+    // impactScore = META_WEIGHT * (100 - score) / 100
+    const dimImpacts = [];
+    for (const dim of DIMENSIONS) {
+      const score = dimensionScores[dim.id] || 0;
+      const weight = META_WEIGHTS[dim.id] || 0.1;
+      const gap = 100 - score;
+      const impact = weight * gap;
+      dimImpacts.push({ dimId: dim.id, dimName: dim.name, score: score, weight: weight, gap: gap, impact: impact });
+    }
+
+    // Sort by impact descending
+    dimImpacts.sort((a, b) => b.impact - a.impact);
+
+    // Add compound risk actions first (highest priority)
+    const handledDims = new Set();
+    if (compoundRisks && compoundRisks.length > 0) {
+      for (const risk of compoundRisks) {
+        priorities.push({
+          type: 'compound',
+          priority: 'critical',
+          title: risk.name + 'パターンへの対応',
+          description: risk.advice,
+          icon: risk.icon,
+          dimensions: risk.dimensions.slice(),
+          timeframe: 'immediate'
+        });
+        for (const dimId of risk.dimensions) {
+          handledDims.add(dimId);
+        }
+      }
+    }
+
+    // Add dimension-specific actions for top impact dimensions
+    for (const di of dimImpacts) {
+      if (di.score >= 70) continue; // Skip healthy dimensions
+      if (priorities.length >= 8) break; // Cap total actions
+
+      const templates = ACTION_TEMPLATES[di.dimId];
+      if (!templates) continue;
+
+      // Select the most appropriate template based on score severity
+      let templateIndex;
+      if (di.score < 30) templateIndex = 0; // Immediate action needed
+      else if (di.score < 50) templateIndex = 0;
+      else templateIndex = 1; // Short-term improvement
+
+      const template = templates[Math.min(templateIndex, templates.length - 1)];
+      const isCompoundHandled = handledDims.has(di.dimId);
+
+      priorities.push({
+        type: 'dimension',
+        priority: di.score < 40 ? 'high' : di.score < 60 ? 'medium' : 'low',
+        title: di.dimName + 'の改善',
+        description: template.action,
+        category: template.category,
+        timeframe: template.timeframe,
+        effort: template.effort,
+        dimId: di.dimId,
+        score: di.score,
+        impact: Math.round(di.impact * 100) / 100,
+        isCompoundRelated: isCompoundHandled,
+        allActions: templates
+      });
+    }
+
+    // Determine overall urgency
+    let urgency;
+    const weightedScore = this.calculateWeightedOverallScore(dimensionScores);
+    if (weightedScore < 40 || (compoundRisks && compoundRisks.some(r => r.severity === 'critical'))) {
+      urgency = 'critical';
+    } else if (weightedScore < 60) {
+      urgency = 'high';
+    } else if (weightedScore < 75) {
+      urgency = 'moderate';
+    } else {
+      urgency = 'low';
+    }
+
+    // Generate summary
+    let summary;
+    if (urgency === 'critical') {
+      summary = '緊急の対応が必要です。特に上位のアクションから優先的に取り組んでください。';
+    } else if (urgency === 'high') {
+      summary = '早期の改善が推奨されます。最も影響力の大きい次元から取り組むことで効率的な改善が見込めます。';
+    } else if (urgency === 'moderate') {
+      summary = 'いくつかの改善点があります。重点領域を絞って継続的に取り組みましょう。';
+    } else {
+      summary = '全体的に良好な状態です。さらなる向上のために、以下のポイントに注目してください。';
+    }
+
+    return {
+      priorities: priorities,
+      summary: summary,
+      urgency: urgency,
+      totalActions: priorities.length
+    };
+  },
+
+  // ----------------------------------------------------------
+  // Phase 2: Strength Analysis
+  // ----------------------------------------------------------
+
+  /**
+   * 強みの次元を特定
+   * @param {Object<string, number>} dimensionScores
+   * @returns {Array<Object>} Array of strength dimensions sorted by score desc
+   */
+  getStrengths(dimensionScores) {
+    const strengths = [];
+    for (const dim of DIMENSIONS) {
+      const score = dimensionScores[dim.id];
+      if (score >= 70) {
+        const percentile = this.getDimensionPercentile(dim.id, score);
+        strengths.push({
+          dimId: dim.id,
+          dimName: dim.name,
+          dimNameEn: dim.nameEn,
+          score: score,
+          percentile: percentile.percentile,
+          label: percentile.highLabel
+        });
+      }
+    }
+    strengths.sort((a, b) => b.score - a.score);
+    return strengths;
   }
 };

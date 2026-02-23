@@ -65,6 +65,13 @@
     trendCard: document.getElementById('trend-card'),
     trendSvg: document.getElementById('trend-svg'),
     trendSummary: document.getElementById('trend-summary'),
+    strengthsCard: document.getElementById('strengths-card'),
+    strengthsContent: document.getElementById('strengths-content'),
+    actionPlanCard: document.getElementById('action-plan-card'),
+    actionPlanContent: document.getElementById('action-plan-content'),
+    correlationCard: document.getElementById('correlation-card'),
+    correlationContent: document.getElementById('correlation-content'),
+    btnShareImage: document.getElementById('btn-share-image'),
     referencesContent: document.getElementById('references-content'),
     dimensionLabel: document.getElementById('dimension-label'),
     stepDots: [
@@ -453,8 +460,35 @@
     // Radar chart
     Charts.drawRadar(els.radarSvg, dimensionScores);
 
-    // Dimension bars
-    Charts.renderDimensionBars(els.dimensionDetails, dimensionScores);
+    // Strengths
+    var strengths = Scoring.getStrengths(dimensionScores);
+    if (els.strengthsContent && els.strengthsCard) {
+      if (strengths.length > 0) {
+        Charts.renderStrengths(els.strengthsContent, strengths);
+        els.strengthsCard.style.display = '';
+      } else {
+        els.strengthsCard.style.display = 'none';
+      }
+    }
+
+    // Dimension bars (interactive drill-down with question-level detail)
+    if (Charts.renderDimensionBarsInteractive) {
+      Charts.renderDimensionBarsInteractive(els.dimensionDetails, dimensionScores, state.answers);
+    } else {
+      Charts.renderDimensionBars(els.dimensionDetails, dimensionScores);
+    }
+
+    // Action Plan
+    var actionPlan = Scoring.generateActionPlan(dimensionScores, compoundRisks, state.demographic);
+    if (els.actionPlanContent) {
+      Charts.renderActionPlan(els.actionPlanContent, actionPlan);
+    }
+
+    // Correlation Insights
+    var correlationInsights = Scoring.getCorrelationInsights(dimensionScores);
+    if (els.correlationContent && els.correlationCard) {
+      Charts.renderCorrelationInsights(els.correlationContent, correlationInsights);
+    }
 
     // Advice
     Charts.renderAdvice(els.adviceContent, advice);
@@ -514,7 +548,7 @@
     });
 
     // Store results for sharing
-    state.lastResults = { overallScore: overallScore, weightedScore: weightedScore, dimensionScores: dimensionScores };
+    state.lastResults = { overallScore: overallScore, weightedScore: weightedScore, dimensionScores: dimensionScores, compoundRisks: compoundRisks };
   }
 
   // ---------- Share ----------
@@ -629,6 +663,43 @@
   // Home button
   if (els.btnHome) {
     els.btnHome.addEventListener('click', resetApp);
+  }
+
+  // Share image button
+  if (els.btnShareImage) {
+    els.btnShareImage.addEventListener('click', function () {
+      if (!state.lastResults) return;
+
+      var dataUrl = Charts.generateShareCard(state.lastResults);
+      if (!dataUrl) return;
+
+      // Try to download or open the image
+      var link = document.createElement('a');
+      link.download = 'retirement-risk-result.png';
+      link.href = dataUrl;
+
+      // For iOS Safari which doesn't support download attribute well
+      if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+        // Open in new tab for save
+        var win = window.open();
+        if (win) {
+          win.document.write('<img src="' + dataUrl + '" style="max-width:100%;height:auto;">');
+          win.document.title = '退職リスク診断結果';
+        }
+      } else {
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      // Visual feedback
+      var btn = els.btnShareImage;
+      var originalText = btn.innerHTML;
+      btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16"><path d="M20 6L9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> 保存しました';
+      setTimeout(function () {
+        btn.innerHTML = originalText;
+      }, 2000);
+    });
   }
 
   // Keyboard support for likert (accessibility)

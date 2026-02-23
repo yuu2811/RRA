@@ -1187,5 +1187,513 @@ const Charts = {
         });
       }, 250);
     }
+  },
+
+  // ============================================================
+  // Phase 2: Interactive Dimension Drill-Down
+  // ============================================================
+
+  /**
+   * Render interactive dimension bars that expand on tap to show question-level detail.
+   *
+   * @param {HTMLElement} container - DOM container
+   * @param {Object<string, number>} dimensionScores - Map of dim ID to score
+   * @param {Object<number, number>} answers - Map of question ID to answer value
+   */
+  renderDimensionBarsInteractive(container, dimensionScores, answers) {
+    container.innerHTML = '';
+    var self = this;
+
+    for (var di = 0; di < DIMENSIONS.length; di++) {
+      (function(dimIndex) {
+        var dim = DIMENSIONS[dimIndex];
+        var score = dimensionScores[dim.id];
+        var risk = Scoring.getRiskLevel(score);
+        var percentile = Scoring.getDimensionPercentile(dim.id, score);
+
+        var row = document.createElement('div');
+        row.className = 'dim-row dim-row-interactive';
+        row.setAttribute('data-dim-id', dim.id);
+
+        // Main bar (always visible)
+        var mainHTML = '';
+        mainHTML += '<div class="dim-header dim-header-tap">';
+        mainHTML += '<div class="dim-header-left">';
+        mainHTML += '<span class="dim-name">' + dim.name + '</span>';
+        mainHTML += '<span class="dim-percentile" style="color:var(--text-muted);font-size:10px;margin-left:6px;">上位' + (100 - percentile.percentile) + '%</span>';
+        mainHTML += '</div>';
+        mainHTML += '<div class="dim-header-right">';
+        mainHTML += '<span class="dim-score-text" style="color:' + risk.color + '"><span class="dim-score-num" data-target="' + score + '">0</span><small>/100</small></span>';
+        mainHTML += '<span class="dim-expand-icon" aria-hidden="true">&#9662;</span>';
+        mainHTML += '</div>';
+        mainHTML += '</div>';
+        mainHTML += '<div class="dim-bar-track">';
+        mainHTML += '<div class="dim-bar-fill" style="width:0%;background:' + risk.color + ';" data-target="' + score + '"></div>';
+        mainHTML += '</div>';
+
+        // Drill-down panel (hidden by default)
+        var drillHTML = '<div class="dim-drill-panel" style="display:none;">';
+        
+        // Description
+        drillHTML += '<p class="dim-drill-desc">' + dim.description + '</p>';
+
+        // Percentile bar
+        drillHTML += '<div class="dim-drill-percentile-row">';
+        drillHTML += '<span class="dim-drill-percentile-label">' + percentile.lowLabel + '</span>';
+        drillHTML += '<div class="dim-drill-percentile-track">';
+        drillHTML += '<div class="dim-drill-percentile-marker" style="left:' + percentile.percentile + '%;background:' + risk.color + ';"></div>';
+        drillHTML += '<div class="dim-drill-percentile-avg" style="left:50%;"></div>';
+        drillHTML += '</div>';
+        drillHTML += '<span class="dim-drill-percentile-label">' + percentile.highLabel + '</span>';
+        drillHTML += '</div>';
+
+        // Individual question scores
+        var questionScores = Scoring.getQuestionScores(answers, dim);
+        drillHTML += '<div class="dim-drill-questions">';
+        for (var qi = 0; qi < questionScores.length; qi++) {
+          var qs = questionScores[qi];
+          var qRisk = Scoring.getRiskLevel(qs.processedScore);
+          drillHTML += '<div class="dim-drill-q">';
+          drillHTML += '<div class="dim-drill-q-text">';
+          drillHTML += '<span class="dim-drill-q-num">Q' + qs.id + '</span> ' + qs.text;
+          if (qs.reversed) drillHTML += ' <span class="dim-drill-q-reversed" title="逆転項目">R</span>';
+          drillHTML += '</div>';
+          drillHTML += '<div class="dim-drill-q-bar-wrap">';
+          drillHTML += '<div class="dim-drill-q-bar" style="width:' + qs.processedScore + '%;background:' + qRisk.color + ';"></div>';
+          drillHTML += '</div>';
+          drillHTML += '<span class="dim-drill-q-score" style="color:' + qRisk.color + '">' + qs.processedScore + '</span>';
+          drillHTML += '</div>';
+        }
+        drillHTML += '</div>';
+
+        // Academic reference
+        drillHTML += '<div class="dim-drill-ref">' + dim.reference + '</div>';
+        drillHTML += '</div>';
+
+        row.innerHTML = mainHTML + drillHTML;
+        container.appendChild(row);
+
+        // Tap handler for drill-down
+        var header = row.querySelector('.dim-header-tap');
+        header.addEventListener('click', function() {
+          var panel = row.querySelector('.dim-drill-panel');
+          var icon = row.querySelector('.dim-expand-icon');
+          var isOpen = panel.style.display !== 'none';
+          
+          if (isOpen) {
+            panel.style.maxHeight = panel.scrollHeight + 'px';
+            requestAnimationFrame(function() {
+              panel.style.transition = 'max-height 0.3s ease-out, opacity 0.2s ease-out';
+              panel.style.maxHeight = '0px';
+              panel.style.opacity = '0';
+            });
+            setTimeout(function() {
+              panel.style.display = 'none';
+              panel.style.transition = '';
+              panel.style.maxHeight = '';
+              panel.style.opacity = '';
+            }, 300);
+            icon.style.transform = 'rotate(0deg)';
+            row.classList.remove('dim-row-expanded');
+          } else {
+            panel.style.display = 'block';
+            panel.style.maxHeight = '0px';
+            panel.style.opacity = '0';
+            panel.style.overflow = 'hidden';
+            requestAnimationFrame(function() {
+              requestAnimationFrame(function() {
+                panel.style.transition = 'max-height 0.4s ease-out, opacity 0.3s ease-out';
+                panel.style.maxHeight = panel.scrollHeight + 'px';
+                panel.style.opacity = '1';
+              });
+            });
+            setTimeout(function() {
+              panel.style.maxHeight = 'none';
+              panel.style.overflow = '';
+            }, 450);
+            icon.style.transform = 'rotate(180deg)';
+            row.classList.add('dim-row-expanded');
+          }
+        });
+      })(di);
+    }
+
+    // Animate bars with staggered cascade
+    requestAnimationFrame(function() {
+      var bars = container.querySelectorAll('.dim-bar-fill');
+      var nums = container.querySelectorAll('.dim-score-num');
+
+      bars.forEach(function(bar, i) {
+        var target = parseInt(bar.dataset.target);
+        var delay = i * 100;
+        var duration = 1000;
+
+        setTimeout(function() {
+          var startTime = performance.now();
+
+          function tick(now) {
+            var elapsed = now - startTime;
+            var t = Math.min(elapsed / duration, 1);
+            var eased = self._bounceOut(t);
+
+            bar.style.transition = 'none';
+            bar.style.width = (target * eased) + '%';
+
+            if (nums[i]) {
+              nums[i].textContent = Math.round(target * Math.min(t * 1.2, 1));
+            }
+
+            if (t < 1) {
+              requestAnimationFrame(tick);
+            } else {
+              bar.style.width = target + '%';
+              if (nums[i]) nums[i].textContent = target;
+            }
+          }
+          requestAnimationFrame(tick);
+        }, delay);
+      });
+    });
+  },
+
+  // ============================================================
+  // Phase 2: Action Plan Rendering
+  // ============================================================
+
+  /**
+   * Render personalized action plan with priority ordering and visual hierarchy.
+   *
+   * @param {HTMLElement} container - DOM container
+   * @param {Object} actionPlan - From Scoring.generateActionPlan()
+   */
+  renderActionPlan(container, actionPlan) {
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (!actionPlan || actionPlan.priorities.length === 0) {
+      container.innerHTML = '<div style="text-align:center;padding:24px 16px;color:var(--green);font-size:14px;">' +
+        '<span style="font-size:24px;display:block;margin-bottom:8px;">\u2728</span>' +
+        '\u5168\u4f53\u7684\u306b\u826f\u597d\u306a\u72b6\u614b\u3067\u3059\u3002\u73fe\u5728\u306e\u53d6\u308a\u7d44\u307f\u3092\u7d99\u7d9a\u3057\u3066\u304f\u3060\u3055\u3044\u3002' +
+        '</div>';
+      return;
+    }
+
+    // Urgency badge
+    var urgencyColors = { critical: '#ef4444', high: '#f97316', moderate: '#eab308', low: '#22c55e' };
+    var urgencyLabels = { critical: '\u7dca\u6025', high: '\u91cd\u8981', moderate: '\u901a\u5e38', low: '\u826f\u597d' };
+    var uColor = urgencyColors[actionPlan.urgency] || '#eab308';
+    var uLabel = urgencyLabels[actionPlan.urgency] || '\u901a\u5e38';
+
+    var headerHTML = '<div class="action-plan-header">';
+    headerHTML += '<span class="action-plan-urgency-badge" style="background:' + uColor + '20;color:' + uColor + ';">' + uLabel + '</span>';
+    headerHTML += '<p class="action-plan-summary">' + actionPlan.summary + '</p>';
+    headerHTML += '</div>';
+    container.insertAdjacentHTML('beforeend', headerHTML);
+
+    // Action items
+    for (var i = 0; i < actionPlan.priorities.length; i++) {
+      var item = actionPlan.priorities[i];
+      var card = document.createElement('div');
+      
+      if (item.type === 'compound') {
+        card.className = 'action-plan-item action-plan-compound';
+        card.innerHTML =
+          '<div class="action-plan-item-header">' +
+            '<span class="action-plan-num" style="background:' + urgencyColors.critical + '20;color:' + urgencyColors.critical + ';">' + (i + 1) + '</span>' +
+            '<span class="action-plan-item-icon">' + (item.icon || '\u26A0\uFE0F') + '</span>' +
+            '<span class="action-plan-item-title">' + item.title + '</span>' +
+          '</div>' +
+          '<p class="action-plan-item-desc">' + item.description + '</p>';
+      } else {
+        var pColor = item.priority === 'high' ? urgencyColors.high : item.priority === 'medium' ? urgencyColors.moderate : '#6366f1';
+        var timeframeLabel = item.timeframe === 'immediate' ? '\u4eca\u3059\u3050' : item.timeframe === 'short' ? '1-2\u9031\u9593' : '1-3\u30f6\u6708';
+        var effortLabel = item.effort === 'low' ? '\u4f4e' : item.effort === 'medium' ? '\u4e2d' : '\u9ad8';
+        
+        card.className = 'action-plan-item';
+        card.innerHTML =
+          '<div class="action-plan-item-header">' +
+            '<span class="action-plan-num" style="background:' + pColor + '20;color:' + pColor + ';">' + (i + 1) + '</span>' +
+            '<div class="action-plan-item-title-group">' +
+              '<span class="action-plan-item-title">' + item.title + '</span>' +
+              (item.score !== undefined ? '<span class="action-plan-item-score" style="color:' + Scoring.getRiskLevel(item.score).color + ';">' + item.score + '/100</span>' : '') +
+            '</div>' +
+          '</div>' +
+          '<p class="action-plan-item-desc">' + item.description + '</p>' +
+          '<div class="action-plan-meta">' +
+            '<span class="action-plan-tag">\u26F3 ' + timeframeLabel + '</span>' +
+            '<span class="action-plan-tag">\u2699\uFE0F \u52AA\u529B\u5EA6:' + effortLabel + '</span>' +
+            (item.category ? '<span class="action-plan-tag">' + item.category + '</span>' : '') +
+          '</div>';
+      }
+
+      // Staggered entrance animation
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(8px)';
+      card.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
+      container.appendChild(card);
+      
+      (function(el, delay) {
+        setTimeout(function() {
+          requestAnimationFrame(function() {
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+          });
+        }, delay);
+      })(card, i * 80 + 100);
+    }
+  },
+
+  // ============================================================
+  // Phase 2: Correlation Insights Rendering
+  // ============================================================
+
+  /**
+   * Render correlation-based insights between dimensions.
+   *
+   * @param {HTMLElement} container - DOM container
+   * @param {Array} insights - From Scoring.getCorrelationInsights()
+   */
+  renderCorrelationInsights(container, insights) {
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (!insights || insights.length === 0) {
+      container.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:13px;">' +
+        '\u7279\u7b46\u3059\u3079\u304d\u6b21\u5143\u9593\u306e\u30d1\u30bf\u30fc\u30f3\u306f\u691c\u51fa\u3055\u308C\u307E\u305B\u3093\u3067\u3057\u305F' +
+        '</div>';
+      return;
+    }
+
+    for (var i = 0; i < insights.length; i++) {
+      var ins = insights[i];
+      var risk1 = Scoring.getRiskLevel(ins.score1);
+      var risk2 = Scoring.getRiskLevel(ins.score2);
+      
+      var typeIcon, typeBg;
+      if (ins.type === 'synergy_negative') {
+        typeIcon = '\u26A0\uFE0F';
+        typeBg = 'rgba(239,68,68,0.06)';
+      } else if (ins.type === 'synergy_positive') {
+        typeIcon = '\u2705';
+        typeBg = 'rgba(34,197,94,0.06)';
+      } else {
+        typeIcon = '\uD83D\uDD0D';
+        typeBg = 'rgba(99,102,241,0.06)';
+      }
+
+      var card = document.createElement('div');
+      card.className = 'correlation-insight-card';
+      card.style.background = typeBg;
+      
+      card.innerHTML =
+        '<div class="correlation-insight-header">' +
+          '<span class="correlation-insight-icon">' + typeIcon + '</span>' +
+          '<div class="correlation-insight-dims">' +
+            '<span class="correlation-dim-badge" style="color:' + risk1.color + '">' + ins.dim1Name + ' <small>' + ins.score1 + '</small></span>' +
+            '<span class="correlation-arrow">\u2194</span>' +
+            '<span class="correlation-dim-badge" style="color:' + risk2.color + '">' + ins.dim2Name + ' <small>' + ins.score2 + '</small></span>' +
+          '</div>' +
+        '</div>' +
+        '<p class="correlation-insight-text">' + ins.interpretation + '</p>' +
+        '<div class="correlation-strength">\u76F8\u95A2\u4FC2\u6570: r=' + ins.correlation.toFixed(2) + '</div>';
+
+      container.appendChild(card);
+    }
+  },
+
+  // ============================================================
+  // Phase 2: Strengths Display
+  // ============================================================
+
+  /**
+   * Render strengths section showing high-scoring dimensions.
+   *
+   * @param {HTMLElement} container - DOM container
+   * @param {Array} strengths - From Scoring.getStrengths()
+   */
+  renderStrengths(container, strengths) {
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (!strengths || strengths.length === 0) return;
+
+    var html = '<div class="strengths-grid">';
+    for (var i = 0; i < strengths.length; i++) {
+      var s = strengths[i];
+      var risk = Scoring.getRiskLevel(s.score);
+      html += '<div class="strength-badge">';
+      html += '<span class="strength-score" style="color:' + risk.color + '">' + s.score + '</span>';
+      html += '<span class="strength-name">' + s.dimName + '</span>';
+      html += '<span class="strength-label">' + s.label + '</span>';
+      html += '</div>';
+    }
+    html += '</div>';
+    container.innerHTML = html;
+  },
+
+  // ============================================================
+  // Phase 2: Share Card Image Generation
+  // ============================================================
+
+  /**
+   * Generate a shareable result card image using Canvas API.
+   *
+   * @param {Object} results - { overallScore, weightedScore, dimensionScores, compoundRisks }
+   * @returns {string|null} Data URL of the generated PNG, or null if canvas unavailable
+   */
+  generateShareCard(results) {
+    if (!results) return null;
+
+    var canvas = document.createElement('canvas');
+    var w = 600, h = 800;
+    canvas.width = w;
+    canvas.height = h;
+    var ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+
+    // Background
+    var bgGrad = ctx.createLinearGradient(0, 0, w, h);
+    bgGrad.addColorStop(0, '#07071a');
+    bgGrad.addColorStop(0.5, '#0e0e24');
+    bgGrad.addColorStop(1, '#07071a');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, w, h);
+
+    // Decorative orbs
+    ctx.globalAlpha = 0.08;
+    var orbGrad = ctx.createRadialGradient(100, 100, 0, 100, 100, 200);
+    orbGrad.addColorStop(0, '#818cf8');
+    orbGrad.addColorStop(1, 'transparent');
+    ctx.fillStyle = orbGrad;
+    ctx.fillRect(0, 0, 300, 300);
+
+    var orbGrad2 = ctx.createRadialGradient(500, 700, 0, 500, 700, 180);
+    orbGrad2.addColorStop(0, '#7c3aed');
+    orbGrad2.addColorStop(1, 'transparent');
+    ctx.fillStyle = orbGrad2;
+    ctx.fillRect(300, 550, 300, 250);
+    ctx.globalAlpha = 1;
+
+    // Title
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#a5b4fc';
+    ctx.font = 'bold 14px -apple-system, sans-serif';
+    ctx.fillText('RETIREMENT RISK ASSESSMENT', w / 2, 50);
+
+    ctx.fillStyle = '#f0f0f5';
+    ctx.font = 'bold 28px -apple-system, sans-serif';
+    ctx.fillText('\u9000\u8077\u30EA\u30B9\u30AF\u8A3A\u65AD\u7D50\u679C', w / 2, 90);
+
+    // Gauge circle
+    var risk = Scoring.getRiskLevel(results.weightedScore);
+    var cx = w / 2, cy = 200, gaugeR = 70;
+    
+    // Background arc
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = 8;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.arc(cx, cy, gaugeR, Math.PI * 0.75, Math.PI * 2.25);
+    ctx.stroke();
+
+    // Score arc
+    var scoreAngle = Math.PI * 0.75 + (Math.PI * 1.5) * (results.weightedScore / 100);
+    ctx.strokeStyle = risk.color;
+    ctx.lineWidth = 8;
+    ctx.beginPath();
+    ctx.arc(cx, cy, gaugeR, Math.PI * 0.75, scoreAngle);
+    ctx.stroke();
+
+    // Score number
+    ctx.fillStyle = '#f0f0f5';
+    ctx.font = 'bold 48px -apple-system, sans-serif';
+    ctx.fillText(String(results.weightedScore), cx, cy + 10);
+    
+    ctx.fillStyle = '#6b6b80';
+    ctx.font = '14px -apple-system, sans-serif';
+    ctx.fillText('/100', cx, cy + 32);
+
+    // Risk label
+    ctx.fillStyle = risk.color;
+    ctx.font = 'bold 18px -apple-system, sans-serif';
+    ctx.fillText(risk.label, cx, cy + 65);
+
+    // Dimension bars
+    var barStartY = 310;
+    var barLeft = 60;
+    var barWidth = w - 120;
+    
+    ctx.textAlign = 'left';
+    ctx.font = '12px -apple-system, sans-serif';
+    ctx.fillStyle = '#a0a0b8';
+    ctx.fillText('\u6B21\u5143\u5225\u30B9\u30B3\u30A2', barLeft, barStartY - 10);
+
+    for (var di = 0; di < DIMENSIONS.length; di++) {
+      var dim = DIMENSIONS[di];
+      var score = results.dimensionScores[dim.id] || 0;
+      var dimRisk = Scoring.getRiskLevel(score);
+      var y = barStartY + di * 38;
+
+      // Name
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#f0f0f5';
+      ctx.font = '13px -apple-system, sans-serif';
+      ctx.fillText(dim.name, barLeft, y + 12);
+
+      // Score
+      ctx.textAlign = 'right';
+      ctx.fillStyle = dimRisk.color;
+      ctx.font = 'bold 14px -apple-system, sans-serif';
+      ctx.fillText(String(score), barLeft + barWidth, y + 12);
+
+      // Bar track
+      var barY = y + 18;
+      ctx.fillStyle = 'rgba(255,255,255,0.06)';
+      roundRect(ctx, barLeft, barY, barWidth, 4, 2);
+      ctx.fill();
+
+      // Bar fill
+      ctx.fillStyle = dimRisk.color;
+      var fillW = Math.max(2, barWidth * score / 100);
+      roundRect(ctx, barLeft, barY, fillW, 4, 2);
+      ctx.fill();
+    }
+
+    // Compound risks (if any)
+    if (results.compoundRisks && results.compoundRisks.length > 0) {
+      var crY = barStartY + DIMENSIONS.length * 38 + 20;
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#ef4444';
+      ctx.font = 'bold 12px -apple-system, sans-serif';
+      ctx.fillText('\u26A0\uFE0F \u691C\u51FA\u30EA\u30B9\u30AF: ' + results.compoundRisks.map(function(r) { return r.name; }).join(', '), barLeft, crY);
+    }
+
+    // Footer
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#6b6b80';
+    ctx.font = '11px -apple-system, sans-serif';
+    ctx.fillText('\u5B66\u8853\u7814\u7A76\u306B\u57FA\u3065\u304F\u9000\u8077\u30EA\u30B9\u30AF\u8A3A\u65AD\u30C4\u30FC\u30EB v2.1', w / 2, h - 30);
+
+    // Rounded rect helper
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
+
+    try {
+      return canvas.toDataURL('image/png');
+    } catch(e) {
+      return null;
+    }
   }
+
 };

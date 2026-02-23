@@ -935,6 +935,515 @@ body::after {
   background: rgba(99, 102, 241, 0.3);
 }
 
+/* ---------- Demographic Screen ---------- */
+.demographic-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 24px var(--viewport-padding);
+  padding-top: calc(var(--safe-top) + 48px);
+  padding-bottom: calc(var(--safe-bottom) + 32px);
+  text-align: center;
+  gap: 16px;
+}
+
+.demographic-title {
+  font-size: 24px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--accent-tertiary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 4px;
+}
+
+.demographic-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.demographic-card {
+  text-align: left;
+  margin-bottom: 8px;
+}
+
+.demographic-field {
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.demographic-field:last-child {
+  border-bottom: none;
+  padding-bottom: 8px;
+}
+
+.demographic-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  letter-spacing: 0.02em;
+}
+
+.select-wrapper {
+  position: relative;
+}
+
+.select-wrapper::after {
+  content: '';
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid var(--text-muted);
+  pointer-events: none;
+}
+
+.demographic-select {
+  width: 100%;
+  padding: 14px 40px 14px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 15px;
+  font-family: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+  min-height: 48px;
+}
+
+.demographic-select:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  background: rgba(99, 102, 241, 0.06);
+}
+
+.demographic-select option {
+  background: #1a1a2e;
+  color: var(--text-primary);
+}
+
+/* ---------- Weighted Score Card ---------- */
+.weighted-card {
+  max-width: var(--card-max-width);
+}
+
+.weighted-comparison {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 16px 0;
+}
+
+.weighted-score-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.weighted-score-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+.weighted-score-value {
+  font-size: 36px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.weighted-score-value.primary {
+  font-size: 42px;
+}
+
+.weighted-score-diff {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.weighted-explanation {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.6;
+  margin-top: 8px;
+}
+
+/* ---------- Compound Risk Patterns ---------- */
+.compound-card {
+  max-width: var(--card-max-width);
+}
+
+.compound-risks-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.compound-risk-card {
+  padding: 18px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: var(--radius-sm);
+  border-left: 4px solid var(--accent-primary);
+}
+
+.compound-risk-card.severity-critical {
+  border-left-color: var(--red);
+  background: rgba(239, 68, 68, 0.04);
+}
+
+.compound-risk-card.severity-high {
+  border-left-color: var(--orange);
+  background: rgba(249, 115, 22, 0.04);
+}
+
+.compound-risk-card.severity-moderate {
+  border-left-color: var(--yellow);
+  background: rgba(234, 179, 8, 0.04);
+}
+
+.compound-risk-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.compound-risk-icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.compound-risk-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.compound-risk-name-en {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 500;
+  display: block;
+}
+
+.compound-risk-severity-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.04em;
+}
+
+.compound-risk-severity-badge.severity-critical {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--red);
+}
+
+.compound-risk-severity-badge.severity-high {
+  background: rgba(249, 115, 22, 0.15);
+  color: var(--orange);
+}
+
+.compound-risk-severity-badge.severity-moderate {
+  background: rgba(234, 179, 8, 0.15);
+  color: var(--yellow);
+}
+
+.compound-risk-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  margin-bottom: 12px;
+}
+
+.compound-risk-dimensions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.compound-risk-dim {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+}
+
+.compound-risk-advice {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.compound-risk-advice-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-secondary);
+  margin-bottom: 6px;
+  letter-spacing: 0.04em;
+}
+
+.compound-risk-academic {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 10px;
+  opacity: 0.7;
+  font-style: italic;
+}
+
+.no-compound-risks {
+  font-size: 14px;
+  color: var(--green);
+  text-align: center;
+  padding: 20px 16px;
+  line-height: 1.7;
+}
+
+/* ---------- History Entry List ---------- */
+.history-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.history-entry:last-child {
+  border-bottom: none;
+}
+
+.history-date {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.history-scores {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.history-score {
+  font-size: 18px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.history-trend {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* ---------- Demographic Context Rendering ---------- */
+.demographic-comparison {
+  padding: 8px 0;
+}
+
+.demo-score-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.demo-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.demo-score {
+  font-size: 28px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.demo-notes {
+  padding: 10px 0;
+}
+
+.demo-notes ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.demo-notes li {
+  font-size: 12px;
+  color: var(--text-muted);
+  padding-left: 12px;
+  position: relative;
+}
+
+.demo-notes li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 7px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent-secondary);
+}
+
+/* ---------- Trend Chart ---------- */
+.trend-card {
+  max-width: var(--card-max-width);
+}
+
+.trend-chart-container {
+  width: 100%;
+  overflow: hidden;
+}
+
+#trend-svg {
+  width: 100%;
+  height: auto;
+}
+
+.trend-summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding-top: 12px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.trend-arrow {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.trend-arrow.improving { color: var(--green); }
+.trend-arrow.declining { color: var(--red); }
+.trend-arrow.stable { color: var(--text-muted); }
+
+.trend-change {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- History Summary ---------- */
+.history-summary-container {
+  width: 100%;
+  max-width: var(--card-max-width);
+  margin-bottom: 16px;
+}
+
+.history-summary-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(40px) saturate(1.5);
+  -webkit-backdrop-filter: blur(40px) saturate(1.5);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.history-summary-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.history-summary-header {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+
+.history-summary-score {
+  font-size: 28px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.history-summary-date {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.history-summary-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.history-trend-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+}
+
+.history-trend-badge.improving {
+  background: rgba(34, 197, 94, 0.12);
+  color: var(--green);
+}
+
+.history-trend-badge.declining {
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--red);
+}
+
+.history-trend-badge.stable {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-muted);
+}
+
+.btn-view-history {
+  font-size: 12px;
+  color: var(--accent-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  padding: 4px 0;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* ==========================================================================
    Media Queries - iPhone 16 Pro First, then accommodate others
    ========================================================================== */

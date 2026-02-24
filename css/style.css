@@ -1,6 +1,7 @@
 /* ==========================================================================
-   退職リスク診断 - iPhone 16 Pro Optimized Stylesheet
-   Primary target: 393px viewport, 6.3" OLED, Dynamic Island, ProMotion 120Hz
+   退職リスク診断 - Universal Smartphone Optimized Stylesheet
+   Target: All smartphones 320px-480px+, iOS & Android, all browsers
+   Accessibility: WCAG AA compliant, optimized for 60+ age users
    ========================================================================== */
 
 /* ---------- CSS Custom Properties ---------- */
@@ -13,8 +14,8 @@
   --border-card: rgba(255, 255, 255, 0.08);
   --border-card-strong: rgba(255, 255, 255, 0.12);
   --text-primary: #f0f0f5;
-  --text-secondary: #a0a0b8;
-  --text-muted: #6b6b80;
+  --text-secondary: #b0b0c8;
+  --text-muted: #7a7a96;
   --accent-primary: #6366f1;
   --accent-secondary: #818cf8;
   --accent-tertiary: #a5b4fc;
@@ -37,8 +38,8 @@
   --transition-medium: 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
   --transition-slow: 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
   --transition-spring: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-  --viewport-padding: 20px;
-  --card-max-width: 353px; /* 393 - 20*2 = 353px, fits perfectly in 393px viewport */
+  --viewport-padding: clamp(16px, 5vw, 28px);
+  --card-max-width: min(calc(100vw - var(--viewport-padding) * 2), 480px);
 }
 
 /* Light mode override */
@@ -77,7 +78,8 @@ body {
   font-family:
     -apple-system, BlinkMacSystemFont,
     'Hiragino Kaku Gothic ProN', 'Hiragino Sans',
-    'Noto Sans JP', Meiryo, sans-serif;
+    'Noto Sans JP', Roboto, 'Segoe UI',
+    Meiryo, sans-serif;
   background: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.7;
@@ -240,7 +242,7 @@ body::after {
 }
 
 .app-title {
-  font-size: 30px;
+  font-size: clamp(28px, 7.5vw, 36px);
   font-weight: 800;
   letter-spacing: 0.01em;
   background: linear-gradient(135deg, var(--accent-tertiary) 0%, var(--accent-secondary) 40%, var(--accent-primary) 100%);
@@ -251,7 +253,7 @@ body::after {
 }
 
 .app-subtitle {
-  font-size: 12px;
+  font-size: clamp(11px, 3vw, 14px);
   color: var(--text-muted);
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -279,11 +281,11 @@ body::after {
 }
 
 .intro-text {
-  font-size: 15px;
+  font-size: clamp(15px, 4vw, 18px);
   color: var(--text-secondary);
   margin-bottom: 24px;
-  line-height: 1.8;
-  letter-spacing: 0.01em;
+  line-height: 1.85;
+  letter-spacing: 0.02em;
 }
 
 .intro-text strong {
@@ -300,10 +302,10 @@ body::after {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 10px 0;
-  font-size: 14px;
+  padding: 12px 0;
+  font-size: clamp(14px, 3.8vw, 17px);
   color: var(--text-secondary);
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 }
 
@@ -331,10 +333,10 @@ body::after {
   gap: 10px;
   width: 100%;
   max-width: var(--card-max-width);
-  padding: 18px 32px;
+  padding: clamp(18px, 4.5vw, 24px) 32px;
   background: linear-gradient(135deg, var(--accent-primary) 0%, #7c3aed 100%);
   color: #fff;
-  font-size: 17px;
+  font-size: clamp(17px, 4.5vw, 21px);
   font-weight: 700;
   border: none;
   border-radius: var(--radius-full);
@@ -385,13 +387,13 @@ body::after {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 14px 28px;
+  padding: clamp(14px, 3.5vw, 20px) 28px;
   background: var(--bg-card);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   color: var(--text-secondary);
-  font-size: 15px;
-  font-weight: 500;
+  font-size: clamp(15px, 4vw, 18px);
+  font-weight: 600;
   border: 1px solid var(--border-card);
   border-radius: var(--radius-full);
   cursor: pointer;
@@ -401,7 +403,7 @@ body::after {
     border-color var(--transition-fast);
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
-  min-height: 48px;
+  min-height: 52px;
   letter-spacing: 0.01em;
 }
 
@@ -413,9 +415,9 @@ body::after {
 
 .privacy-note {
   margin-top: 24px;
-  font-size: 12px;
+  font-size: clamp(12px, 3.2vw, 14px);
   color: var(--text-muted);
-  line-height: 1.5;
+  line-height: 1.6;
   letter-spacing: 0.02em;
 }
 
@@ -448,31 +450,31 @@ body::after {
 }
 
 .progress-category {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: clamp(14px, 3.8vw, 17px);
+  font-weight: 700;
   color: var(--accent-secondary);
   letter-spacing: 0.02em;
 }
 
 .progress-count {
-  font-size: 13px;
-  color: var(--text-muted);
+  font-size: clamp(14px, 3.8vw, 17px);
+  color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
-  font-weight: 500;
+  font-weight: 700;
 }
 
 .progress-bar-track {
   width: 100%;
-  height: 3px;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 1.5px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
   overflow: hidden;
 }
 
 .progress-bar-fill {
   height: 100%;
   background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
-  border-radius: 1.5px;
+  border-radius: 3px;
   transition: width var(--transition-medium);
   will-change: width;
   box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
@@ -500,31 +502,30 @@ body::after {
 }
 
 .question-number {
-  font-size: 12px;
+  font-size: clamp(13px, 3.5vw, 16px);
   color: var(--accent-secondary);
   margin-bottom: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
 .question-text {
-  font-size: 19px;
+  font-size: clamp(20px, 5.5vw, 28px);
   font-weight: 700;
-  line-height: 1.7;
+  line-height: 1.75;
   color: var(--text-primary);
-  margin-bottom: 36px;
-  letter-spacing: 0.01em;
+  margin-bottom: clamp(28px, 8vw, 40px);
+  letter-spacing: 0.02em;
   word-break: auto-phrase;
-  /* Ensure text is easy to read on OLED */
   text-shadow: 0 0 40px rgba(0, 0, 0, 0.3);
 }
 
 /* ---------- Likert Scale ---------- */
 .likert-scale {
   display: flex;
-  gap: 8px;
+  gap: clamp(6px, 1.8vw, 12px);
   width: 100%;
 }
 
@@ -534,13 +535,13 @@ body::after {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  /* Min 44px touch target for Apple HIG, generous vertical for thumb tapping */
-  padding: 16px 4px 14px;
-  min-height: 80px;
-  min-width: 44px;
+  gap: clamp(6px, 1.5vw, 10px);
+  /* Large touch target for universal accessibility (WCAG 2.5.8 Target Size) */
+  padding: clamp(14px, 3.5vw, 22px) clamp(4px, 1vw, 8px) clamp(12px, 3vw, 18px);
+  min-height: clamp(88px, 24vw, 120px);
+  min-width: 48px;
   background: rgba(255, 255, 255, 0.03);
-  border: 2px solid rgba(255, 255, 255, 0.07);
+  border: 2px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition:
@@ -553,6 +554,13 @@ body::after {
   position: relative;
   overflow: hidden;
 }
+
+/* Subtle scale-intensity tint per button (visual aid for intuitive scale reading) */
+.likert-btn[data-value="1"] { border-bottom: 3px solid rgba(156, 163, 175, 0.15); }
+.likert-btn[data-value="2"] { border-bottom: 3px solid rgba(156, 163, 175, 0.22); }
+.likert-btn[data-value="3"] { border-bottom: 3px solid rgba(129, 140, 248, 0.25); }
+.likert-btn[data-value="4"] { border-bottom: 3px solid rgba(129, 140, 248, 0.35); }
+.likert-btn[data-value="5"] { border-bottom: 3px solid rgba(129, 140, 248, 0.50); }
 
 .likert-btn::before {
   content: '';
@@ -570,11 +578,12 @@ body::after {
 }
 
 .likert-btn.selected {
-  background: rgba(99, 102, 241, 0.12);
+  background: rgba(99, 102, 241, 0.14);
   border-color: var(--accent-primary);
+  border-bottom-color: var(--accent-primary);
   box-shadow:
-    0 0 20px rgba(99, 102, 241, 0.25),
-    0 0 0 1px rgba(99, 102, 241, 0.3) inset;
+    0 0 24px rgba(99, 102, 241, 0.30),
+    0 0 0 1px rgba(99, 102, 241, 0.4) inset;
   animation: selectedPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -583,8 +592,8 @@ body::after {
 }
 
 .likert-value {
-  font-size: 22px;
-  font-weight: 800;
+  font-size: clamp(24px, 7vw, 34px);
+  font-weight: 900;
   color: var(--text-muted);
   transition: color var(--transition-fast), transform var(--transition-fast);
   line-height: 1;
@@ -596,12 +605,13 @@ body::after {
 }
 
 .likert-label {
-  font-size: 10px;
-  line-height: 1.35;
-  color: var(--text-muted);
+  font-size: clamp(10px, 2.8vw, 14px);
+  line-height: 1.4;
+  color: var(--text-secondary);
   text-align: center;
   transition: color var(--transition-fast);
   letter-spacing: 0.02em;
+  font-weight: 600;
 }
 
 .likert-btn.selected .likert-label {
@@ -638,7 +648,7 @@ body::after {
 }
 
 .result-title {
-  font-size: 26px;
+  font-size: clamp(26px, 7vw, 34px);
   font-weight: 800;
   text-align: center;
   background: linear-gradient(135deg, var(--accent-tertiary), var(--accent-secondary), var(--accent-primary));
@@ -673,7 +683,7 @@ body::after {
 }
 
 .gauge-score {
-  font-size: 52px;
+  font-size: clamp(52px, 14vw, 72px);
   font-weight: 900;
   font-variant-numeric: tabular-nums;
   line-height: 1;
@@ -682,14 +692,14 @@ body::after {
 }
 
 .gauge-max {
-  font-size: 14px;
+  font-size: clamp(14px, 3.8vw, 18px);
   color: var(--text-muted);
   margin-top: 4px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .risk-level {
-  font-size: 22px;
+  font-size: clamp(22px, 6vw, 30px);
   font-weight: 800;
   margin-bottom: 12px;
   letter-spacing: 0.02em;
@@ -701,10 +711,10 @@ body::after {
 .risk-level.high { color: var(--red); }
 
 .risk-description {
-  font-size: 14px;
+  font-size: clamp(14px, 3.8vw, 17px);
   color: var(--text-secondary);
-  line-height: 1.8;
-  letter-spacing: 0.01em;
+  line-height: 1.85;
+  letter-spacing: 0.02em;
   text-align: left;
 }
 
@@ -716,7 +726,7 @@ body::after {
 }
 
 .card-title {
-  font-size: 16px;
+  font-size: clamp(16px, 4.5vw, 21px);
   font-weight: 700;
   margin-bottom: 16px;
   color: var(--text-primary);
@@ -765,28 +775,28 @@ body::after {
 }
 
 .dim-name {
-  font-size: 13px;
+  font-size: clamp(14px, 3.8vw, 17px);
   font-weight: 600;
   color: var(--text-primary);
   letter-spacing: 0.02em;
 }
 
 .dim-score-text {
-  font-size: 14px;
+  font-size: clamp(15px, 4vw, 18px);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
 .dim-score-text small {
-  font-size: 11px;
+  font-size: clamp(11px, 3vw, 13px);
   opacity: 0.6;
 }
 
 .dim-bar-track {
   width: 100%;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 3px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
   overflow: hidden;
 }
 
@@ -835,10 +845,10 @@ body::after {
 }
 
 .advice-text {
-  font-size: 14px;
+  font-size: clamp(14px, 3.8vw, 17px);
   color: var(--text-secondary);
-  line-height: 1.8;
-  letter-spacing: 0.01em;
+  line-height: 1.85;
+  letter-spacing: 0.02em;
 }
 
 .no-advice {
@@ -951,7 +961,7 @@ body::after {
 }
 
 .demographic-title {
-  font-size: 24px;
+  font-size: clamp(24px, 6.5vw, 32px);
   font-weight: 800;
   background: linear-gradient(135deg, var(--accent-tertiary), var(--accent-secondary));
   -webkit-background-clip: text;
@@ -961,7 +971,7 @@ body::after {
 }
 
 .demographic-subtitle {
-  font-size: 13px;
+  font-size: clamp(13px, 3.5vw, 16px);
   color: var(--text-muted);
   margin-bottom: 8px;
 }
@@ -983,7 +993,7 @@ body::after {
 
 .demographic-label {
   display: block;
-  font-size: 13px;
+  font-size: clamp(14px, 3.8vw, 17px);
   font-weight: 600;
   color: var(--text-secondary);
   margin-bottom: 10px;
@@ -1010,18 +1020,18 @@ body::after {
 
 .demographic-select {
   width: 100%;
-  padding: 14px 40px 14px 16px;
+  padding: clamp(14px, 3.5vw, 18px) 40px clamp(14px, 3.5vw, 18px) 16px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
-  font-size: 15px;
+  font-size: clamp(15px, 4vw, 18px);
   font-family: inherit;
   appearance: none;
   -webkit-appearance: none;
   cursor: pointer;
   transition: border-color var(--transition-fast), background var(--transition-fast);
-  min-height: 48px;
+  min-height: 52px;
 }
 
 .demographic-select:focus {
@@ -1854,129 +1864,15 @@ body::after {
 .result-container > *:nth-child(25) { animation-delay: 3.6s; }
 
 /* ==========================================================================
-   Media Queries - iPhone 16 Pro First, then accommodate others
+   Media Queries - Universal Smartphone Support
+   Fluid design with clamp() handles most sizing; these refine edge cases.
    ========================================================================== */
 
-/* ---------- iPhone 16 Pro Specific (393px logical viewport) ---------- */
-@media (min-width: 390px) and (max-width: 430px) {
-  :root {
-    --viewport-padding: 20px;
-    --card-max-width: 353px;
-  }
-
-  .question-text {
-    font-size: 20px;
-  }
-
-  .likert-btn {
-    padding: 18px 4px 16px;
-    min-height: 84px;
-    border-radius: 14px;
-  }
-
-  .likert-value {
-    font-size: 24px;
-  }
-
-  .likert-label {
-    font-size: 10px;
-  }
-
-  /* Optimize gauge as hero on this exact screen width */
-  .gauge-container {
-    margin-bottom: 24px;
-  }
-
-  #gauge-svg {
-    width: 220px;
-    height: 220px;
-  }
-
-  .gauge-score {
-    font-size: 56px;
-  }
-}
-
-/* ---------- iPhone 16 Pro Max & larger phones (430px+) ---------- */
-@media (min-width: 430px) {
-  :root {
-    --viewport-padding: 24px;
-    --card-max-width: 382px;
-  }
-
-  .question-text {
-    font-size: 21px;
-  }
-
-  .likert-btn {
-    padding: 20px 6px 16px;
-    min-height: 88px;
-  }
-
-  .likert-value {
-    font-size: 24px;
-  }
-
-  .likert-label {
-    font-size: 11px;
-  }
-
-  .app-title {
-    font-size: 32px;
-  }
-
-  #radar-svg {
-    max-width: 340px;
-  }
-}
-
-/* ---------- Small phones (SE, mini) ---------- */
-@media (max-width: 375px) {
-  :root {
-    --viewport-padding: 16px;
-    --card-max-width: 343px;
-  }
-
-  .likert-scale {
-    gap: 6px;
-  }
-
-  .likert-btn {
-    padding: 12px 2px 10px;
-    min-height: 72px;
-    border-radius: 10px;
-  }
-
-  .likert-value {
-    font-size: 18px;
-  }
-
-  .likert-label {
-    font-size: 9px;
-  }
-
-  .question-text {
-    font-size: 17px;
-    margin-bottom: 28px;
-  }
-
-  .app-title {
-    font-size: 26px;
-  }
-
+/* ---------- Very small phones (iPhone SE1, Galaxy A series, 320px) ---------- */
+@media (max-width: 340px) {
   .glass-card {
-    padding: 20px;
-  }
-
-  #radar-svg {
-    max-width: 280px;
-  }
-}
-
-/* ---------- Very small phones ---------- */
-@media (max-width: 350px) {
-  :root {
-    --viewport-padding: 14px;
+    padding: 16px;
+    border-radius: 16px;
   }
 
   .likert-scale {
@@ -1984,25 +1880,70 @@ body::after {
   }
 
   .likert-btn {
-    padding: 10px 2px 8px;
-    min-height: 68px;
+    border-radius: 10px;
   }
 
-  .likert-value {
-    font-size: 16px;
+  #radar-svg {
+    max-width: 260px;
   }
 
-  .likert-label {
-    font-size: 9px;
+  .question-card {
+    padding: 20px 16px;
+  }
+}
+
+/* ---------- Small phones (iPhone SE2/3, Galaxy S series compact, 360-375px) ---------- */
+@media (max-width: 375px) and (min-width: 341px) {
+  .glass-card {
+    padding: 20px;
   }
 
-  .question-text {
-    font-size: 16px;
+  .likert-scale {
+    gap: 5px;
+  }
+
+  #radar-svg {
+    max-width: 280px;
+  }
+}
+
+/* ---------- Large phones and small tablets (430px+) ---------- */
+@media (min-width: 430px) {
+  #radar-svg {
+    max-width: 360px;
+  }
+
+  .gauge-container {
+    margin-bottom: 24px;
+  }
+
+  #gauge-svg {
+    width: 240px;
+    height: 240px;
+  }
+}
+
+/* ---------- Tablets and desktop (600px+) ---------- */
+@media (min-width: 600px) {
+  .start-container,
+  .demographic-container,
+  .question-container,
+  .result-container {
+    max-width: 560px;
+    margin: 0 auto;
   }
 
   .glass-card {
-    padding: 16px;
-    border-radius: 16px;
+    padding: 28px;
+  }
+
+  #radar-svg {
+    max-width: 400px;
+  }
+
+  #gauge-svg {
+    width: 260px;
+    height: 260px;
   }
 }
 
@@ -2034,8 +1975,8 @@ body::after {
   }
 
   .likert-btn {
-    min-height: 56px;
-    padding: 8px 4px;
+    min-height: 64px;
+    padding: 10px 4px;
   }
 
   .intro-card {
@@ -2043,23 +1984,21 @@ body::after {
   }
 }
 
-/* ---------- Tall aspect ratio optimization (19.5:9 and similar) ---------- */
-@media (min-aspect-ratio: 9/19) and (max-width: 430px) {
+/* ---------- Tall aspect ratio (19.5:9 and similar modern phones) ---------- */
+@media (min-aspect-ratio: 9/19) and (max-width: 480px) {
   .question-card {
-    /* On tall phones, use the extra vertical space to center content comfortably */
     justify-content: center;
     padding-top: 32px;
     padding-bottom: 24px;
   }
 
   .start-container {
-    /* Slightly push down from absolute center for ergonomic thumb reach */
     justify-content: center;
     padding-top: calc(var(--safe-top) + 32px);
   }
 }
 
-/* ---------- ProMotion / High Refresh Rate Display Optimization ---------- */
+/* ---------- High Refresh Rate Display Optimization ---------- */
 @media (prefers-reduced-motion: no-preference) {
   .likert-btn {
     transition:
@@ -2091,7 +2030,7 @@ body::after {
   }
 }
 
-/* ---------- OLED-specific: Dark mode enhancements ---------- */
+/* ---------- Dark mode enhancements (OLED) ---------- */
 @media (prefers-color-scheme: dark) {
   .glass-card {
     box-shadow:
@@ -2101,7 +2040,7 @@ body::after {
 
   .likert-btn.selected {
     box-shadow:
-      0 0 24px rgba(99, 102, 241, 0.3),
+      0 0 28px rgba(99, 102, 241, 0.35),
       0 0 0 1px rgba(99, 102, 241, 0.4) inset;
   }
 
@@ -2112,7 +2051,7 @@ body::after {
   }
 }
 
-/* ---------- Standalone (PWA) mode: extra safe area handling ---------- */
+/* ---------- Standalone (PWA) mode ---------- */
 @media (display-mode: standalone) {
   .start-container {
     padding-top: calc(var(--safe-top) + 24px);
@@ -2144,10 +2083,51 @@ body::after {
 
   .likert-btn:hover {
     background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.14);
   }
 
   .advice-item:hover {
     background: rgba(255, 255, 255, 0.04);
+  }
+
+  .dim-row-interactive:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
+}
+
+/* ---------- Focus-visible for keyboard/assistive technology users ---------- */
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.likert-btn:focus-visible,
+.demographic-select:focus-visible,
+.references-toggle:focus-visible,
+.btn-home:focus-visible {
+  outline: 3px solid var(--accent-secondary);
+  outline-offset: 2px;
+}
+
+.likert-btn:focus-visible {
+  outline-offset: -1px;
+}
+
+/* ---------- Android Chrome overscroll fix ---------- */
+@supports (-webkit-overflow-scrolling: touch) {
+  body {
+    overscroll-behavior-y: contain;
+  }
+}
+
+/* ---------- Backdrop-filter fallback for older Android ---------- */
+@supports not (backdrop-filter: blur(1px)) {
+  .glass-card {
+    background: rgba(14, 14, 36, 0.92);
+  }
+
+  .btn-secondary {
+    background: rgba(14, 14, 36, 0.85);
+  }
+
+  .history-summary-card {
+    background: rgba(14, 14, 36, 0.92);
   }
 }

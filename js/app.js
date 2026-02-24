@@ -579,9 +579,12 @@
         var pPerc = Scoring.getDimensionPercentile(pdim.id, pscore);
         var pRisk = Scoring.getRiskLevel(pscore);
         var topPct = 100 - pPerc.percentile;
+        var rankLabel = topPct <= 50
+          ? '上位' + topPct + '%'
+          : '下位' + pPerc.percentile + '%';
         chipHTML += '<span class="percentile-chip">';
         chipHTML += '<span class="percentile-chip-name">' + pdim.name + '</span>';
-        chipHTML += '<span class="percentile-chip-rank" style="color:' + pRisk.color + '">上位' + topPct + '%</span>';
+        chipHTML += '<span class="percentile-chip-rank" style="color:' + pRisk.color + '">' + rankLabel + '</span>';
         chipHTML += '</span>';
       }
       percSummary.innerHTML = chipHTML;
@@ -667,9 +670,6 @@
       }
       els.trendSummary.innerHTML = trendText;
     }
-
-    // Goal Setting
-    initGoalSetting(dimensionScores, weightedScore);
 
     // Team Mode: Generate and display score code
     var scoreCodeEl = document.getElementById('my-score-code');
@@ -841,79 +841,6 @@
       }
     }
     requestAnimationFrame(animate);
-  }
-
-  // ---------- Goal Setting ----------
-  function initGoalSetting(dimensionScores, weightedScore) {
-    var goalSlider = document.getElementById('goal-target');
-    var goalValueEl = document.getElementById('goal-target-value');
-    var goalBreakdown = document.getElementById('goal-breakdown');
-    if (!goalSlider || !goalBreakdown) return;
-
-    goalSlider.value = Math.min(Math.max(weightedScore + 10, 40), 90);
-    if (goalValueEl) goalValueEl.textContent = goalSlider.value;
-
-    function updateGoalBreakdown() {
-      var target = parseInt(goalSlider.value);
-      if (goalValueEl) goalValueEl.textContent = target;
-      var targetRisk = Scoring.getRiskLevel(target);
-
-      // Calculate how much each dimension needs to improve
-      // Use the meta-analytic weights to figure out contribution
-      var html = '';
-      var gap = target - weightedScore;
-
-      for (var i = 0; i < DIMENSIONS.length; i++) {
-        var dim = DIMENSIONS[i];
-        var current = dimensionScores[dim.id] || 0;
-        var risk = Scoring.getRiskLevel(current);
-
-        // Needed improvement is proportional to the gap and inverse to current score
-        // Focus improvements on lowest-scoring dimensions
-        var needed = 0;
-        if (gap > 0 && current < 90) {
-          // Weight by how much room for improvement
-          var room = 100 - current;
-          needed = Math.min(Math.round(gap * (room / 100) * 1.5), room);
-        }
-
-        var neededText, neededColor;
-        if (needed <= 0) {
-          neededText = '現状維持';
-          neededColor = 'var(--text-muted)';
-        } else if (needed <= 5) {
-          neededText = '+' + needed + 'pt';
-          neededColor = '#22c55e';
-        } else if (needed <= 15) {
-          neededText = '+' + needed + 'pt';
-          neededColor = '#eab308';
-        } else {
-          neededText = '+' + needed + 'pt';
-          neededColor = '#f97316';
-        }
-
-        html += '<div class="goal-dim-row">';
-        html += '<span class="goal-dim-name">' + dim.name + '</span>';
-        html += '<div class="goal-dim-bar-wrap">';
-        html += '<span class="goal-dim-current" style="color:' + risk.color + '">' + current + '</span>';
-        html += '<span class="goal-dim-arrow">→</span>';
-        html += '<span class="goal-dim-needed" style="color:' + neededColor + '">' + neededText + '</span>';
-        html += '</div>';
-        html += '</div>';
-      }
-
-      // Summary
-      if (gap > 0) {
-        html += '<div style="margin-top:10px;text-align:center;font-size:12px;color:var(--text-muted);">目標達成には全体で約 <strong style="color:' + targetRisk.color + '">' + gap + 'pt</strong> の改善が必要です</div>';
-      } else {
-        html += '<div style="margin-top:10px;text-align:center;font-size:12px;color:var(--green);">目標は既に達成されています</div>';
-      }
-
-      goalBreakdown.innerHTML = html;
-    }
-
-    goalSlider.addEventListener('input', updateGoalBreakdown);
-    updateGoalBreakdown();
   }
 
   // ---------- Event Listeners ----------

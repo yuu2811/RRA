@@ -1285,7 +1285,9 @@ const Charts = {
         mainHTML += '<div class="dim-header dim-header-tap">';
         mainHTML += '<div class="dim-header-left">';
         mainHTML += '<span class="dim-name">' + dim.name + '</span>';
-        mainHTML += '<span class="dim-percentile" style="color:var(--text-muted);font-size:10px;margin-left:6px;">上位' + (100 - percentile.percentile) + '%</span>';
+        var dimTopPct = 100 - percentile.percentile;
+        var dimRankLabel = dimTopPct <= 50 ? '上位' + dimTopPct + '%' : '下位' + percentile.percentile + '%';
+        mainHTML += '<span class="dim-percentile" style="color:var(--text-muted);font-size:10px;margin-left:6px;">' + dimRankLabel + '</span>';
         mainHTML += '</div>';
         mainHTML += '<div class="dim-header-right">';
         mainHTML += '<span class="dim-score-text" style="color:' + risk.color + '"><span class="dim-score-num" data-target="' + score + '">0</span><small>/100</small></span>';
@@ -1859,7 +1861,9 @@ const Charts = {
       html += '<div class="benchmark-dim">' + dim.name + '</div>';
       html += svgParts.join('');
       html += '<div class="benchmark-meta">';
-      html += '<span class="benchmark-percentile" style="color:' + risk.color + '">上位 ' + (100 - perc.percentile) + '%</span>';
+      var bmTopPct = 100 - perc.percentile;
+      var bmRankLabel = bmTopPct <= 50 ? '上位 ' + bmTopPct + '%' : '下位 ' + perc.percentile + '%';
+      html += '<span class="benchmark-percentile" style="color:' + risk.color + '">' + bmRankLabel + '</span>';
       html += '<span class="benchmark-label">' + perc.label + '</span>';
       html += '</div>';
       html += '</div>';

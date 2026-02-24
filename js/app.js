@@ -566,6 +566,25 @@
     // Radar chart
     Charts.drawRadar(els.radarSvg, dimensionScores);
 
+    // Percentile Summary Chips (at-a-glance ranking)
+    var percSummary = document.getElementById('percentile-summary');
+    if (percSummary) {
+      var chipHTML = '';
+      for (var pi = 0; pi < DIMENSIONS.length; pi++) {
+        var pdim = DIMENSIONS[pi];
+        var pscore = dimensionScores[pdim.id] || 0;
+        var pPerc = Scoring.getDimensionPercentile(pdim.id, pscore);
+        var pRisk = Scoring.getRiskLevel(pscore);
+        var topPct = 100 - pPerc.percentile;
+        chipHTML += '<span class="percentile-chip">';
+        chipHTML += '<span class="percentile-chip-name">' + pdim.name + '</span>';
+        chipHTML += '<span class="percentile-chip-rank" style="color:' + pRisk.color + '">上位' + topPct + '%</span>';
+        chipHTML += '</span>';
+      }
+      percSummary.innerHTML = chipHTML;
+      percSummary.style.display = '';
+    }
+
     // Benchmark Bell Curves
     var benchmarkContent = document.getElementById('benchmark-content');
     if (benchmarkContent && Charts.renderBenchmarkCurves) {
@@ -1427,6 +1446,46 @@
       };
       reader.readAsText(file);
       importFile.value = ''; // Reset for re-import
+    });
+  }
+
+  // ---------- Theme Toggle ----------
+  var THEME_KEY = 'rra_theme';
+  var btnTheme = document.getElementById('btn-theme');
+  var iconDark = document.getElementById('theme-icon-dark');
+  var iconLight = document.getElementById('theme-icon-light');
+
+  function applyTheme(theme) {
+    if (theme === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+      if (iconDark) iconDark.style.display = 'none';
+      if (iconLight) iconLight.style.display = '';
+    } else if (theme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      if (iconDark) iconDark.style.display = '';
+      if (iconLight) iconLight.style.display = 'none';
+    } else {
+      // System default
+      document.documentElement.removeAttribute('data-theme');
+      if (iconDark) iconDark.style.display = '';
+      if (iconLight) iconLight.style.display = 'none';
+    }
+    try { localStorage.setItem(THEME_KEY, theme); } catch (e) { /* noop */ }
+  }
+
+  // Load saved theme
+  var savedTheme = null;
+  try { savedTheme = localStorage.getItem(THEME_KEY); } catch (e) { /* noop */ }
+  if (savedTheme) applyTheme(savedTheme);
+
+  if (btnTheme) {
+    btnTheme.addEventListener('click', function () {
+      var current = document.documentElement.getAttribute('data-theme');
+      if (current === 'light') {
+        applyTheme('dark');
+      } else {
+        applyTheme('light');
+      }
     });
   }
 

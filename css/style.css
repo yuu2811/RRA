@@ -2150,6 +2150,112 @@ body::after {
   min-height: 24px;
 }
 
+/* ---------- Skip Navigation Link ---------- */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent-primary);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  z-index: 9999;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 10px;
+}
+
+/* ---------- Theme Toggle ---------- */
+.btn-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  margin-top: 8px;
+  font-family: inherit;
+}
+
+.btn-theme-toggle:active {
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--accent-secondary);
+}
+
+/* Force light theme when data-theme="light" */
+[data-theme="light"] {
+  --bg-primary: #f2f2f7;
+  --bg-secondary: #e8e8f0;
+  --bg-card: rgba(255, 255, 255, 0.72);
+  --bg-card-hover: rgba(255, 255, 255, 0.85);
+  --bg-card-elevated: rgba(255, 255, 255, 0.8);
+  --border-card: rgba(0, 0, 0, 0.06);
+  --border-card-strong: rgba(0, 0, 0, 0.1);
+  --text-primary: #1a1a2e;
+  --text-secondary: #4a4a6a;
+  --text-muted: #7a7a9a;
+  --accent-glow: rgba(99, 102, 241, 0.2);
+  --accent-glow-soft: rgba(99, 102, 241, 0.1);
+}
+
+/* Force dark theme when data-theme="dark" */
+[data-theme="dark"] {
+  --bg-primary: #07071a;
+  --bg-secondary: #0e0e24;
+  --bg-card: rgba(255, 255, 255, 0.04);
+  --bg-card-hover: rgba(255, 255, 255, 0.07);
+  --bg-card-elevated: rgba(255, 255, 255, 0.06);
+  --border-card: rgba(255, 255, 255, 0.08);
+  --border-card-strong: rgba(255, 255, 255, 0.12);
+  --text-primary: #f0f0f5;
+  --text-secondary: #c0c0d8;
+  --text-muted: #8a8aa6;
+  --accent-glow: rgba(99, 102, 241, 0.35);
+  --accent-glow-soft: rgba(99, 102, 241, 0.15);
+}
+
+/* ---------- Percentile Summary ---------- */
+.percentile-summary {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 12px 0;
+}
+
+.percentile-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.percentile-chip-name {
+  color: var(--text-muted);
+}
+
+.percentile-chip-rank {
+  font-weight: 700;
+}
+
 /* ---------- Benchmark Bell Curves ---------- */
 .benchmark-desc {
   font-size: clamp(12px, 3.2vw, 14px);

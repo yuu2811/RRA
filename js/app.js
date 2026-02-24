@@ -203,6 +203,14 @@
       trendHTML = '<span class="history-trend-badge ' + cls + '">' + arrow + ' ' + label + '</span>';
     }
 
+    // Streak badge
+    var streakHTML = '';
+    var streak = DiagnosticHistory.getStreak();
+    if (streak.streak >= 2) {
+      var fireEmoji = streak.streak >= 5 ? '\uD83D\uDD25' : '\u2B50';
+      streakHTML = '<div class="streak-badge"><span class="streak-badge-fire">' + fireEmoji + '</span> ' + streak.streak + '回連続</div>';
+    }
+
     els.historySummary.innerHTML =
       '<div class="history-summary-card">' +
         '<div class="history-summary-left">' +
@@ -212,6 +220,7 @@
         '</div>' +
         '<div class="history-summary-right">' +
           trendHTML +
+          streakHTML +
           '<span class="history-summary-count" style="font-size:11px;color:var(--text-muted)">診断回数: ' + history.length + '回</span>' +
         '</div>' +
       '</div>';
@@ -802,6 +811,14 @@
   // Home button
   if (els.btnHome) {
     els.btnHome.addEventListener('click', resetApp);
+  }
+
+  // Print / PDF button
+  var btnPrint = document.getElementById('btn-print');
+  if (btnPrint) {
+    btnPrint.addEventListener('click', function () {
+      window.print();
+    });
   }
 
   // Report button (copy detailed text report to clipboard)

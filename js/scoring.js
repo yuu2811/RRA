@@ -491,6 +491,46 @@ const DiagnosticHistory = {
   },
 
   /**
+   * Calculate the user's diagnostic streak.
+   * A streak counts consecutive assessments that were taken within
+   * the expected interval (e.g., within 45 days of each other).
+   *
+   * @param {number} [maxGapDays=45] - Max days between assessments to maintain streak
+   * @returns {Object} { streak: number, lastDate: string|null, isActive: boolean }
+   */
+  getStreak: function (maxGapDays) {
+    maxGapDays = maxGapDays || 45;
+    var entries = this.getAll();
+    if (entries.length === 0) return { streak: 0, lastDate: null, isActive: false };
+
+    var streak = 1;
+    var now = new Date();
+    var lastDate = new Date(entries[entries.length - 1].date);
+
+    // Check if streak is still active (within maxGapDays from now)
+    var daysSinceLast = (now - lastDate) / (1000 * 60 * 60 * 24);
+    var isActive = daysSinceLast <= maxGapDays;
+
+    // Count consecutive entries within maxGapDays of each other
+    for (var i = entries.length - 1; i > 0; i--) {
+      var current = new Date(entries[i].date);
+      var previous = new Date(entries[i - 1].date);
+      var gap = (current - previous) / (1000 * 60 * 60 * 24);
+      if (gap <= maxGapDays && gap >= 1) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+
+    return {
+      streak: streak,
+      lastDate: entries[entries.length - 1].date,
+      isActive: isActive
+    };
+  },
+
+  /**
    * Export all diagnostic history as a JSON string.
    * @returns {string} JSON string of all history entries
    */

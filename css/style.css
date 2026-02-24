@@ -2819,3 +2819,208 @@ body::after {
     background: rgba(14, 14, 36, 0.92);
   }
 }
+
+/* ==========================================================================
+   Print Stylesheet - Professional PDF Report
+   ========================================================================== */
+@media print {
+  /* Reset dark theme to print-friendly light */
+  :root {
+    --bg-primary: #fff;
+    --bg-secondary: #fff;
+    --bg-card: #fff;
+    --text-primary: #111;
+    --text-secondary: #333;
+    --text-muted: #666;
+    --border-card: #ddd;
+    --accent-primary: #4f46e5;
+    --accent-secondary: #6366f1;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  body {
+    background: #fff !important;
+    color: #111 !important;
+    font-size: 11pt !important;
+    line-height: 1.5 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Hide non-result screens and interactive elements */
+  #screen-start,
+  #screen-demographic,
+  #screen-question,
+  .bg-orbs,
+  .btn-primary,
+  .btn-secondary,
+  .btn-home,
+  .btn-share,
+  .btn-share-img,
+  .btn-data,
+  .result-actions,
+  .reminder-card,
+  .team-card,
+  .data-portability,
+  .whatif-card,
+  .collapsible-toggle,
+  .collapsible-toggle-icon,
+  .card-title-hint,
+  .references-toggle-icon,
+  .version-footer,
+  #btn-report,
+  #btn-share,
+  #btn-share-image,
+  #btn-risk-dna,
+  #btn-retry,
+  #btn-home,
+  #btn-copy-code,
+  .social-proof-badge {
+    display: none !important;
+  }
+
+  /* Make result screen visible and full width */
+  #screen-result {
+    display: block !important;
+    position: static !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .screen {
+    min-height: auto !important;
+    padding: 0 !important;
+  }
+
+  .result-container {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Print header */
+  .result-title {
+    font-size: 22pt !important;
+    text-align: center !important;
+    margin-bottom: 6pt !important;
+    color: #111 !important;
+    page-break-after: avoid !important;
+  }
+
+  .result-summary-headline {
+    text-align: center !important;
+    color: #444 !important;
+    font-size: 12pt !important;
+  }
+
+  /* Cards: remove glass effects, add borders */
+  .glass-card {
+    background: #fff !important;
+    border: 1px solid #ddd !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    border-radius: 8px !important;
+    margin-bottom: 12pt !important;
+    padding: 12pt !important;
+    page-break-inside: avoid !important;
+  }
+
+  .card-title {
+    color: #222 !important;
+    font-size: 13pt !important;
+    border-bottom: 1px solid #eee !important;
+    padding-bottom: 6pt !important;
+    margin-bottom: 8pt !important;
+  }
+
+  /* Expand all collapsible sections for print */
+  .collapsible-body,
+  .references-collapsible {
+    display: block !important;
+    max-height: none !important;
+    overflow: visible !important;
+    opacity: 1 !important;
+  }
+
+  [aria-expanded] {
+    overflow: visible !important;
+  }
+
+  /* Dividers */
+  .result-divider {
+    border-color: #eee !important;
+    margin: 8pt 0 !important;
+  }
+
+  /* Gauge - scale down for print */
+  .gauge-container {
+    transform: scale(0.8) !important;
+    margin: 0 auto !important;
+  }
+
+  .gauge-score {
+    color: #111 !important;
+  }
+
+  /* Radar chart */
+  .radar-container svg {
+    max-width: 280px !important;
+    margin: 0 auto !important;
+    display: block !important;
+  }
+
+  /* Dimension bars */
+  .dimension-bar-fill {
+    border-radius: 3px !important;
+  }
+
+  /* Benchmark grid */
+  .benchmark-grid {
+    grid-template-columns: repeat(5, 1fr) !important;
+  }
+
+  /* Heatmap */
+  .heatmap-cell {
+    padding: 3pt 2pt !important;
+    font-size: 8pt !important;
+  }
+
+  /* Trend chart */
+  .trend-chart-container svg {
+    max-width: 400px !important;
+    margin: 0 auto !important;
+    display: block !important;
+  }
+
+  /* Page break control */
+  .score-card {
+    page-break-after: avoid !important;
+  }
+
+  .chart-card,
+  .benchmark-card,
+  .action-plan-card,
+  .compound-card,
+  .details-card,
+  .trend-card {
+    page-break-inside: avoid !important;
+  }
+
+  /* Print footer */
+  .result-container::after {
+    content: "退職リスク診断 v3.1 - 科学的な研究に基づく退職リスク分析ツール";
+    display: block;
+    text-align: center;
+    font-size: 9pt;
+    color: #999;
+    margin-top: 24pt;
+    padding-top: 8pt;
+    border-top: 1px solid #ddd;
+  }
+}

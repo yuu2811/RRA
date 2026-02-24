@@ -270,7 +270,7 @@
     els.progressCount.textContent = (index + 1) + ' / ' + TOTAL_QUESTIONS;
 
     if (els.dimensionLabel) {
-      els.dimensionLabel.textContent = '次元 ' + (q.dimensionIndex + 1) + '/10';
+      els.dimensionLabel.textContent = '項目 ' + (q.dimensionIndex + 1) + '/10';
     }
 
     var questionWithinDimension = index % 3;
@@ -368,7 +368,7 @@
       '<div style="text-align:center;">' +
         '<div class="calculating-spinner" style="width:48px;height:48px;border:3px solid rgba(99,102,241,0.15);border-top-color:var(--accent-secondary);border-radius:50%;animation:calcSpin 0.8s linear infinite;margin:0 auto 20px;"></div>' +
         '<div style="font-size:16px;font-weight:700;color:var(--text-primary);opacity:0;animation:calcFadeIn 0.4s ease-out 0.2s forwards;">診断結果を分析中...</div>' +
-        '<div style="font-size:13px;color:var(--text-muted);margin-top:8px;opacity:0;animation:calcFadeIn 0.4s ease-out 0.4s forwards;">エビデンス加重スコアを計算しています</div>' +
+        '<div style="font-size:13px;color:var(--text-muted);margin-top:8px;opacity:0;animation:calcFadeIn 0.4s ease-out 0.4s forwards;">結果をまとめています</div>' +
       '</div>';
 
     if (!document.getElementById('calc-keyframes')) {
@@ -447,12 +447,12 @@
 
       els.weightedComparison.innerHTML =
         '<div class="weighted-score-item">' +
-          '<span class="weighted-score-label">単純平均</span>' +
+          '<span class="weighted-score-label">基本スコア</span>' +
           '<span class="weighted-score-value" style="color:' + simpleRisk.color + '">' + overallScore + '</span>' +
         '</div>' +
         diffHTML +
         '<div class="weighted-score-item">' +
-          '<span class="weighted-score-label">エビデンス加重</span>' +
+          '<span class="weighted-score-label">詳しい分析</span>' +
           '<span class="weighted-score-value primary" style="color:' + risk.color + '">' + weightedScore + '</span>' +
         '</div>';
     }

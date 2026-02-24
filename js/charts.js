@@ -477,7 +477,7 @@ const Charts = {
   renderAdvice(container, adviceItems) {
     container.innerHTML = '';
     if (adviceItems.length === 0) {
-      container.innerHTML = '<p class="no-advice">すべての次元で良好なスコアです。現在の状態を維持してください。</p>';
+      container.innerHTML = '<p class="no-advice">すべての項目で良好なスコアです。この調子を続けてください。</p>';
       return;
     }
 
@@ -781,7 +781,7 @@ const Charts = {
       emptyMsg.style.cssText = 'text-align:center;padding:24px 16px;color:var(--text-muted);font-size:14px;';
       emptyMsg.innerHTML =
         '<span style="font-size:24px;display:block;margin-bottom:8px;">\u2705</span>' +
-        '\u8907\u5408\u7684\u306A\u30EA\u30B9\u30AF\u30D1\u30BF\u30FC\u30F3\u306F\u691C\u51FA\u3055\u308C\u307E\u305B\u3093\u3067\u3057\u305F';
+        '特に注意が必要な組み合わせは見つかりませんでした';
       container.appendChild(emptyMsg);
       return;
     }
@@ -817,7 +817,7 @@ const Charts = {
       var dims = risk.dimensions || risk.matchedDimensions || [];
       if (dims.length > 0) {
         dimsHTML += '<div style="margin-bottom:12px;">';
-        dimsHTML += '<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">\u5F71\u97FF\u3059\u308B\u6B21\u5143</div>';
+        dimsHTML += '<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;font-weight:600;">関係する項目</div>';
         for (var di = 0; di < dims.length; di++) {
           var dim = dims[di];
           var dimName = dim.name || dim;
@@ -837,7 +837,7 @@ const Charts = {
       var adviceHTML = '';
       if (risk.advice) {
         adviceHTML += '<div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:10px 12px;">';
-        adviceHTML += '<div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">\u63A8\u5968\u30A2\u30AF\u30B7\u30E7\u30F3</div>';
+        adviceHTML += '<div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">こうしてみましょう</div>';
         adviceHTML += '<p style="font-size:13px;color:var(--text-secondary);line-height:1.5;margin:0;">' + risk.advice + '</p>';
         adviceHTML += '</div>';
       }
@@ -874,7 +874,7 @@ const Charts = {
     var scoreRow = document.createElement('div');
     scoreRow.className = 'demo-score-row';
     scoreRow.innerHTML =
-      '<span class="demo-label">属性補正後スコア</span>' +
+      '<span class="demo-label">あなたに合わせたスコア</span>' +
       '<span class="demo-score" style="color:' + adjustedColor + '">' + adjustedScore + '</span>';
     wrapper.appendChild(scoreRow);
 
@@ -1127,7 +1127,7 @@ const Charts = {
     simpleCard.className = 'score-compare-card';
     simpleCard.style.cssText = 'flex:1;text-align:center;padding:14px 10px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);';
     simpleCard.innerHTML =
-      '<div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;font-weight:500;">\u5358\u7D14\u5E73\u5747</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;font-weight:500;">基本スコア</div>' +
       '<div style="font-size:26px;font-weight:700;color:' + overallRisk.color + ';line-height:1;">' + overallScore + '</div>' +
       '<div style="font-size:10px;color:' + overallRisk.color + ';margin-top:4px;">' + overallRisk.label + '</div>';
 
@@ -1136,7 +1136,7 @@ const Charts = {
     weightedCard.className = 'score-compare-card score-compare-primary';
     weightedCard.style.cssText = 'flex:1;text-align:center;padding:14px 10px;border-radius:10px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);position:relative;';
     weightedCard.innerHTML =
-      '<div style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;font-weight:600;">\u30A8\u30D3\u30C7\u30F3\u30B9\u52A0\u91CD</div>' +
+      '<div style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;font-weight:600;">詳しい分析</div>' +
       '<div style="font-size:30px;font-weight:800;color:' + weightedRisk.color + ';line-height:1;">' + weightedScore + '</div>' +
       '<div style="font-size:10px;color:' + weightedRisk.color + ';margin-top:4px;">' + weightedRisk.label + '</div>';
 
@@ -1373,7 +1373,7 @@ const Charts = {
     if (!actionPlan || actionPlan.priorities.length === 0) {
       container.innerHTML = '<div style="text-align:center;padding:24px 16px;color:var(--green);font-size:14px;">' +
         '<span style="font-size:24px;display:block;margin-bottom:8px;">\u2728</span>' +
-        '\u5168\u4f53\u7684\u306b\u826f\u597d\u306a\u72b6\u614b\u3067\u3059\u3002\u73fe\u5728\u306e\u53d6\u308a\u7d44\u307f\u3092\u7d99\u7d9a\u3057\u3066\u304f\u3060\u3055\u3044\u3002' +
+        '全体的に良い状態です。今のまま続けていきましょう。' +
         '</div>';
       return;
     }
@@ -1421,7 +1421,7 @@ const Charts = {
           '<p class="action-plan-item-desc">' + item.description + '</p>' +
           '<div class="action-plan-meta">' +
             '<span class="action-plan-tag">\u26F3 ' + timeframeLabel + '</span>' +
-            '<span class="action-plan-tag">\u2699\uFE0F \u52AA\u529B\u5EA6:' + effortLabel + '</span>' +
+            '<span class="action-plan-tag">\u2699\uFE0F 手間:' + effortLabel + '</span>' +
             (item.category ? '<span class="action-plan-tag">' + item.category + '</span>' : '') +
           '</div>';
       }
@@ -1459,7 +1459,7 @@ const Charts = {
 
     if (!insights || insights.length === 0) {
       container.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:13px;">' +
-        '\u7279\u7b46\u3059\u3079\u304d\u6b21\u5143\u9593\u306e\u30d1\u30bf\u30fc\u30f3\u306f\u691c\u51fa\u3055\u308C\u307E\u305B\u3093\u3067\u3057\u305F' +
+        '特に気になる項目どうしの関連は見つかりませんでした' +
         '</div>';
       return;
     }
@@ -1495,7 +1495,7 @@ const Charts = {
           '</div>' +
         '</div>' +
         '<p class="correlation-insight-text">' + ins.interpretation + '</p>' +
-        '<div class="correlation-strength">\u76F8\u95A2\u4FC2\u6570: r=' + ins.correlation.toFixed(2) + '</div>';
+        '<div class="correlation-strength">関連の強さ: ' + (ins.correlation >= 0.5 ? '強い' : ins.correlation >= 0.4 ? 'やや強い' : '中程度') + '</div>';
 
       container.appendChild(card);
     }
@@ -1578,7 +1578,7 @@ const Charts = {
     ctx.textAlign = 'center';
     ctx.fillStyle = '#a5b4fc';
     ctx.font = 'bold 14px -apple-system, sans-serif';
-    ctx.fillText('RETIREMENT RISK ASSESSMENT', w / 2, 50);
+    ctx.fillText('\u9000\u8077\u30EA\u30B9\u30AF\u8A3A\u65AD', w / 2, 50);
 
     ctx.fillStyle = '#f0f0f5';
     ctx.font = 'bold 28px -apple-system, sans-serif';
@@ -1626,7 +1626,7 @@ const Charts = {
     ctx.textAlign = 'left';
     ctx.font = '12px -apple-system, sans-serif';
     ctx.fillStyle = '#a0a0b8';
-    ctx.fillText('\u6B21\u5143\u5225\u30B9\u30B3\u30A2', barLeft, barStartY - 10);
+    ctx.fillText('\u9805\u76EE\u5225\u30B9\u30B3\u30A2', barLeft, barStartY - 10);
 
     for (var di = 0; di < DIMENSIONS.length; di++) {
       var dim = DIMENSIONS[di];
@@ -1665,14 +1665,14 @@ const Charts = {
       ctx.textAlign = 'left';
       ctx.fillStyle = '#ef4444';
       ctx.font = 'bold 12px -apple-system, sans-serif';
-      ctx.fillText('\u26A0\uFE0F \u691C\u51FA\u30EA\u30B9\u30AF: ' + results.compoundRisks.map(function(r) { return r.name; }).join(', '), barLeft, crY);
+      ctx.fillText('\u26A0\uFE0F 注意: ' + results.compoundRisks.map(function(r) { return r.name; }).join(', '), barLeft, crY);
     }
 
     // Footer
     ctx.textAlign = 'center';
     ctx.fillStyle = '#6b6b80';
     ctx.font = '11px -apple-system, sans-serif';
-    ctx.fillText('\u5B66\u8853\u7814\u7A76\u306B\u57FA\u3065\u304F\u9000\u8077\u30EA\u30B9\u30AF\u8A3A\u65AD\u30C4\u30FC\u30EB v2.1', w / 2, h - 30);
+    ctx.fillText('\u9000\u8077\u30EA\u30B9\u30AF\u8A3A\u65AD v3.0', w / 2, h - 30);
 
     // Rounded rect helper
     function roundRect(ctx, x, y, w, h, r) {

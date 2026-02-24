@@ -7,14 +7,14 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="退職リスク診断">
   <meta name="theme-color" content="#6366f1">
-  <meta name="description" content="学術研究に基づく退職リスク診断ツール。10の科学的指標で退職リスクを可視化します。">
+  <meta name="description" content="退職リスク診断ツール。信頼性の高い研究に基づく10の項目で退職リスクをチェックします。">
   <meta name="format-detection" content="telephone=no">
   <meta name="mobile-web-app-capable" content="yes">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="退職リスク診断 - 10の科学的指標で可視化">
-  <meta property="og:description" content="世界中の学術研究に基づく10次元のリスク分析。査読付き論文ベースの設計で、あなたの退職リスクを多角的に診断します。">
+  <meta property="og:title" content="退職リスク診断 - 10の項目で科学的にチェック">
+  <meta property="og:description" content="世界中の研究に基づく10項目の分析で、あなたの退職リスクを多角的に診断します。全30問・約5分で完了。">
   <meta property="og:image" content="icons/og-image.png">
   <meta property="og:url" content="https://retirement-risk.app/">
   <meta property="og:locale" content="ja_JP">
@@ -22,11 +22,11 @@
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="退職リスク診断 - 10の科学的指標で可視化">
-  <meta name="twitter:description" content="世界中の学術研究に基づく10次元のリスク分析。査読付き論文ベースの設計で、あなたの退職リスクを多角的に診断します。">
+  <meta name="twitter:title" content="退職リスク診断 - 10の項目で科学的にチェック">
+  <meta name="twitter:description" content="世界中の研究に基づく10項目の分析で、あなたの退職リスクを多角的に診断します。全30問・約5分で完了。">
   <meta name="twitter:image" content="icons/og-image.png">
 
-  <title>退職リスク診断 - Retirement Risk Assessment</title>
+  <title>退職リスク診断</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-192.png">
@@ -322,7 +322,7 @@
           </svg>
         </div>
         <h1 class="app-title">退職リスク診断</h1>
-        <p class="app-subtitle">Retirement Risk Assessment</p>
+        <p class="app-subtitle">あなたの働く環境を科学的にチェック</p>
       </div>
 
       <!-- Social Proof Badge -->
@@ -336,16 +336,16 @@
 
       <div class="glass-card intro-card">
         <p class="intro-text">
-          世界中の学術研究に基づく<strong>10の科学的指標</strong>で、あなたの退職リスクを多角的に診断します。
+          世界中の研究に基づく<strong>10の項目</strong>で、あなたの退職リスクをチェックします。
         </p>
         <ul class="feature-list" role="list">
           <li role="listitem">
             <span class="feature-icon" aria-hidden="true">&#x1F4CA;</span>
-            <span>10次元のリスク分析</span>
+            <span>10項目で多角的に分析</span>
           </li>
           <li role="listitem">
             <span class="feature-icon" aria-hidden="true">&#x1F4D6;</span>
-            <span>査読付き論文に基づく設計</span>
+            <span>信頼性の高い研究がベース</span>
           </li>
           <li role="listitem">
             <span class="feature-icon" aria-hidden="true">&#x23F1;</span>
@@ -367,7 +367,7 @@
       <p class="privacy-note">回答データは端末内のみに保存され、外部送信されません。</p>
 
       <!-- Version / Credit Footer -->
-      <p class="version-footer" aria-label="バージョン情報">v3.0 &mdash; ユニバーサルアクセシビリティ対応</p>
+      <p class="version-footer" aria-label="バージョン情報">v3.0</p>
     </div>
   </section>
 
@@ -452,11 +452,11 @@
 
       <!-- Dimension Progress Indicator -->
       <div class="dimension-indicator" aria-live="polite">
-        <span id="dimension-label" class="dimension-label">次元 1/10</span>
+        <span id="dimension-label" class="dimension-label">項目 1/10</span>
       </div>
 
       <!-- Step Indicator Dots (3 questions per dimension) -->
-      <div class="step-dots" role="group" aria-label="現在の次元内の質問進捗">
+      <div class="step-dots" role="group" aria-label="現在の項目内の質問進捗">
         <span class="step-dot" id="step-dot-0" aria-label="質問1"></span>
         <span class="step-dot" id="step-dot-1" aria-label="質問2"></span>
         <span class="step-dot" id="step-dot-2" aria-label="質問3"></span>
@@ -520,17 +520,17 @@
       </div>
 
       <!-- Weighted Score Comparison -->
-      <div class="glass-card weighted-card" role="region" aria-label="エビデンス加重スコア">
-        <h3 class="card-title">エビデンス加重スコア</h3>
+      <div class="glass-card weighted-card" role="region" aria-label="詳しい分析スコア">
+        <h3 class="card-title">詳しい分析スコア</h3>
         <div id="weighted-comparison" class="weighted-comparison"></div>
-        <p class="weighted-explanation">メタ分析の効果量に基づき、退職予測力の高い次元を重み付けしたスコアです。</p>
+        <p class="weighted-explanation">退職に関わりやすい項目を重視して計算したスコアです。より実態に近い判定になります。</p>
       </div>
 
       <hr class="result-divider" aria-hidden="true">
 
       <!-- Radar Chart -->
-      <div class="glass-card chart-card" role="region" aria-label="次元別スコアチャート">
-        <h3 class="card-title">次元別スコア</h3>
+      <div class="glass-card chart-card" role="region" aria-label="項目別スコアチャート">
+        <h3 class="card-title">項目別スコア</h3>
         <div class="radar-container" id="radar-container">
           <svg id="radar-svg" viewBox="0 0 350 350" role="img" aria-label="レーダーチャート"></svg>
         </div>
@@ -547,24 +547,24 @@
       <hr class="result-divider" aria-hidden="true">
 
       <!-- Dimension Details (Interactive Drill-Down) -->
-      <div class="glass-card details-card" role="region" aria-label="各次元の詳細スコア">
-        <h3 class="card-title">各次元の詳細 <span class="card-title-hint">タップで展開</span></h3>
+      <div class="glass-card details-card" role="region" aria-label="各項目の詳細スコア">
+        <h3 class="card-title">各項目の詳細 <span class="card-title-hint">タップで展開</span></h3>
         <div id="dimension-details" class="dimension-details"></div>
       </div>
 
       <hr class="result-divider" aria-hidden="true">
 
       <!-- Personalized Action Plan -->
-      <div class="glass-card action-plan-card" id="action-plan-card" role="region" aria-label="パーソナライズドアクションプラン">
-        <h3 class="card-title">アクションプラン</h3>
+      <div class="glass-card action-plan-card" id="action-plan-card" role="region" aria-label="あなた向けの改善プラン">
+        <h3 class="card-title">改善のためにできること</h3>
         <div id="action-plan-content" class="action-plan-content"></div>
       </div>
 
       <hr class="result-divider" aria-hidden="true">
 
       <!-- Correlation Insights -->
-      <div class="glass-card correlation-card" id="correlation-card" role="region" aria-label="次元間の関連性分析">
-        <h3 class="card-title">次元間インサイト</h3>
+      <div class="glass-card correlation-card" id="correlation-card" role="region" aria-label="項目どうしの関連">
+        <h3 class="card-title">項目どうしの関連</h3>
         <div id="correlation-content" class="correlation-content"></div>
       </div>
 
@@ -579,8 +579,8 @@
       <hr class="result-divider" aria-hidden="true">
 
       <!-- Compound Risk Patterns -->
-      <div class="glass-card compound-card" id="compound-card" role="region" aria-label="複合リスクパターン">
-        <h3 class="card-title">複合リスクパターン分析</h3>
+      <div class="glass-card compound-card" id="compound-card" role="region" aria-label="注意が必要な組み合わせ">
+        <h3 class="card-title">注意が必要な組み合わせ</h3>
         <div id="compound-risks" class="compound-risks-content"></div>
       </div>
 
@@ -598,9 +598,9 @@
       <hr class="result-divider" aria-hidden="true">
 
       <!-- References (Collapsible) -->
-      <div class="glass-card references-card" aria-expanded="false" role="region" aria-label="学術リファレンス">
-        <button class="references-toggle" type="button" aria-label="学術リファレンスを展開する" id="btn-references-toggle" onclick="this.closest('.references-card').setAttribute('aria-expanded', this.closest('.references-card').getAttribute('aria-expanded') === 'true' ? 'false' : 'true'); this.setAttribute('aria-label', this.closest('.references-card').getAttribute('aria-expanded') === 'true' ? '学術リファレンスを折りたたむ' : '学術リファレンスを展開する');">
-          <h3 class="card-title" style="margin-bottom:0;">学術リファレンス</h3>
+      <div class="glass-card references-card" aria-expanded="false" role="region" aria-label="参考文献">
+        <button class="references-toggle" type="button" aria-label="参考文献を展開する" id="btn-references-toggle" onclick="this.closest('.references-card').setAttribute('aria-expanded', this.closest('.references-card').getAttribute('aria-expanded') === 'true' ? 'false' : 'true'); this.setAttribute('aria-label', this.closest('.references-card').getAttribute('aria-expanded') === 'true' ? '参考文献を折りたたむ' : '参考文献を展開する');">
+          <h3 class="card-title" style="margin-bottom:0;">参考文献（この診断の根拠）</h3>
           <span class="references-toggle-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none">
               <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>

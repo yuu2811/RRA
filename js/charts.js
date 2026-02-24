@@ -103,8 +103,8 @@ const Charts = {
 
     // Animate the gauge arc using custom JS animation for 120Hz smoothness
     requestAnimationFrame(() => {
-      const arc = document.getElementById('gauge-arc');
-      const dot = document.getElementById('gauge-dot');
+      const arc = svgElement.querySelector('#gauge-arc');
+      const dot = svgElement.querySelector('#gauge-dot');
       if (!arc) return;
 
       const dashLen = circumference * (totalAngle / 360);
@@ -156,6 +156,9 @@ const Charts = {
   _pulseGaugeGlow(arc, dot, color) {
     if (!arc) return;
 
+    // Find the SVG root element for scoped queries
+    var svgRoot = arc.closest('svg');
+
     // Pulse the drop shadow intensity
     const duration = 1200;
     const startTime = performance.now();
@@ -169,7 +172,7 @@ const Charts = {
       const opacity = 0.4 + intensity * 0.4;
 
       // Update the filter
-      const shadow = document.getElementById('gaugeShadow');
+      const shadow = svgRoot ? svgRoot.querySelector('#gaugeShadow') : document.getElementById('gaugeShadow');
       if (shadow) {
         const dropShadow = shadow.querySelector('feDropShadow');
         if (dropShadow) {
@@ -361,7 +364,7 @@ const Charts = {
     const delay = 500; // Wait for screen transition
 
     setTimeout(() => {
-      const polygon = document.getElementById('radar-polygon');
+      const polygon = svgElement.querySelector('#radar-polygon');
       const dots = svgElement.querySelectorAll('.radar-dot');
       if (!polygon) return;
 
@@ -740,25 +743,42 @@ const Charts = {
 
     var cycleDuration = 2000;
     var startTime = performance.now();
+    var rafId = null;
 
     function pulse(now) {
       // If the dot has been removed from DOM, stop
-      if (!dot.parentNode) return;
+      if (!dot.parentNode) { rafId = null; return; }
 
       var elapsed = (now - startTime) % cycleDuration;
       var t = elapsed / cycleDuration;
-      // Sine wave for smooth continuous pulse
-      var intensity = (Math.sin(t * 2 * Math.PI - Math.PI / 2) + 1) / 2; // 0 to 1
+      var intensity = (Math.sin(t * 2 * Math.PI - Math.PI / 2) + 1) / 2;
 
-      var r = 4 + intensity * 2.5; // 4 to 6.5
-      var opacity = 0.85 + intensity * 0.15; // 0.85 to 1.0
+      var r = 4 + intensity * 2.5;
+      var opacity = 0.85 + intensity * 0.15;
       dot.setAttribute('r', String(r));
       dot.setAttribute('opacity', String(opacity));
 
-      requestAnimationFrame(pulse);
+      rafId = requestAnimationFrame(pulse);
     }
 
-    requestAnimationFrame(pulse);
+    rafId = requestAnimationFrame(pulse);
+
+    // Pause when tab is hidden to save CPU
+    document.addEventListener('visibilitychange', function onVis() {
+      if (!dot.parentNode) {
+        document.removeEventListener('visibilitychange', onVis);
+        if (rafId) cancelAnimationFrame(rafId);
+        return;
+      }
+      if (document.hidden) {
+        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+      } else {
+        if (!rafId) {
+          startTime = performance.now();
+          rafId = requestAnimationFrame(pulse);
+        }
+      }
+    });
   },
 
   // ---------- Compound Risks ----------

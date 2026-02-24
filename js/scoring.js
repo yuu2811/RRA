@@ -110,6 +110,22 @@ const ACTION_TEMPLATES = {
 };
 
 // ============================================================
+// Risk Thresholds & Scoring Constants
+// ============================================================
+const RISK_THRESHOLDS = {
+  LOW: 80,         // Score >= 80 = low risk
+  CAUTION: 60,     // Score >= 60 = caution
+  WARNING: 40,     // Score >= 40 = warning
+  // Score < 40 = high risk
+};
+
+const ADVICE_THRESHOLD = 60;     // Show advice for dimensions below this
+const STRENGTH_THRESHOLD = 70;   // Dimensions above this are strengths
+const TREND_THRESHOLD = 3;       // Score change > 3 = meaningful trend
+const LIKERT_MIN = 1;
+const LIKERT_MAX = 5;
+
+// ============================================================
 // 1. Meta-Analytic Weighted Scoring
 // Effect sizes from Griffeth et al. (2000) & Rubenstein et al. (2018)
 // ============================================================
@@ -457,9 +473,9 @@ const Scoring = {
    * @returns {Object} Risk level with label, color, and emoji
    */
   getRiskLevel(score) {
-    if (score >= 80) return { level: 'low', label: '\u4f4e\u30ea\u30b9\u30af', color: '#22c55e', emoji: '\uD83D\uDFE2' };
-    if (score >= 60) return { level: 'caution', label: '\u3084\u3084\u6ce8\u610f', color: '#eab308', emoji: '\uD83D\uDFE1' };
-    if (score >= 40) return { level: 'warning', label: '\u8981\u6ce8\u610f', color: '#f97316', emoji: '\uD83D\uDFE0' };
+    if (score >= RISK_THRESHOLDS.LOW) return { level: 'low', label: '\u4f4e\u30ea\u30b9\u30af', color: '#22c55e', emoji: '\uD83D\uDFE2' };
+    if (score >= RISK_THRESHOLDS.CAUTION) return { level: 'caution', label: '\u3084\u3084\u6ce8\u610f', color: '#eab308', emoji: '\uD83D\uDFE1' };
+    if (score >= RISK_THRESHOLDS.WARNING) return { level: 'warning', label: '\u8981\u6ce8\u610f', color: '#f97316', emoji: '\uD83D\uDFE0' };
     return { level: 'high', label: '\u9ad8\u30ea\u30b9\u30af', color: '#ef4444', emoji: '\uD83D\uDD34' };
   },
 
@@ -469,13 +485,13 @@ const Scoring = {
    * @returns {string} Interpretation text
    */
   getOverallInterpretation(score) {
-    if (score >= 80) {
+    if (score >= RISK_THRESHOLDS.LOW) {
       return '今の職場で安定して働けている状態です。会社との相性も良く、長く続けられる見込みがあります。この良い状態を保つために、今の職場環境を大切にしていきましょう。';
     }
-    if (score >= 60) {
+    if (score >= RISK_THRESHOLDS.CAUTION) {
       return 'おおむね安定していますが、いくつか気になる点があります。スコアの低い項目に注目して、早めに対策すると、さらに安心して働けるようになります。';
     }
-    if (score >= 40) {
+    if (score >= RISK_THRESHOLDS.WARNING) {
       return 'いくつかの項目で注意が必要な状態です。点数の低いところを確認して、できることから取り組んでみましょう。';
     }
     return '退職のリスクが高い状態です。何が原因か確認し、すぐに手を打ちましょう。まず点数の低いところから、上司や周りの人に相談してみてください。';
@@ -490,7 +506,7 @@ const Scoring = {
     const advice = [];
     for (const dim of DIMENSIONS) {
       const score = dimensionScores[dim.id];
-      if (score < 60) {
+      if (score < ADVICE_THRESHOLD) {
         advice.push({
           dimensionName: dim.name,
           score: score,
@@ -962,7 +978,7 @@ const Scoring = {
 
     // Add dimension-specific actions for top impact dimensions
     for (const di of dimImpacts) {
-      if (di.score >= 70) continue; // Skip healthy dimensions
+      if (di.score >= STRENGTH_THRESHOLD) continue; // Skip healthy dimensions
       if (priorities.length >= 8) break; // Cap total actions
 
       const templates = ACTION_TEMPLATES[di.dimId];
@@ -979,7 +995,7 @@ const Scoring = {
 
       priorities.push({
         type: 'dimension',
-        priority: di.score < 40 ? 'high' : di.score < 60 ? 'medium' : 'low',
+        priority: di.score < RISK_THRESHOLDS.WARNING ? 'high' : di.score < ADVICE_THRESHOLD ? 'medium' : 'low',
         title: di.dimName + 'の改善',
         description: template.action,
         category: template.category,
@@ -1039,7 +1055,7 @@ const Scoring = {
     const strengths = [];
     for (const dim of DIMENSIONS) {
       const score = dimensionScores[dim.id];
-      if (score >= 70) {
+      if (score >= STRENGTH_THRESHOLD) {
         const percentile = this.getDimensionPercentile(dim.id, score);
         strengths.push({
           dimId: dim.id,

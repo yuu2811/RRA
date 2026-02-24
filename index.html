@@ -265,6 +265,8 @@
         <h3 class="card-title">詳しい分析スコア</h3>
         <div id="weighted-comparison" class="weighted-comparison"></div>
         <p class="weighted-explanation">退職に関わりやすい項目を重視して計算したスコアです。より実態に近い判定になります。</p>
+        <!-- Demographic Context (shown only when demographic info provided) -->
+        <div id="demographic-context" class="demographic-context-section" style="display:none;"></div>
       </div>
 
       <hr class="result-divider" aria-hidden="true">
@@ -313,7 +315,7 @@
 
       <!-- Collapsible: Dimension Details -->
       <div class="glass-card details-card" role="region" aria-label="各項目の詳細スコア" aria-expanded="false">
-        <button class="collapsible-toggle" type="button" aria-label="各項目の詳細を展開する" onclick="var card=this.closest('[aria-expanded]');card.setAttribute('aria-expanded',card.getAttribute('aria-expanded')==='true'?'false':'true');this.setAttribute('aria-label',card.getAttribute('aria-expanded')==='true'?'各項目の詳細を折りたたむ':'各項目の詳細を展開する');">
+        <button class="collapsible-toggle" type="button" aria-label="各項目の詳細を展開する" data-collapse-label="各項目の詳細">
           <h3 class="card-title" style="margin-bottom:0;">各項目の詳細 <span class="card-title-hint">タップで展開</span></h3>
           <span class="collapsible-toggle-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -328,7 +330,7 @@
 
       <!-- Collapsible: Correlation Insights -->
       <div class="glass-card correlation-card" id="correlation-card" role="region" aria-label="項目どうしの関連" aria-expanded="false">
-        <button class="collapsible-toggle" type="button" aria-label="項目どうしの関連を展開する" onclick="var card=this.closest('[aria-expanded]');card.setAttribute('aria-expanded',card.getAttribute('aria-expanded')==='true'?'false':'true');this.setAttribute('aria-label',card.getAttribute('aria-expanded')==='true'?'項目どうしの関連を折りたたむ':'項目どうしの関連を展開する');">
+        <button class="collapsible-toggle" type="button" aria-label="項目どうしの関連を展開する" data-collapse-label="項目どうしの関連">
           <h3 class="card-title" style="margin-bottom:0;">項目どうしの関連</h3>
           <span class="collapsible-toggle-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -343,7 +345,7 @@
 
       <!-- Collapsible: Trend Chart (History) -->
       <div class="glass-card trend-card" id="trend-card" role="region" aria-label="診断スコア推移" aria-expanded="false">
-        <button class="collapsible-toggle" type="button" aria-label="スコア推移を展開する" onclick="var card=this.closest('[aria-expanded]');card.setAttribute('aria-expanded',card.getAttribute('aria-expanded')==='true'?'false':'true');this.setAttribute('aria-label',card.getAttribute('aria-expanded')==='true'?'スコア推移を折りたたむ':'スコア推移を展開する');">
+        <button class="collapsible-toggle" type="button" aria-label="スコア推移を展開する" data-collapse-label="スコア推移">
           <h3 class="card-title" style="margin-bottom:0;">スコア推移</h3>
           <span class="collapsible-toggle-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -361,7 +363,7 @@
 
       <!-- References (Collapsible) -->
       <div class="glass-card references-card" aria-expanded="false" role="region" aria-label="参考文献">
-        <button class="references-toggle" type="button" aria-label="参考文献を展開する" id="btn-references-toggle" onclick="this.closest('.references-card').setAttribute('aria-expanded', this.closest('.references-card').getAttribute('aria-expanded') === 'true' ? 'false' : 'true'); this.setAttribute('aria-label', this.closest('.references-card').getAttribute('aria-expanded') === 'true' ? '参考文献を折りたたむ' : '参考文献を展開する');">
+        <button class="references-toggle" type="button" aria-label="参考文献を展開する" id="btn-references-toggle" data-collapse-label="参考文献">
           <h3 class="card-title" style="margin-bottom:0;">参考文献（この診断の根拠）</h3>
           <span class="references-toggle-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none">

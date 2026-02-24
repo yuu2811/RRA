@@ -71,6 +71,7 @@
     actionPlanContent: document.getElementById('action-plan-content'),
     correlationCard: document.getElementById('correlation-card'),
     correlationContent: document.getElementById('correlation-content'),
+    demographicContext: document.getElementById('demographic-context'),
     btnShareImage: document.getElementById('btn-share-image'),
     referencesContent: document.getElementById('references-content'),
     dimensionLabel: document.getElementById('dimension-label'),
@@ -447,7 +448,7 @@
           '<div style="position:absolute;inset:6px;border:2px solid transparent;border-bottom-color:rgba(167,139,250,0.5);border-radius:50%;animation:calcSpin 1.2s cubic-bezier(0.4,0,0.2,1) infinite reverse;"></div>' +
         '</div>' +
         '<div style="font-size:17px;font-weight:700;color:var(--text-primary);opacity:0;animation:calcFadeIn 0.4s ease-out 0.2s forwards;letter-spacing:0.02em;">診断結果を分析中...</div>' +
-        '<div style="font-size:13px;color:var(--text-muted);margin-top:10px;opacity:0;animation:calcFadeIn 0.4s ease-out 0.5s forwards;">30問の回答をAIが分析しています</div>' +
+        '<div style="font-size:13px;color:var(--text-muted);margin-top:10px;opacity:0;animation:calcFadeIn 0.4s ease-out 0.5s forwards;">30問の回答から結果を計算しています</div>' +
         '<div style="margin-top:20px;width:120px;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;opacity:0;animation:calcFadeIn 0.3s ease-out 0.7s forwards;"><div style="width:0%;height:100%;background:linear-gradient(90deg,#6366f1,#a78bfa);border-radius:2px;animation:calcProgress 1s ease-in-out 0.8s forwards;"></div></div>' +
       '</div>';
 
@@ -502,6 +503,21 @@
     var demographicContext = Scoring.calculateContextualScore(weightedScore, state.demographic);
 
     showScreen('result');
+
+    // Demographic context display
+    if (els.demographicContext) {
+      if (demographicContext.comparison) {
+        els.demographicContext.style.display = '';
+        els.demographicContext.innerHTML =
+          '<div class="demo-context-row">' +
+            '<span class="demo-context-label">あなたに合わせた判定</span>' +
+            '<span class="demo-context-score" style="color:' + Scoring.getRiskLevel(demographicContext.adjustedScore).color + '">' + demographicContext.adjustedScore + '<small>/100</small></span>' +
+          '</div>' +
+          '<p class="demo-context-note">' + demographicContext.comparison + '</p>';
+      } else {
+        els.demographicContext.style.display = 'none';
+      }
+    }
 
     // Overall gauge - use weighted score as primary
     Charts.drawGauge(els.gaugeSvg, weightedScore, risk.color);
@@ -783,19 +799,72 @@
   }
 
   // Keyboard support for likert (accessibility)
+  var focusedLikertIndex = -1;
+
+  function updateLikertFocus(index) {
+    var buttons = els.likertScale.querySelectorAll('.likert-btn');
+    buttons.forEach(function (btn) { btn.classList.remove('keyboard-focus'); });
+    if (index >= 0 && index < buttons.length) {
+      focusedLikertIndex = index;
+      buttons[index].classList.add('keyboard-focus');
+      buttons[index].focus();
+    }
+  }
+
   document.addEventListener('keydown', function (e) {
     if (!screens.question.classList.contains('active')) return;
+
+    // Number keys 1-5: instant answer
     var key = parseInt(e.key);
     if (key >= 1 && key <= 5) {
       handleAnswer(key);
+      focusedLikertIndex = -1;
+      return;
     }
-    if (e.key === 'ArrowLeft' || e.key === 'Backspace') {
+
+    // Arrow right/down: move focus to next Likert button
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      var next = Math.min(focusedLikertIndex + 1, 4);
+      updateLikertFocus(next);
+      return;
+    }
+
+    // Arrow left within Likert focus: move to previous button
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      if (focusedLikertIndex > 0) {
+        e.preventDefault();
+        updateLikertFocus(focusedLikertIndex - 1);
+        return;
+      }
+      // If at first button or no focus, go to previous question
+      if (focusedLikertIndex <= 0 && state.currentQuestion > 0) {
+        state.direction = 'prev';
+        state.currentQuestion--;
+        focusedLikertIndex = -1;
+        Haptics.navigate();
+        showQuestion(state.currentQuestion);
+        return;
+      }
+    }
+
+    // Backspace: go to previous question
+    if (e.key === 'Backspace') {
       if (state.currentQuestion > 0) {
         state.direction = 'prev';
         state.currentQuestion--;
+        focusedLikertIndex = -1;
         Haptics.navigate();
         showQuestion(state.currentQuestion);
       }
+      return;
+    }
+
+    // Enter/Space: select focused Likert button
+    if ((e.key === 'Enter' || e.key === ' ') && focusedLikertIndex >= 0) {
+      e.preventDefault();
+      handleAnswer(focusedLikertIndex + 1);
+      focusedLikertIndex = -1;
     }
   });
 
@@ -898,6 +967,22 @@
 
     state.isSwiping = false;
   }, { passive: true });
+
+  // ---------- Collapsible Section Toggles ----------
+  function initCollapsibleToggles() {
+    var toggles = document.querySelectorAll('.collapsible-toggle, .references-toggle');
+    toggles.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var card = btn.closest('[aria-expanded]');
+        if (!card) return;
+        var isExpanded = card.getAttribute('aria-expanded') === 'true';
+        card.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
+        var label = btn.getAttribute('data-collapse-label') || '';
+        btn.setAttribute('aria-label', isExpanded ? label + 'を展開する' : label + 'を折りたたむ');
+      });
+    });
+  }
+  initCollapsibleToggles();
 
   // ---------- Initialize ----------
   updateHistorySummary();

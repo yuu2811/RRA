@@ -118,15 +118,6 @@
         <input type="file" id="import-file" accept=".json" style="display:none;">
       </div>
 
-      <!-- Group Analysis (shown if user has history) -->
-      <div class="glass-card group-card" id="group-card" style="display:none;" role="region" aria-label="チーム分析">
-        <h3 class="card-title" style="font-size:15px;">チーム分析</h3>
-        <p class="group-desc">メンバーのコードを1行ずつ入力してください</p>
-        <textarea id="group-codes" class="group-codes-input" rows="4" placeholder="コードを1行ずつ入力&#10;例: 1K2M0N1P2J1L1M2N0K14"></textarea>
-        <button id="btn-analyze-group" class="btn-secondary" type="button" style="width:100%;">チームの傾向を分析</button>
-        <div id="group-results" class="group-results" style="display:none;"></div>
-      </div>
-
       <!-- Theme Toggle -->
       <button id="btn-theme" class="btn-theme-toggle" type="button" aria-label="テーマ切替">
         <svg id="theme-icon-dark" viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -300,7 +291,7 @@
       <div class="glass-card chart-card" role="region" aria-label="項目別スコアチャート">
         <h3 class="card-title">項目別スコア</h3>
         <div class="radar-container" id="radar-container">
-          <svg id="radar-svg" viewBox="-30 -5 410 375" role="img" aria-label="レーダーチャート"></svg>
+          <svg id="radar-svg" viewBox="-65 -15 480 390" role="img" aria-label="レーダーチャート"></svg>
         </div>
       </div>
 
@@ -398,17 +389,6 @@
         </button>
         <div class="references-collapsible">
           <div id="references-content" class="references-content"></div>
-        </div>
-      </div>
-
-      <!-- Team Mode: Score Code -->
-      <div class="glass-card team-card" id="team-card" role="region" aria-label="チーム診断">
-        <h3 class="card-title">チーム診断</h3>
-        <p class="team-desc">コードを共有して、チームの傾向を匿名で分析できます。</p>
-        <div class="team-code-display">
-          <span class="team-code-label">あなたのコード</span>
-          <div class="team-code-value" id="my-score-code" aria-live="polite">---</div>
-          <button id="btn-copy-code" class="btn-data" type="button">コピー</button>
         </div>
       </div>
 

@@ -281,13 +281,13 @@ const Charts = {
         const angle = startAngle + i * angleStep;
         points.push(`${cx + r * Math.cos(angle)},${cy + r * Math.sin(angle)}`);
       }
-      var fillOpacity = li === levels.length - 1 ? 'rgba(255,255,255,0.02)' : 'none';
-      gridHTML += `<polygon points="${points.join(' ')}" fill="${fillOpacity}" stroke="rgba(255,255,255,0.12)" stroke-width="0.5"/>`;
+      var bandFill = li % 2 === 0 ? 'rgba(255,255,255,0.035)' : 'rgba(255,255,255,0.015)';
+      gridHTML += `<polygon points="${points.join(' ')}" fill="${bandFill}" stroke="rgba(255,255,255,0.28)" stroke-width="1"/>`;
 
       // Level label
       const labelY = cy - r - 4;
       if (level % 40 === 0 || level === 100) {
-        gridHTML += `<text x="${cx + 2}" y="${labelY}" fill="rgba(255,255,255,0.2)" font-size="9" text-anchor="start">${level}</text>`;
+        gridHTML += `<text x="${cx + 2}" y="${labelY}" fill="rgba(255,255,255,0.25)" font-size="9" text-anchor="start">${level}</text>`;
       }
     }
 
@@ -296,10 +296,10 @@ const Charts = {
       const angle = startAngle + i * angleStep;
       const x = cx + maxR * Math.cos(angle);
       const y = cy + maxR * Math.sin(angle);
-      axesHTML += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="rgba(255,255,255,0.10)" stroke-width="0.5"/>`;
+      axesHTML += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="rgba(255,255,255,0.18)" stroke-width="0.7"/>`;
 
       // Label position (push further out)
-      const labelR = maxR + 22;
+      const labelR = maxR + 20;
       const lx = cx + labelR * Math.cos(angle);
       const ly = cy + labelR * Math.sin(angle);
 
@@ -310,7 +310,7 @@ const Charts = {
 
       const dim = dims[i];
 
-      labelsHTML += `<text x="${lx}" y="${ly}" fill="var(--text-secondary)" font-size="10" font-weight="600" text-anchor="${anchor}" dominant-baseline="middle">${dim.name}</text>`;
+      labelsHTML += `<text x="${lx}" y="${ly}" fill="var(--text-secondary)" font-size="9" font-weight="600" text-anchor="${anchor}" dominant-baseline="middle">${dim.name}</text>`;
     }
 
     // Calculate target data points

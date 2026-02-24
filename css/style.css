@@ -853,8 +853,7 @@ body::after {
 
 #radar-svg {
   width: 100%;
-  /* Max width that fits within the card padding on 393px viewport */
-  max-width: 320px;
+  max-width: 375px;
   height: auto;
   overflow: visible;
 }
@@ -2253,116 +2252,6 @@ body::after {
   white-space: nowrap;
 }
 
-/* ---------- Team / Group Mode ---------- */
-.team-desc {
-  font-size: clamp(12px, 3.2vw, 14px);
-  color: var(--text-muted);
-  line-height: 1.7;
-  margin-bottom: 12px;
-}
-
-.team-code-display {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.team-code-label {
-  font-size: 12px;
-  color: var(--text-muted);
-  font-weight: 500;
-}
-
-.team-code-value {
-  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--accent-secondary);
-  letter-spacing: 1px;
-  background: rgba(99, 102, 241, 0.08);
-  padding: 6px 14px;
-  border-radius: 8px;
-  user-select: all;
-  -webkit-user-select: all;
-}
-
-.group-card {
-  text-align: left;
-  margin-top: 16px;
-}
-
-.group-desc {
-  font-size: clamp(12px, 3.2vw, 14px);
-  color: var(--text-muted);
-  line-height: 1.7;
-  margin-bottom: 10px;
-}
-
-.group-codes-input {
-  width: 100%;
-  padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  color: var(--text-primary);
-  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
-  font-size: 13px;
-  resize: vertical;
-  margin-bottom: 10px;
-  line-height: 1.6;
-}
-
-.group-codes-input:focus {
-  outline: none;
-  border-color: var(--accent-primary);
-}
-
-.group-results {
-  margin-top: 14px;
-}
-
-.group-summary {
-  text-align: center;
-  margin-bottom: 16px;
-}
-
-.group-score-big {
-  font-size: 36px;
-  font-weight: 800;
-  display: block;
-  margin-bottom: 4px;
-}
-
-.group-risk-dims {
-  margin-top: 12px;
-}
-
-.group-dim-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 10px;
-  border-radius: 8px;
-  margin-bottom: 4px;
-}
-
-.group-dim-bar {
-  height: 6px;
-  border-radius: 3px;
-  flex: 1;
-  margin: 0 10px;
-  background: rgba(255, 255, 255, 0.06);
-  overflow: hidden;
-}
-
-.group-dim-bar-fill {
-  height: 100%;
-  border-radius: 3px;
-  transition: width 0.5s ease-out;
-}
-
 /* ---------- Data Portability ---------- */
 .data-portability {
   display: flex;
@@ -2503,7 +2392,7 @@ body::after {
   }
 
   #radar-svg {
-    max-width: 260px;
+    max-width: 305px;
   }
 
   .question-card {
@@ -2522,14 +2411,14 @@ body::after {
   }
 
   #radar-svg {
-    max-width: 280px;
+    max-width: 330px;
   }
 }
 
 /* ---------- Large phones and small tablets (430px+) ---------- */
 @media (min-width: 430px) {
   #radar-svg {
-    max-width: 360px;
+    max-width: 420px;
   }
 
   .gauge-container {
@@ -2557,7 +2446,7 @@ body::after {
   }
 
   #radar-svg {
-    max-width: 400px;
+    max-width: 470px;
   }
 
   #gauge-svg {
@@ -2798,7 +2687,6 @@ body::after {
   .btn-data,
   .result-actions,
   .reminder-card,
-  .team-card,
   .data-portability,
   .collapsible-toggle,
   .collapsible-toggle-icon,
@@ -2811,7 +2699,6 @@ body::after {
   #btn-risk-dna,
   #btn-retry,
   #btn-home,
-  #btn-copy-code,
   .social-proof-badge,
   .result-divider {
     display: none !important;
@@ -2893,7 +2780,7 @@ body::after {
 
   /* Radar chart */
   .radar-container svg {
-    max-width: 280px !important;
+    max-width: 330px !important;
     margin: 0 auto !important;
     display: block !important;
   }

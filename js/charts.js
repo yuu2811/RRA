@@ -259,7 +259,7 @@ const Charts = {
    * Draw radar/spider chart
    * Enhanced: polygon animates progressively from center outward
    */
-  drawRadar(svgElement, dimensionScores) {
+  drawRadar(svgElement, dimensionScores, previousScores) {
     const dims = DIMENSIONS;
     const n = dims.length;
     const cx = 175, cy = 175, maxR = 130;
@@ -344,6 +344,31 @@ const Charts = {
       dotsHTML += `<circle class="radar-dot" data-index="${i}" cx="${cx}" cy="${cy}" r="0" fill="${color}" stroke="#fff" stroke-width="1" stroke-opacity="0.3"/>`;
     }
 
+    // Previous assessment overlay (ghost polygon)
+    let prevPolygonHTML = '';
+    if (previousScores) {
+      const prevPoints = [];
+      for (let i = 0; i < n; i++) {
+        const angle = startAngle + i * angleStep;
+        const dim = dims[i];
+        const prevScore = previousScores[dim.id] || 0;
+        const r = (prevScore / 100) * maxR;
+        prevPoints.push(`${cx + r * Math.cos(angle)},${cy + r * Math.sin(angle)}`);
+      }
+      prevPolygonHTML = `<polygon points="${prevPoints.join(' ')}" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" stroke-dasharray="4,4" stroke-linejoin="round"/>`;
+    }
+
+    // Legend (if comparison)
+    let legendHTML = '';
+    if (previousScores) {
+      legendHTML = `<g transform="translate(10,340)">
+        <line x1="0" y1="0" x2="16" y2="0" stroke="#818cf8" stroke-width="2"/>
+        <text x="20" y="4" fill="var(--text-muted)" font-size="9">今回</text>
+        <line x1="60" y1="0" x2="76" y2="0" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-dasharray="4,4"/>
+        <text x="80" y="4" fill="var(--text-muted)" font-size="9">前回</text>
+      </g>`;
+    }
+
     svgElement.innerHTML = `
       <defs>
         <linearGradient id="radarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -353,9 +378,11 @@ const Charts = {
       </defs>
       ${gridHTML}
       ${axesHTML}
+      ${prevPolygonHTML}
       <polygon id="radar-polygon" points="${centerPath}" fill="url(#radarGrad)" stroke="#818cf8" stroke-width="2" stroke-linejoin="round" opacity="0"/>
       ${dotsHTML}
       ${labelsHTML}
+      ${legendHTML}
     `;
 
     // Progressive animation: polygon expands from center outward

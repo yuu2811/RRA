@@ -27,6 +27,20 @@
   <meta name="twitter:image" content="icons/og-image.png">
 
   <title>退職リスク診断</title>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "退職リスク診断",
+    "description": "世界中の研究に基づく10項目の分析で退職リスクを科学的に診断。全30問約5分で完了。",
+    "applicationCategory": "HealthApplication",
+    "operatingSystem": "Any",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "JPY" },
+    "inLanguage": "ja",
+    "browserRequirements": "Requires JavaScript",
+    "softwareVersion": "3.2"
+  }
+  </script>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-192.png">
@@ -34,6 +48,9 @@
   <link rel="stylesheet" href="css/components.css">
 </head>
 <body>
+  <!-- Skip Navigation Link -->
+  <a href="#btn-start" class="skip-link" id="skip-link">メインコンテンツへスキップ</a>
+
   <!-- Animated Background Orbs -->
   <div class="bg-orbs" aria-hidden="true">
     <div class="bg-orb bg-orb--1"></div>
@@ -126,8 +143,14 @@
         <input type="file" id="import-file" accept=".json" style="display:none;">
       </div>
 
+      <!-- Theme Toggle -->
+      <button id="btn-theme" class="btn-theme-toggle" type="button" aria-label="テーマ切替">
+        <svg id="theme-icon-dark" viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg id="theme-icon-light" viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true" style="display:none;"><circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+
       <!-- Version / Credit Footer -->
-      <p class="version-footer" aria-label="バージョン情報">v3.1</p>
+      <p class="version-footer" aria-label="バージョン情報">v3.2</p>
     </div>
   </section>
 
@@ -291,6 +314,9 @@
         <div id="demographic-context" class="demographic-context-section" style="display:none;"></div>
       </div>
 
+      <!-- Percentile Summary (quick at-a-glance ranking) -->
+      <div id="percentile-summary" class="percentile-summary" style="display:none;"></div>
+
       <hr class="result-divider" aria-hidden="true">
 
       <!-- Radar Chart -->
@@ -366,6 +392,27 @@
             </div>
             <div id="whatif-risk-change" class="whatif-risk-change"></div>
           </div>
+        </div>
+      </div>
+
+      <hr class="result-divider" aria-hidden="true">
+
+      <!-- Goal Setting -->
+      <div class="glass-card goal-card" id="goal-card" role="region" aria-label="目標設定" aria-expanded="false">
+        <button class="collapsible-toggle" type="button" aria-label="目標設定を展開する" data-collapse-label="目標設定">
+          <h3 class="card-title" style="margin-bottom:0;">目標を設定する <span class="card-title-hint">タップで設定</span></h3>
+          <span class="collapsible-toggle-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </button>
+        <div class="collapsible-body">
+          <p class="goal-desc">目標スコアを設定して、各項目で何ポイント改善が必要か確認しましょう。</p>
+          <div class="goal-input-row">
+            <label class="goal-label" for="goal-target">目標スコア</label>
+            <input type="range" id="goal-target" class="goal-slider" min="0" max="100" value="70" step="5">
+            <span id="goal-target-value" class="goal-target-value">70</span>
+          </div>
+          <div id="goal-breakdown" class="goal-breakdown"></div>
         </div>
       </div>
 
@@ -504,6 +551,13 @@
             <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           詳細レポートをコピー
+        </button>
+        <button id="btn-print" class="btn-secondary" type="button" aria-label="印刷 / PDF保存">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+            <path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="6" y="14" width="12" height="8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          印刷 / PDF保存
         </button>
         <button id="btn-retry" class="btn-secondary" type="button" aria-label="もう一度診断する">もう一度診断する</button>
         <button id="btn-home" class="btn-home" type="button" aria-label="ホームに戻る">

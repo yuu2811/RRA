@@ -203,6 +203,14 @@
       trendHTML = '<span class="history-trend-badge ' + cls + '">' + arrow + ' ' + label + '</span>';
     }
 
+    // Streak badge
+    var streakHTML = '';
+    var streak = DiagnosticHistory.getStreak();
+    if (streak.streak >= 2) {
+      var fireEmoji = streak.streak >= 5 ? '\uD83D\uDD25' : '\u2B50';
+      streakHTML = '<div class="streak-badge"><span class="streak-badge-fire">' + fireEmoji + '</span> ' + streak.streak + '回連続</div>';
+    }
+
     els.historySummary.innerHTML =
       '<div class="history-summary-card">' +
         '<div class="history-summary-left">' +
@@ -212,6 +220,7 @@
         '</div>' +
         '<div class="history-summary-right">' +
           trendHTML +
+          streakHTML +
           '<span class="history-summary-count" style="font-size:11px;color:var(--text-muted)">診断回数: ' + history.length + '回</span>' +
         '</div>' +
       '</div>';
@@ -505,6 +514,11 @@
 
     showScreen('result');
 
+    // Confetti celebration for high scores
+    if (weightedScore >= 70) {
+      showConfetti();
+    }
+
     // Demographic context display
     if (els.demographicContext) {
       if (demographicContext.comparison) {
@@ -554,8 +568,34 @@
         '</div>';
     }
 
-    // Radar chart
-    Charts.drawRadar(els.radarSvg, dimensionScores);
+    // Radar chart (with previous assessment overlay if available)
+    var prevDimScores = null;
+    if (history.length > 0) {
+      var lastEntry = history[history.length - 1];
+      if (lastEntry.dimensions) {
+        prevDimScores = lastEntry.dimensions;
+      }
+    }
+    Charts.drawRadar(els.radarSvg, dimensionScores, prevDimScores);
+
+    // Percentile Summary Chips (at-a-glance ranking)
+    var percSummary = document.getElementById('percentile-summary');
+    if (percSummary) {
+      var chipHTML = '';
+      for (var pi = 0; pi < DIMENSIONS.length; pi++) {
+        var pdim = DIMENSIONS[pi];
+        var pscore = dimensionScores[pdim.id] || 0;
+        var pPerc = Scoring.getDimensionPercentile(pdim.id, pscore);
+        var pRisk = Scoring.getRiskLevel(pscore);
+        var topPct = 100 - pPerc.percentile;
+        chipHTML += '<span class="percentile-chip">';
+        chipHTML += '<span class="percentile-chip-name">' + pdim.name + '</span>';
+        chipHTML += '<span class="percentile-chip-rank" style="color:' + pRisk.color + '">上位' + topPct + '%</span>';
+        chipHTML += '</span>';
+      }
+      percSummary.innerHTML = chipHTML;
+      percSummary.style.display = '';
+    }
 
     // Benchmark Bell Curves
     var benchmarkContent = document.getElementById('benchmark-content');
@@ -642,6 +682,9 @@
     if (Charts.initWhatIfSimulator) {
       Charts.initWhatIfSimulator(els.whatifSliders, dimensionScores, weightedScore);
     }
+
+    // Goal Setting
+    initGoalSetting(dimensionScores, weightedScore);
 
     // Team Mode: Generate and display score code
     var scoreCodeEl = document.getElementById('my-score-code');
@@ -748,6 +791,146 @@
     showScreen('start');
   }
 
+  // ---------- Confetti Celebration ----------
+  function showConfetti() {
+    var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
+    var container = document.createElement('div');
+    container.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:3000;overflow:hidden;';
+    document.body.appendChild(container);
+
+    var colors = ['#818cf8', '#a78bfa', '#22c55e', '#eab308', '#f97316', '#ec4899', '#6366f1'];
+    var particles = [];
+
+    for (var i = 0; i < 40; i++) {
+      var p = document.createElement('div');
+      var color = colors[Math.floor(Math.random() * colors.length)];
+      var size = 4 + Math.random() * 6;
+      var x = Math.random() * 100;
+      var delay = Math.random() * 500;
+      var isCircle = Math.random() > 0.5;
+
+      p.style.cssText = 'position:absolute;left:' + x + '%;top:-10px;width:' + size + 'px;height:' + (isCircle ? size : size * 0.4) + 'px;background:' + color + ';border-radius:' + (isCircle ? '50%' : '1px') + ';opacity:0.9;';
+
+      container.appendChild(p);
+      particles.push({
+        el: p,
+        x: x,
+        y: -10,
+        vx: (Math.random() - 0.5) * 2,
+        vy: 2 + Math.random() * 3,
+        rotation: Math.random() * 360,
+        rotSpeed: (Math.random() - 0.5) * 10,
+        delay: delay
+      });
+    }
+
+    var start = performance.now();
+    function animate(now) {
+      var elapsed = now - start;
+      var allDone = true;
+
+      for (var j = 0; j < particles.length; j++) {
+        var pp = particles[j];
+        var t = elapsed - pp.delay;
+        if (t < 0) { allDone = false; continue; }
+
+        pp.y += pp.vy;
+        pp.x += pp.vx;
+        pp.vy += 0.08; // gravity
+        pp.rotation += pp.rotSpeed;
+
+        var opacity = Math.max(0, 1 - t / 2500);
+        pp.el.style.transform = 'translateY(' + pp.y + 'px) rotate(' + pp.rotation + 'deg)';
+        pp.el.style.left = pp.x + '%';
+        pp.el.style.opacity = String(opacity);
+
+        if (opacity > 0) allDone = false;
+      }
+
+      if (!allDone && elapsed < 3000) {
+        requestAnimationFrame(animate);
+      } else {
+        container.remove();
+      }
+    }
+    requestAnimationFrame(animate);
+  }
+
+  // ---------- Goal Setting ----------
+  function initGoalSetting(dimensionScores, weightedScore) {
+    var goalSlider = document.getElementById('goal-target');
+    var goalValueEl = document.getElementById('goal-target-value');
+    var goalBreakdown = document.getElementById('goal-breakdown');
+    if (!goalSlider || !goalBreakdown) return;
+
+    goalSlider.value = Math.min(Math.max(weightedScore + 10, 40), 90);
+    if (goalValueEl) goalValueEl.textContent = goalSlider.value;
+
+    function updateGoalBreakdown() {
+      var target = parseInt(goalSlider.value);
+      if (goalValueEl) goalValueEl.textContent = target;
+      var targetRisk = Scoring.getRiskLevel(target);
+
+      // Calculate how much each dimension needs to improve
+      // Use the meta-analytic weights to figure out contribution
+      var html = '';
+      var gap = target - weightedScore;
+
+      for (var i = 0; i < DIMENSIONS.length; i++) {
+        var dim = DIMENSIONS[i];
+        var current = dimensionScores[dim.id] || 0;
+        var risk = Scoring.getRiskLevel(current);
+
+        // Needed improvement is proportional to the gap and inverse to current score
+        // Focus improvements on lowest-scoring dimensions
+        var needed = 0;
+        if (gap > 0 && current < 90) {
+          // Weight by how much room for improvement
+          var room = 100 - current;
+          needed = Math.min(Math.round(gap * (room / 100) * 1.5), room);
+        }
+
+        var neededText, neededColor;
+        if (needed <= 0) {
+          neededText = '現状維持';
+          neededColor = 'var(--text-muted)';
+        } else if (needed <= 5) {
+          neededText = '+' + needed + 'pt';
+          neededColor = '#22c55e';
+        } else if (needed <= 15) {
+          neededText = '+' + needed + 'pt';
+          neededColor = '#eab308';
+        } else {
+          neededText = '+' + needed + 'pt';
+          neededColor = '#f97316';
+        }
+
+        html += '<div class="goal-dim-row">';
+        html += '<span class="goal-dim-name">' + dim.name + '</span>';
+        html += '<div class="goal-dim-bar-wrap">';
+        html += '<span class="goal-dim-current" style="color:' + risk.color + '">' + current + '</span>';
+        html += '<span class="goal-dim-arrow">→</span>';
+        html += '<span class="goal-dim-needed" style="color:' + neededColor + '">' + neededText + '</span>';
+        html += '</div>';
+        html += '</div>';
+      }
+
+      // Summary
+      if (gap > 0) {
+        html += '<div style="margin-top:10px;text-align:center;font-size:12px;color:var(--text-muted);">目標達成には全体で約 <strong style="color:' + targetRisk.color + '">' + gap + 'pt</strong> の改善が必要です</div>';
+      } else {
+        html += '<div style="margin-top:10px;text-align:center;font-size:12px;color:var(--green);">目標は既に達成されています</div>';
+      }
+
+      goalBreakdown.innerHTML = html;
+    }
+
+    goalSlider.addEventListener('input', updateGoalBreakdown);
+    updateGoalBreakdown();
+  }
+
   // ---------- Event Listeners ----------
 
   // Start button → go to demographic screen
@@ -802,6 +985,14 @@
   // Home button
   if (els.btnHome) {
     els.btnHome.addEventListener('click', resetApp);
+  }
+
+  // Print / PDF button
+  var btnPrint = document.getElementById('btn-print');
+  if (btnPrint) {
+    btnPrint.addEventListener('click', function () {
+      window.print();
+    });
   }
 
   // Report button (copy detailed text report to clipboard)
@@ -1410,6 +1601,46 @@
       };
       reader.readAsText(file);
       importFile.value = ''; // Reset for re-import
+    });
+  }
+
+  // ---------- Theme Toggle ----------
+  var THEME_KEY = 'rra_theme';
+  var btnTheme = document.getElementById('btn-theme');
+  var iconDark = document.getElementById('theme-icon-dark');
+  var iconLight = document.getElementById('theme-icon-light');
+
+  function applyTheme(theme) {
+    if (theme === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+      if (iconDark) iconDark.style.display = 'none';
+      if (iconLight) iconLight.style.display = '';
+    } else if (theme === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      if (iconDark) iconDark.style.display = '';
+      if (iconLight) iconLight.style.display = 'none';
+    } else {
+      // System default
+      document.documentElement.removeAttribute('data-theme');
+      if (iconDark) iconDark.style.display = '';
+      if (iconLight) iconLight.style.display = 'none';
+    }
+    try { localStorage.setItem(THEME_KEY, theme); } catch (e) { /* noop */ }
+  }
+
+  // Load saved theme
+  var savedTheme = null;
+  try { savedTheme = localStorage.getItem(THEME_KEY); } catch (e) { /* noop */ }
+  if (savedTheme) applyTheme(savedTheme);
+
+  if (btnTheme) {
+    btnTheme.addEventListener('click', function () {
+      var current = document.documentElement.getAttribute('data-theme');
+      if (current === 'light') {
+        applyTheme('dark');
+      } else {
+        applyTheme('light');
+      }
     });
   }
 

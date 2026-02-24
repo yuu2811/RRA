@@ -259,7 +259,7 @@ const Charts = {
    * Draw radar/spider chart
    * Enhanced: polygon animates progressively from center outward
    */
-  drawRadar(svgElement, dimensionScores) {
+  drawRadar(svgElement, dimensionScores, previousScores) {
     const dims = DIMENSIONS;
     const n = dims.length;
     const cx = 175, cy = 175, maxR = 130;
@@ -344,6 +344,31 @@ const Charts = {
       dotsHTML += `<circle class="radar-dot" data-index="${i}" cx="${cx}" cy="${cy}" r="0" fill="${color}" stroke="#fff" stroke-width="1" stroke-opacity="0.3"/>`;
     }
 
+    // Previous assessment overlay (ghost polygon)
+    let prevPolygonHTML = '';
+    if (previousScores) {
+      const prevPoints = [];
+      for (let i = 0; i < n; i++) {
+        const angle = startAngle + i * angleStep;
+        const dim = dims[i];
+        const prevScore = previousScores[dim.id] || 0;
+        const r = (prevScore / 100) * maxR;
+        prevPoints.push(`${cx + r * Math.cos(angle)},${cy + r * Math.sin(angle)}`);
+      }
+      prevPolygonHTML = `<polygon points="${prevPoints.join(' ')}" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.5" stroke-dasharray="4,4" stroke-linejoin="round"/>`;
+    }
+
+    // Legend (if comparison)
+    let legendHTML = '';
+    if (previousScores) {
+      legendHTML = `<g transform="translate(10,340)">
+        <line x1="0" y1="0" x2="16" y2="0" stroke="#818cf8" stroke-width="2"/>
+        <text x="20" y="4" fill="var(--text-muted)" font-size="9">今回</text>
+        <line x1="60" y1="0" x2="76" y2="0" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-dasharray="4,4"/>
+        <text x="80" y="4" fill="var(--text-muted)" font-size="9">前回</text>
+      </g>`;
+    }
+
     svgElement.innerHTML = `
       <defs>
         <linearGradient id="radarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -353,9 +378,11 @@ const Charts = {
       </defs>
       ${gridHTML}
       ${axesHTML}
+      ${prevPolygonHTML}
       <polygon id="radar-polygon" points="${centerPath}" fill="url(#radarGrad)" stroke="#818cf8" stroke-width="2" stroke-linejoin="round" opacity="0"/>
       ${dotsHTML}
       ${labelsHTML}
+      ${legendHTML}
     `;
 
     // Progressive animation: polygon expands from center outward
@@ -1294,12 +1321,51 @@ const Charts = {
         }
         drillHTML += '</div>';
 
+        // Deep-dive educational content (if available)
+        if (dim.deepDive) {
+          var dd = dim.deepDive;
+          drillHTML += '<div class="dim-deep-dive">';
+          drillHTML += '<div class="dim-deep-dive-toggle" tabindex="0" role="button" aria-label="もっと詳しく知る">もっと詳しく知る ▸</div>';
+          drillHTML += '<div class="dim-deep-dive-body" style="display:none;">';
+          drillHTML += '<div class="dim-dd-section"><div class="dim-dd-label">この項目について</div><p>' + dd.why + '</p></div>';
+          drillHTML += '<div class="dim-dd-section"><div class="dim-dd-label">研究データ</div><p>' + dd.science + '</p></div>';
+          drillHTML += '<div class="dim-dd-section"><div class="dim-dd-label">高スコアの例</div><p>' + dd.highExample + '</p></div>';
+          drillHTML += '<div class="dim-dd-section"><div class="dim-dd-label">低スコアの例</div><p>' + dd.lowExample + '</p></div>';
+          if (dd.actions && dd.actions.length > 0) {
+            drillHTML += '<div class="dim-dd-section"><div class="dim-dd-label">具体的なアクション</div><ul class="dim-dd-actions">';
+            for (var ai = 0; ai < dd.actions.length; ai++) {
+              drillHTML += '<li>' + dd.actions[ai] + '</li>';
+            }
+            drillHTML += '</ul></div>';
+          }
+          drillHTML += '</div></div>';
+        }
+
         // Academic reference
         drillHTML += '<div class="dim-drill-ref">' + dim.reference + '</div>';
         drillHTML += '</div>';
 
         row.innerHTML = mainHTML + drillHTML;
         container.appendChild(row);
+
+        // Tap handler for deep-dive toggle
+        var ddToggle = row.querySelector('.dim-deep-dive-toggle');
+        if (ddToggle) {
+          ddToggle.addEventListener('click', function(evt) {
+            evt.stopPropagation();
+            var body = this.nextElementSibling;
+            if (body.style.display === 'none') {
+              body.style.display = 'block';
+              this.textContent = 'もっと詳しく知る ▾';
+              // Re-measure parent panel max-height
+              var parentPanel = this.closest('.dim-drill-panel');
+              if (parentPanel) parentPanel.style.maxHeight = 'none';
+            } else {
+              body.style.display = 'none';
+              this.textContent = 'もっと詳しく知る ▸';
+            }
+          });
+        }
 
         // Tap handler for drill-down
         var header = row.querySelector('.dim-header-tap');
@@ -2057,20 +2123,37 @@ const Charts = {
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, w, h);
 
-    // Decorative orbs
-    ctx.globalAlpha = 0.08;
-    var orbGrad = ctx.createRadialGradient(100, 100, 0, 100, 100, 200);
+    // Decorative orbs with multiple layers
+    ctx.globalAlpha = 0.1;
+    var orbGrad = ctx.createRadialGradient(80, 80, 0, 80, 80, 220);
     orbGrad.addColorStop(0, '#818cf8');
     orbGrad.addColorStop(1, 'transparent');
     ctx.fillStyle = orbGrad;
     ctx.fillRect(0, 0, 300, 300);
 
-    var orbGrad2 = ctx.createRadialGradient(500, 700, 0, 500, 700, 180);
+    var orbGrad2 = ctx.createRadialGradient(520, 720, 0, 520, 720, 200);
     orbGrad2.addColorStop(0, '#7c3aed');
     orbGrad2.addColorStop(1, 'transparent');
     ctx.fillStyle = orbGrad2;
-    ctx.fillRect(300, 550, 300, 250);
+    ctx.fillRect(300, 520, 300, 280);
+
+    var orbGrad3 = ctx.createRadialGradient(w / 2, 200, 0, w / 2, 200, 120);
+    orbGrad3.addColorStop(0, risk.color);
+    orbGrad3.addColorStop(1, 'transparent');
+    ctx.globalAlpha = 0.06;
+    ctx.fillStyle = orbGrad3;
+    ctx.fillRect(w / 2 - 120, 80, 240, 240);
     ctx.globalAlpha = 1;
+
+    // Subtle grid pattern
+    ctx.strokeStyle = 'rgba(99,102,241,0.03)';
+    ctx.lineWidth = 0.5;
+    for (var gx = 0; gx < w; gx += 40) {
+      ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, h); ctx.stroke();
+    }
+    for (var gy = 0; gy < h; gy += 40) {
+      ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(w, gy); ctx.stroke();
+    }
 
     // Title
     ctx.textAlign = 'center';
@@ -2094,27 +2177,44 @@ const Charts = {
     ctx.arc(cx, cy, gaugeR, Math.PI * 0.75, Math.PI * 2.25);
     ctx.stroke();
 
-    // Score arc
+    // Score arc with glow
     var scoreAngle = Math.PI * 0.75 + (Math.PI * 1.5) * (results.weightedScore / 100);
+
+    // Glow layer
+    ctx.save();
+    ctx.shadowColor = risk.color;
+    ctx.shadowBlur = 16;
+    ctx.strokeStyle = risk.color;
+    ctx.lineWidth = 8;
+    ctx.beginPath();
+    ctx.arc(cx, cy, gaugeR, Math.PI * 0.75, scoreAngle);
+    ctx.stroke();
+    ctx.restore();
+
+    // Sharp layer on top
     ctx.strokeStyle = risk.color;
     ctx.lineWidth = 8;
     ctx.beginPath();
     ctx.arc(cx, cy, gaugeR, Math.PI * 0.75, scoreAngle);
     ctx.stroke();
 
-    // Score number
+    // Score number with subtle glow
+    ctx.save();
+    ctx.shadowColor = risk.color;
+    ctx.shadowBlur = 20;
     ctx.fillStyle = '#f0f0f5';
-    ctx.font = 'bold 48px -apple-system, sans-serif';
-    ctx.fillText(String(results.weightedScore), cx, cy + 10);
-    
+    ctx.font = 'bold 52px -apple-system, sans-serif';
+    ctx.fillText(String(results.weightedScore), cx, cy + 12);
+    ctx.restore();
+
     ctx.fillStyle = '#6b6b80';
     ctx.font = '14px -apple-system, sans-serif';
-    ctx.fillText('/100', cx, cy + 32);
+    ctx.fillText('/100', cx, cy + 34);
 
-    // Risk label
+    // Risk label with emphasis
     ctx.fillStyle = risk.color;
-    ctx.font = 'bold 18px -apple-system, sans-serif';
-    ctx.fillText(risk.label, cx, cy + 65);
+    ctx.font = 'bold 20px -apple-system, sans-serif';
+    ctx.fillText(risk.label, cx, cy + 68);
 
     // Dimension bars
     var barStartY = 310;
@@ -2170,7 +2270,7 @@ const Charts = {
     ctx.textAlign = 'center';
     ctx.fillStyle = '#6b6b80';
     ctx.font = '11px -apple-system, sans-serif';
-    ctx.fillText('\u9000\u8077\u30EA\u30B9\u30AF\u8A3A\u65AD v3.0', w / 2, h - 30);
+    ctx.fillText('\u9000\u8077\u30EA\u30B9\u30AF\u8A3A\u65AD v3.1', w / 2, h - 30);
 
     // Rounded rect helper
     function roundRect(ctx, x, y, w, h, r) {

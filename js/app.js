@@ -357,13 +357,20 @@
   function showCalculatingTransition() {
     Haptics.complete();
 
+    // Skip animation for reduced motion preference
+    var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+      showResults();
+      return;
+    }
+
     var card = els.questionCard;
     card.style.transition = 'opacity 0.3s ease-out, transform 0.4s ease-out';
     card.style.opacity = '0';
     card.style.transform = 'scale(0.96)';
 
     var overlay = document.createElement('div');
-    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;background:var(--bg-primary);opacity:0;transition:opacity 0.4s ease-out;';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;background:var(--bg-primary);opacity:0;transition:opacity 0.6s ease-in-out;';
     overlay.innerHTML =
       '<div style="text-align:center;">' +
         '<div class="calculating-spinner" style="width:48px;height:48px;border:3px solid rgba(99,102,241,0.15);border-top-color:var(--accent-secondary);border-radius:50%;animation:calcSpin 0.8s linear infinite;margin:0 auto 20px;"></div>' +
@@ -770,7 +777,8 @@
       els.questionCard.style.transform = 'translateX(' + translateX + 'px) scale(' + scale + ')';
       els.questionCard.style.opacity = String(opacity);
 
-      if (swipeDx > 80 && !swipeHapticFired) {
+      var swipeThreshold = Math.max(60, window.innerWidth * 0.15);
+      if (swipeDx > swipeThreshold && !swipeHapticFired) {
         swipeHapticFired = true;
         Haptics.swipeThreshold();
       }
@@ -792,7 +800,8 @@
     var dx = e.changedTouches[0].clientX - touchStartX;
     var card = els.questionCard;
 
-    if (dx > 80 && touchIsHorizontal && state.currentQuestion > 0) {
+    var swipeThreshold = Math.max(60, window.innerWidth * 0.15);
+    if (dx > swipeThreshold && touchIsHorizontal && state.currentQuestion > 0) {
       card.style.transition = 'transform 0.3s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease-out';
       card.style.transform = 'translateX(120%)';
       card.style.opacity = '0';

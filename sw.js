@@ -3,11 +3,12 @@
  * Cache-first strategy for offline support
  */
 
-const CACHE_NAME = 'rra-v6';
+const CACHE_NAME = 'rra-v7';
 const ASSETS = [
   './',
   './index.html',
   './css/style.css',
+  './css/components.css',
   './js/app.js',
   './js/questions.js',
   './js/scoring.js',

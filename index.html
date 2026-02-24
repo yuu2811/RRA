@@ -31,269 +31,7 @@
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-192.png">
   <link rel="stylesheet" href="css/style.css">
-
-  <!-- Inline critical CSS for new UX elements -->
-  <style>
-    /* ---- Animated Background Orbs (Start Screen) ---- */
-    .bg-orbs {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 0;
-      overflow: hidden;
-    }
-
-    .bg-orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(80px);
-      opacity: 0.18;
-      will-change: transform;
-    }
-
-    .bg-orb--1 {
-      width: 320px;
-      height: 320px;
-      background: radial-gradient(circle, #818cf8 0%, transparent 70%);
-      top: -80px;
-      left: -60px;
-      animation: orbFloat1 8s ease-in-out infinite alternate;
-    }
-
-    .bg-orb--2 {
-      width: 260px;
-      height: 260px;
-      background: radial-gradient(circle, #7c3aed 0%, transparent 70%);
-      bottom: -40px;
-      right: -40px;
-      animation: orbFloat2 10s ease-in-out infinite alternate;
-    }
-
-    .bg-orb--3 {
-      width: 180px;
-      height: 180px;
-      background: radial-gradient(circle, #6366f1 0%, transparent 70%);
-      top: 40%;
-      right: 10%;
-      animation: orbFloat3 12s ease-in-out infinite alternate;
-    }
-
-    @keyframes orbFloat1 {
-      0% { transform: translate(0, 0) scale(1); }
-      100% { transform: translate(40px, 60px) scale(1.1); }
-    }
-
-    @keyframes orbFloat2 {
-      0% { transform: translate(0, 0) scale(1); }
-      100% { transform: translate(-50px, -40px) scale(1.15); }
-    }
-
-    @keyframes orbFloat3 {
-      0% { transform: translate(0, 0) scale(1); }
-      100% { transform: translate(-30px, 30px) scale(0.9); }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .bg-orb {
-        animation: none !important;
-      }
-    }
-
-    /* ---- Social Proof Badge ---- */
-    .social-proof-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 20px;
-      padding: 8px 16px;
-      background: rgba(99, 102, 241, 0.08);
-      border: 1px solid rgba(99, 102, 241, 0.15);
-      border-radius: 9999px;
-      font-size: clamp(12px, 3.2vw, 15px);
-      font-weight: 600;
-      color: var(--accent-secondary);
-      letter-spacing: 0.01em;
-    }
-
-    .social-proof-badge svg {
-      flex-shrink: 0;
-    }
-
-    /* ---- Version Footer ---- */
-    .version-footer {
-      margin-top: 24px;
-      font-size: 10px;
-      color: var(--text-muted);
-      opacity: 0.5;
-      letter-spacing: 0.04em;
-    }
-
-    /* ---- Dimension Progress Indicator ---- */
-    .dimension-indicator {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      max-width: 480px;
-      margin-bottom: 4px;
-    }
-
-    .dimension-label {
-      font-size: clamp(12px, 3.2vw, 14px);
-      font-weight: 600;
-      color: var(--text-muted);
-      letter-spacing: 0.03em;
-    }
-
-    /* ---- Step Indicator Dots ---- */
-    .step-dots {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      width: 100%;
-      max-width: 480px;
-      padding: 14px 0 6px;
-    }
-
-    .step-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.12);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .step-dot.active {
-      background: var(--accent-secondary);
-      box-shadow: 0 0 12px rgba(129, 140, 248, 0.5);
-      transform: scale(1.3);
-    }
-
-    .step-dot.completed {
-      background: var(--accent-primary);
-      opacity: 0.7;
-    }
-
-    /* ---- Spacious Question Card Override ---- */
-    .question-card-spacious {
-      padding: clamp(24px, 6vw, 36px) clamp(20px, 5vw, 32px) clamp(28px, 7vw, 40px);
-    }
-
-    /* ---- Result Screen: Summary Headline ---- */
-    .result-summary-headline {
-      font-size: clamp(14px, 3.8vw, 17px);
-      font-weight: 600;
-      color: var(--text-secondary);
-      text-align: center;
-      letter-spacing: 0.08em;
-      margin-bottom: -8px;
-    }
-
-    /* ---- Result Screen: Section Dividers ---- */
-    .result-divider {
-      width: 100%;
-      max-width: 480px;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--border-card), transparent);
-      border: none;
-      margin: 4px 0;
-    }
-
-    /* ---- Collapsible References ---- */
-    .references-toggle {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      padding: 4px 0;
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--text-primary);
-      font-size: clamp(16px, 4.5vw, 21px);
-      font-weight: 700;
-      min-height: 48px;
-      font-family: inherit;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
-    }
-
-    .references-toggle-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.06);
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      flex-shrink: 0;
-    }
-
-    .references-toggle-icon svg {
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .references-card[aria-expanded="true"] .references-toggle-icon svg {
-      transform: rotate(180deg);
-    }
-
-    .references-collapsible {
-      overflow: hidden;
-      max-height: 0;
-      opacity: 0;
-      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                  opacity 0.3s ease,
-                  margin-top 0.3s ease;
-      margin-top: 0;
-    }
-
-    .references-card[aria-expanded="true"] .references-collapsible {
-      max-height: 2000px;
-      opacity: 1;
-      margin-top: 16px;
-    }
-
-    /* ---- Home Button ---- */
-    .btn-home {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 14px 28px;
-      background: none;
-      color: var(--text-muted);
-      font-size: clamp(14px, 3.8vw, 16px);
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-      transition: color var(--transition-fast);
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
-      font-family: inherit;
-    }
-
-    .btn-home:active {
-      color: var(--text-secondary);
-    }
-
-    /* ---- Updated result-container child animation for added elements ---- */
-    .result-container > *:nth-child(8) { animation-delay: 1.05s; }
-    .result-container > *:nth-child(9) { animation-delay: 1.2s; }
-    .result-container > *:nth-child(10) { animation-delay: 1.35s; }
-    .result-container > *:nth-child(11) { animation-delay: 1.5s; }
-    .result-container > *:nth-child(12) { animation-delay: 1.65s; }
-    .result-container > *:nth-child(13) { animation-delay: 1.8s; }
-    .result-container > *:nth-child(14) { animation-delay: 1.95s; }
-    .result-container > *:nth-child(15) { animation-delay: 2.1s; }
-    .result-container > *:nth-child(16) { animation-delay: 2.25s; }
-    .result-container > *:nth-child(17) { animation-delay: 2.4s; }
-    .result-container > *:nth-child(18) { animation-delay: 2.55s; }
-  </style>
+  <link rel="stylesheet" href="css/components.css">
 </head>
 <body>
   <!-- Animated Background Orbs -->
@@ -546,15 +284,7 @@
 
       <hr class="result-divider" aria-hidden="true">
 
-      <!-- Dimension Details (Interactive Drill-Down) -->
-      <div class="glass-card details-card" role="region" aria-label="各項目の詳細スコア">
-        <h3 class="card-title">各項目の詳細 <span class="card-title-hint">タップで展開</span></h3>
-        <div id="dimension-details" class="dimension-details"></div>
-      </div>
-
-      <hr class="result-divider" aria-hidden="true">
-
-      <!-- Personalized Action Plan -->
+      <!-- Personalized Action Plan (always visible - most actionable) -->
       <div class="glass-card action-plan-card" id="action-plan-card" role="region" aria-label="あなた向けの改善プラン">
         <h3 class="card-title">改善のためにできること</h3>
         <div id="action-plan-content" class="action-plan-content"></div>
@@ -562,23 +292,7 @@
 
       <hr class="result-divider" aria-hidden="true">
 
-      <!-- Correlation Insights -->
-      <div class="glass-card correlation-card" id="correlation-card" role="region" aria-label="項目どうしの関連">
-        <h3 class="card-title">項目どうしの関連</h3>
-        <div id="correlation-content" class="correlation-content"></div>
-      </div>
-
-      <hr class="result-divider" aria-hidden="true">
-
-      <!-- Advice -->
-      <div class="glass-card advice-card" id="advice-card" role="region" aria-label="改善アドバイス">
-        <h3 class="card-title">改善のためのアドバイス</h3>
-        <div id="advice-content" class="advice-content"></div>
-      </div>
-
-      <hr class="result-divider" aria-hidden="true">
-
-      <!-- Compound Risk Patterns -->
+      <!-- Compound Risk Patterns (always visible if detected) -->
       <div class="glass-card compound-card" id="compound-card" role="region" aria-label="注意が必要な組み合わせ">
         <h3 class="card-title">注意が必要な組み合わせ</h3>
         <div id="compound-risks" class="compound-risks-content"></div>
@@ -586,13 +300,58 @@
 
       <hr class="result-divider" aria-hidden="true">
 
-      <!-- Trend Chart (History) -->
-      <div class="glass-card trend-card" id="trend-card" role="region" aria-label="診断スコア推移">
-        <h3 class="card-title">スコア推移</h3>
-        <div class="trend-chart-container">
-          <svg id="trend-svg" viewBox="0 0 350 200" role="img" aria-label="スコア推移チャート"></svg>
+      <!-- Advice (always visible) -->
+      <div class="glass-card advice-card" id="advice-card" role="region" aria-label="改善アドバイス">
+        <h3 class="card-title">改善のためのアドバイス</h3>
+        <div id="advice-content" class="advice-content"></div>
+      </div>
+
+      <hr class="result-divider" aria-hidden="true">
+
+      <!-- Collapsible: Dimension Details -->
+      <div class="glass-card details-card" role="region" aria-label="各項目の詳細スコア" aria-expanded="false">
+        <button class="collapsible-toggle" type="button" aria-label="各項目の詳細を展開する" onclick="var card=this.closest('[aria-expanded]');card.setAttribute('aria-expanded',card.getAttribute('aria-expanded')==='true'?'false':'true');this.setAttribute('aria-label',card.getAttribute('aria-expanded')==='true'?'各項目の詳細を折りたたむ':'各項目の詳細を展開する');">
+          <h3 class="card-title" style="margin-bottom:0;">各項目の詳細 <span class="card-title-hint">タップで展開</span></h3>
+          <span class="collapsible-toggle-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </button>
+        <div class="collapsible-body">
+          <div id="dimension-details" class="dimension-details"></div>
         </div>
-        <div id="trend-summary" class="trend-summary"></div>
+      </div>
+
+      <hr class="result-divider" aria-hidden="true">
+
+      <!-- Collapsible: Correlation Insights -->
+      <div class="glass-card correlation-card" id="correlation-card" role="region" aria-label="項目どうしの関連" aria-expanded="false">
+        <button class="collapsible-toggle" type="button" aria-label="項目どうしの関連を展開する" onclick="var card=this.closest('[aria-expanded]');card.setAttribute('aria-expanded',card.getAttribute('aria-expanded')==='true'?'false':'true');this.setAttribute('aria-label',card.getAttribute('aria-expanded')==='true'?'項目どうしの関連を折りたたむ':'項目どうしの関連を展開する');">
+          <h3 class="card-title" style="margin-bottom:0;">項目どうしの関連</h3>
+          <span class="collapsible-toggle-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </button>
+        <div class="collapsible-body">
+          <div id="correlation-content" class="correlation-content"></div>
+        </div>
+      </div>
+
+      <hr class="result-divider" aria-hidden="true">
+
+      <!-- Collapsible: Trend Chart (History) -->
+      <div class="glass-card trend-card" id="trend-card" role="region" aria-label="診断スコア推移" aria-expanded="false">
+        <button class="collapsible-toggle" type="button" aria-label="スコア推移を展開する" onclick="var card=this.closest('[aria-expanded]');card.setAttribute('aria-expanded',card.getAttribute('aria-expanded')==='true'?'false':'true');this.setAttribute('aria-label',card.getAttribute('aria-expanded')==='true'?'スコア推移を折りたたむ':'スコア推移を展開する');">
+          <h3 class="card-title" style="margin-bottom:0;">スコア推移</h3>
+          <span class="collapsible-toggle-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </button>
+        <div class="collapsible-body">
+          <div class="trend-chart-container">
+            <svg id="trend-svg" viewBox="0 0 350 200" role="img" aria-label="スコア推移チャート"></svg>
+          </div>
+          <div id="trend-summary" class="trend-summary"></div>
+        </div>
       </div>
 
       <hr class="result-divider" aria-hidden="true">

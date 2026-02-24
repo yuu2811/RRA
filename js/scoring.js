@@ -290,7 +290,16 @@ const DiagnosticHistory = {
     try {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(entries));
     } catch (e) {
-      // localStorage may be unavailable or full; silently fail
+      // Notify user that history could not be saved
+      console.warn('localStorage save failed:', e);
+      if (typeof window !== 'undefined') {
+        // Show a non-blocking toast instead of alert/confirm
+        var toast = document.createElement('div');
+        toast.textContent = '診断結果の保存に失敗しました。端末の空き容量をご確認ください。';
+        toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(239,68,68,0.9);color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;z-index:9999;max-width:90vw;text-align:center;animation:fadeIn 0.3s ease;';
+        document.body.appendChild(toast);
+        setTimeout(function() { toast.remove(); }, 5000);
+      }
     }
   },
 

@@ -14,8 +14,8 @@
   --border-card: rgba(255, 255, 255, 0.08);
   --border-card-strong: rgba(255, 255, 255, 0.12);
   --text-primary: #f0f0f5;
-  --text-secondary: #b0b0c8;
-  --text-muted: #7a7a96;
+  --text-secondary: #c0c0d8;
+  --text-muted: #8a8aa6;
   --accent-primary: #6366f1;
   --accent-secondary: #818cf8;
   --accent-tertiary: #a5b4fc;
@@ -53,8 +53,8 @@
     --border-card: rgba(0, 0, 0, 0.06);
     --border-card-strong: rgba(0, 0, 0, 0.1);
     --text-primary: #1a1a2e;
-    --text-secondary: #555570;
-    --text-muted: #8888a0;
+    --text-secondary: #4a4a65;
+    --text-muted: #75758f;
   }
 }
 
@@ -512,12 +512,12 @@ body::after {
 }
 
 .question-text {
-  font-size: clamp(20px, 5.5vw, 28px);
+  font-size: clamp(22px, 6vw, 32px);
   font-weight: 700;
-  line-height: 1.75;
+  line-height: 1.85;
   color: var(--text-primary);
   margin-bottom: clamp(28px, 8vw, 40px);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
   word-break: auto-phrase;
   text-shadow: 0 0 40px rgba(0, 0, 0, 0.3);
 }
@@ -605,7 +605,7 @@ body::after {
 }
 
 .likert-label {
-  font-size: clamp(10px, 2.8vw, 14px);
+  font-size: clamp(11px, 3vw, 15px);
   line-height: 1.4;
   color: var(--text-secondary);
   text-align: center;
@@ -711,9 +711,9 @@ body::after {
 .risk-level.high { color: var(--red); }
 
 .risk-description {
-  font-size: clamp(14px, 3.8vw, 17px);
+  font-size: clamp(15px, 4vw, 18px);
   color: var(--text-secondary);
-  line-height: 1.85;
+  line-height: 1.9;
   letter-spacing: 0.02em;
   text-align: left;
 }
@@ -845,9 +845,9 @@ body::after {
 }
 
 .advice-text {
-  font-size: clamp(14px, 3.8vw, 17px);
+  font-size: clamp(15px, 4vw, 18px);
   color: var(--text-secondary);
-  line-height: 1.85;
+  line-height: 1.9;
   letter-spacing: 0.02em;
 }
 

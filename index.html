@@ -5,40 +5,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="退職リスク診断">
+  <meta name="apple-mobile-web-app-title" content="はたらく環境診断">
   <meta name="theme-color" content="#6366f1">
-  <meta name="description" content="退職リスク診断ツール。信頼性の高い研究に基づく10の項目で退職リスクをチェックします。">
+  <meta name="description" content="はたらく環境診断。研究に基づく10の項目で職場環境を科学的にチェックします。">
   <meta name="format-detection" content="telephone=no">
   <meta name="mobile-web-app-capable" content="yes">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="退職リスク診断 - 10の項目で科学的にチェック">
-  <meta property="og:description" content="世界中の研究に基づく10項目の分析で、あなたの退職リスクを多角的に診断します。全30問・約5分で完了。">
+  <meta property="og:title" content="はたらく環境診断 - 10の項目で科学的にチェック">
+  <meta property="og:description" content="研究に基づく10項目の分析で、あなたの職場環境を多角的に診断します。全30問・約5分で完了。">
   <meta property="og:image" content="icons/og-image.png">
-  <meta property="og:url" content="https://retirement-risk.app/">
   <meta property="og:locale" content="ja_JP">
-  <meta property="og:site_name" content="退職リスク診断">
+  <meta property="og:site_name" content="はたらく環境診断">
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="退職リスク診断 - 10の項目で科学的にチェック">
-  <meta name="twitter:description" content="世界中の研究に基づく10項目の分析で、あなたの退職リスクを多角的に診断します。全30問・約5分で完了。">
+  <meta name="twitter:title" content="はたらく環境診断 - 10の項目で科学的にチェック">
+  <meta name="twitter:description" content="研究に基づく10項目の分析で、あなたの職場環境を多角的に診断します。全30問・約5分で完了。">
   <meta name="twitter:image" content="icons/og-image.png">
 
-  <title>退職リスク診断</title>
+  <title>はたらく環境診断</title>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "退職リスク診断",
-    "description": "世界中の研究に基づく10項目の分析で退職リスクを科学的に診断。全30問約5分で完了。",
+    "name": "はたらく環境診断",
+    "description": "研究に基づく10項目の分析で職場環境を科学的に診断。全30問約5分で完了。",
     "applicationCategory": "HealthApplication",
     "operatingSystem": "Any",
     "offers": { "@type": "Offer", "price": "0", "priceCurrency": "JPY" },
     "inLanguage": "ja",
     "browserRequirements": "Requires JavaScript",
-    "softwareVersion": "3.2"
+    "softwareVersion": "4.0"
   }
   </script>
   <link rel="manifest" href="manifest.json">
@@ -58,12 +57,14 @@
     <div class="bg-orb bg-orb--3"></div>
   </div>
 
-  <!-- Start Screen -->
+  <!-- ============================================================ -->
+  <!-- Start Screen                                                 -->
+  <!-- ============================================================ -->
   <section id="screen-start" class="screen active" role="main" aria-label="診断開始画面">
     <div class="start-container">
       <div class="logo-area">
         <div class="logo-icon">
-          <svg viewBox="0 0 80 80" width="80" height="80" aria-hidden="true" role="img">
+          <svg viewBox="0 0 80 80" width="72" height="72" aria-hidden="true" role="img">
             <defs>
               <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stop-color="#818cf8"/>
@@ -76,50 +77,23 @@
             <circle cx="40" cy="40" r="3" fill="#818cf8"/>
           </svg>
         </div>
-        <h1 class="app-title">退職リスク診断</h1>
-        <p class="app-subtitle">あなたの働く環境を科学的にチェック</p>
-      </div>
-
-      <!-- Social Proof Badge -->
-      <div class="social-proof-badge" aria-label="30,000人以上が診断済み">
-        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true">
-          <path d="M8 1.5a2.5 2.5 0 0 1 0 5 2.5 2.5 0 0 1 0-5ZM3.5 14c0-2.5 1.8-4.5 4.5-4.5s4.5 2 4.5 4.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-          <path d="M11.5 3a2 2 0 0 1 0 4M14 13.5c0-2 -1.2-3.5-3-4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" opacity="0.6"/>
-        </svg>
-        30,000+ 人が診断済み
+        <h1 class="app-title">はたらく環境診断</h1>
+        <p class="app-subtitle">職場環境を科学的にチェック</p>
       </div>
 
       <div class="glass-card intro-card">
         <p class="intro-text">
-          世界中の研究に基づく<strong>10の項目</strong>で、あなたの退職リスクをチェックします。
+          研究に基づく<strong>10の項目</strong>で、<br>あなたの職場環境をチェックします。
         </p>
-        <ul class="feature-list" role="list">
-          <li role="listitem">
-            <span class="feature-icon" aria-hidden="true">&#x1F4CA;</span>
-            <span>10項目で多角的に分析</span>
-          </li>
-          <li role="listitem">
-            <span class="feature-icon" aria-hidden="true">&#x1F4D6;</span>
-            <span>信頼性の高い研究がベース</span>
-          </li>
-          <li role="listitem">
-            <span class="feature-icon" aria-hidden="true">&#x23F1;</span>
-            <span>全30問・約5分で完了</span>
-          </li>
-        </ul>
+        <div class="feature-tags">
+          <span class="feature-tag">10項目で分析</span>
+          <span class="feature-tag">研究ベース</span>
+          <span class="feature-tag">約5分</span>
+        </div>
       </div>
 
       <!-- History Summary (shown if previous results exist) -->
       <div id="history-summary" class="history-summary-container" style="display:none;"></div>
-
-      <!-- Group Analysis -->
-      <div class="glass-card group-card" id="group-card" style="display:none;" role="region" aria-label="チーム分析">
-        <h3 class="card-title" style="font-size:15px;">チーム分析</h3>
-        <p class="group-desc">メンバーのコードを1行ずつ入力してください</p>
-        <textarea id="group-codes" class="group-codes-input" rows="4" placeholder="コードを1行ずつ入力&#10;例: 1K2M0N1P2J1L1M2N0K14"></textarea>
-        <button id="btn-analyze-group" class="btn-secondary" type="button" style="width:100%;">チームの傾向を分析</button>
-        <div id="group-results" class="group-results" style="display:none;"></div>
-      </div>
 
       <button id="btn-start" class="btn-primary" type="button" aria-label="診断を始める">
         診断を始める
@@ -134,11 +108,11 @@
       <div class="data-portability" id="data-portability">
         <button id="btn-export" class="btn-data" type="button" aria-label="データを書き出す">
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          データを書き出す
+          書き出す
         </button>
         <button id="btn-import" class="btn-data" type="button" aria-label="データを読み込む">
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          データを読み込む
+          読み込む
         </button>
         <input type="file" id="import-file" accept=".json" style="display:none;">
       </div>
@@ -149,12 +123,13 @@
         <svg id="theme-icon-light" viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true" style="display:none;"><circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       </button>
 
-      <!-- Version / Credit Footer -->
-      <p class="version-footer" aria-label="バージョン情報">v3.2</p>
+      <p class="version-footer" aria-label="バージョン情報">v4.0</p>
     </div>
   </section>
 
-  <!-- Demographic Screen (Optional) -->
+  <!-- ============================================================ -->
+  <!-- Demographic Screen (Optional)                                -->
+  <!-- ============================================================ -->
   <section id="screen-demographic" class="screen" role="main" aria-label="プロフィール入力画面">
     <div class="demographic-container">
       <h2 class="demographic-title">プロフィール設定</h2>
@@ -220,7 +195,9 @@
     </div>
   </section>
 
-  <!-- Question Screen -->
+  <!-- ============================================================ -->
+  <!-- Question Screen                                              -->
+  <!-- ============================================================ -->
   <section id="screen-question" class="screen" role="main" aria-label="質問画面">
     <div class="question-container">
       <div class="progress-area">
@@ -284,15 +261,14 @@
     </div>
   </section>
 
-  <!-- Result Screen -->
+  <!-- ============================================================ -->
+  <!-- Result Screen                                                -->
+  <!-- ============================================================ -->
   <section id="screen-result" class="screen" role="main" aria-label="診断結果画面">
     <div class="result-container">
       <h2 class="result-title">診断結果</h2>
 
-      <!-- Summary Headline -->
-      <p class="result-summary-headline" aria-label="あなたの退職リスクスコア">あなたの退職リスクスコア</p>
-
-      <!-- Overall Score -->
+      <!-- Overall Score (gauge + risk level + explanation merged) -->
       <div class="glass-card score-card" role="region" aria-label="総合スコア">
         <div class="gauge-container" id="gauge-container">
           <svg id="gauge-svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="スコアゲージ"></svg>
@@ -303,20 +279,12 @@
         </div>
         <div id="risk-level" class="risk-level" aria-live="polite"></div>
         <p id="risk-description" class="risk-description"></p>
-      </div>
-
-      <!-- Score Explanation -->
-      <div class="glass-card weighted-card" role="region" aria-label="スコアの説明">
-        <div id="weighted-comparison" class="weighted-comparison"></div>
-        <p class="weighted-explanation">退職に関わりやすい項目を重視して計算したスコアです。</p>
-        <!-- Demographic Context (shown only when demographic info provided) -->
+        <div id="weighted-comparison" class="weighted-note"></div>
         <div id="demographic-context" class="demographic-context-section" style="display:none;"></div>
       </div>
 
       <!-- Percentile Summary (quick at-a-glance ranking) -->
       <div id="percentile-summary" class="percentile-summary" style="display:none;"></div>
-
-      <hr class="result-divider" aria-hidden="true">
 
       <!-- Radar Chart -->
       <div class="glass-card chart-card" role="region" aria-label="項目別スコアチャート">
@@ -326,49 +294,44 @@
         </div>
       </div>
 
-      <hr class="result-divider" aria-hidden="true">
-
-      <!-- Benchmark Comparison (Bell Curves) -->
-      <div class="glass-card benchmark-card" id="benchmark-card" role="region" aria-label="みんなとの比較" aria-expanded="false">
-        <button class="collapsible-toggle" type="button" aria-label="みんなとの比較を展開する" data-collapse-label="みんなとの比較">
-          <h3 class="card-title" style="margin-bottom:0;">みんなとの比較 <span class="card-title-hint">タップで展開</span></h3>
-          <span class="collapsible-toggle-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </span>
-        </button>
-        <div class="collapsible-body">
-          <p class="benchmark-desc">研究データに基づく平均的な働く人の分布と比較した、あなたのスコアの位置です。</p>
-          <div id="benchmark-content" class="benchmark-content"></div>
-        </div>
-      </div>
-
-      <hr class="result-divider" aria-hidden="true">
-
       <!-- Strengths (shown when there are high-scoring dimensions) -->
       <div class="glass-card strengths-card" id="strengths-card" role="region" aria-label="あなたの強み" style="display:none;">
         <h3 class="card-title">あなたの強み</h3>
         <div id="strengths-content" class="strengths-content"></div>
       </div>
 
-      <hr class="result-divider" aria-hidden="true">
-
-      <!-- Personalized Action Plan (always visible - most actionable) -->
-      <div class="glass-card action-plan-card" id="action-plan-card" role="region" aria-label="あなた向けの改善プラン">
+      <!-- Personalized Action Plan -->
+      <div class="glass-card action-plan-card" id="action-plan-card" role="region" aria-label="改善プラン">
         <h3 class="card-title">改善のためにできること</h3>
         <div id="action-plan-content" class="action-plan-content"></div>
       </div>
 
-      <hr class="result-divider" aria-hidden="true">
-
-      <!-- Compound Risk Patterns (always visible if detected) -->
+      <!-- Compound Risk Patterns -->
       <div class="glass-card compound-card" id="compound-card" role="region" aria-label="注意が必要な組み合わせ">
         <h3 class="card-title">注意が必要な組み合わせ</h3>
         <div id="compound-risks" class="compound-risks-content"></div>
       </div>
 
-      <hr class="result-divider" aria-hidden="true">
+      <!-- Advice -->
+      <div class="glass-card advice-card" id="advice-card" role="region" aria-label="改善アドバイス">
+        <h3 class="card-title">アドバイス</h3>
+        <div id="advice-content" class="advice-content"></div>
+      </div>
 
-      <!-- What-If Scenario Simulator -->
+      <!-- Collapsible: Dimension Details -->
+      <div class="glass-card details-card" role="region" aria-label="各項目の詳細スコア" aria-expanded="false">
+        <button class="collapsible-toggle" type="button" aria-label="各項目の詳細を展開する" data-collapse-label="各項目の詳細">
+          <h3 class="card-title" style="margin-bottom:0;">各項目の詳細 <span class="card-title-hint">タップで展開</span></h3>
+          <span class="collapsible-toggle-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </button>
+        <div class="collapsible-body">
+          <div id="dimension-details" class="dimension-details"></div>
+        </div>
+      </div>
+
+      <!-- Collapsible: What-If Simulator -->
       <div class="glass-card whatif-card" id="whatif-card" role="region" aria-label="改善シミュレーション" aria-expanded="false">
         <button class="collapsible-toggle" type="button" aria-label="改善シミュレーションを展開する" data-collapse-label="改善シミュレーション">
           <h3 class="card-title" style="margin-bottom:0;">もし改善したら？ <span class="card-title-hint">タップで試す</span></h3>
@@ -394,9 +357,34 @@
         </div>
       </div>
 
-      <hr class="result-divider" aria-hidden="true">
+      <!-- Collapsible: Benchmark Comparison -->
+      <div class="glass-card benchmark-card" id="benchmark-card" role="region" aria-label="みんなとの比較" aria-expanded="false">
+        <button class="collapsible-toggle" type="button" aria-label="みんなとの比較を展開する" data-collapse-label="みんなとの比較">
+          <h3 class="card-title" style="margin-bottom:0;">みんなとの比較 <span class="card-title-hint">タップで展開</span></h3>
+          <span class="collapsible-toggle-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </button>
+        <div class="collapsible-body">
+          <p class="benchmark-desc">研究データに基づく平均的な働く人の分布と比較した、あなたのスコアの位置です。</p>
+          <div id="benchmark-content" class="benchmark-content"></div>
+        </div>
+      </div>
 
-      <!-- Goal Setting -->
+      <!-- Collapsible: Correlation Insights -->
+      <div class="glass-card correlation-card" id="correlation-card" role="region" aria-label="項目どうしの関連" aria-expanded="false">
+        <button class="collapsible-toggle" type="button" aria-label="項目どうしの関連を展開する" data-collapse-label="項目どうしの関連">
+          <h3 class="card-title" style="margin-bottom:0;">項目どうしの関連</h3>
+          <span class="collapsible-toggle-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </button>
+        <div class="collapsible-body">
+          <div id="correlation-content" class="correlation-content"></div>
+        </div>
+      </div>
+
+      <!-- Collapsible: Goal Setting -->
       <div class="glass-card goal-card" id="goal-card" role="region" aria-label="目標設定" aria-expanded="false">
         <button class="collapsible-toggle" type="button" aria-label="目標設定を展開する" data-collapse-label="目標設定">
           <h3 class="card-title" style="margin-bottom:0;">目標を設定する <span class="card-title-hint">タップで設定</span></h3>
@@ -415,48 +403,8 @@
         </div>
       </div>
 
-      <hr class="result-divider" aria-hidden="true">
-
-      <!-- Advice (always visible) -->
-      <div class="glass-card advice-card" id="advice-card" role="region" aria-label="改善アドバイス">
-        <h3 class="card-title">改善のためのアドバイス</h3>
-        <div id="advice-content" class="advice-content"></div>
-      </div>
-
-      <hr class="result-divider" aria-hidden="true">
-
-      <!-- Collapsible: Dimension Details -->
-      <div class="glass-card details-card" role="region" aria-label="各項目の詳細スコア" aria-expanded="false">
-        <button class="collapsible-toggle" type="button" aria-label="各項目の詳細を展開する" data-collapse-label="各項目の詳細">
-          <h3 class="card-title" style="margin-bottom:0;">各項目の詳細 <span class="card-title-hint">タップで展開</span></h3>
-          <span class="collapsible-toggle-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </span>
-        </button>
-        <div class="collapsible-body">
-          <div id="dimension-details" class="dimension-details"></div>
-        </div>
-      </div>
-
-      <hr class="result-divider" aria-hidden="true">
-
-      <!-- Collapsible: Correlation Insights -->
-      <div class="glass-card correlation-card" id="correlation-card" role="region" aria-label="項目どうしの関連" aria-expanded="false">
-        <button class="collapsible-toggle" type="button" aria-label="項目どうしの関連を展開する" data-collapse-label="項目どうしの関連">
-          <h3 class="card-title" style="margin-bottom:0;">項目どうしの関連</h3>
-          <span class="collapsible-toggle-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </span>
-        </button>
-        <div class="collapsible-body">
-          <div id="correlation-content" class="correlation-content"></div>
-        </div>
-      </div>
-
-      <hr class="result-divider" aria-hidden="true">
-
       <!-- Collapsible: Trend Chart (History) -->
-      <div class="glass-card trend-card" id="trend-card" role="region" aria-label="診断スコア推移" aria-expanded="false">
+      <div class="glass-card trend-card" id="trend-card" role="region" aria-label="スコア推移" aria-expanded="false">
         <button class="collapsible-toggle" type="button" aria-label="スコア推移を展開する" data-collapse-label="スコア推移">
           <h3 class="card-title" style="margin-bottom:0;">スコア推移</h3>
           <span class="collapsible-toggle-icon" aria-hidden="true">
@@ -469,17 +417,14 @@
           </div>
           <div id="trend-summary" class="trend-summary"></div>
           <div id="velocity-badges" class="velocity-badges"></div>
-          <!-- Dimension Trend Heatmap -->
           <div id="dimension-heatmap" class="dimension-heatmap"></div>
         </div>
       </div>
 
-      <hr class="result-divider" aria-hidden="true">
-
       <!-- References (Collapsible) -->
       <div class="glass-card references-card" aria-expanded="false" role="region" aria-label="参考文献">
         <button class="references-toggle" type="button" aria-label="参考文献を展開する" id="btn-references-toggle" data-collapse-label="参考文献">
-          <h3 class="card-title" style="margin-bottom:0;">参考文献（この診断の根拠）</h3>
+          <h3 class="card-title" style="margin-bottom:0;">参考文献</h3>
           <span class="references-toggle-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none">
               <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -502,8 +447,6 @@
         </div>
       </div>
 
-      <hr class="result-divider" aria-hidden="true">
-
       <!-- Re-diagnosis Reminder -->
       <div class="glass-card reminder-card" id="reminder-card" role="region" aria-label="再診断リマインダー">
         <h3 class="card-title">定期的に診断しましょう</h3>
@@ -515,8 +458,6 @@
         </div>
         <div id="reminder-status" class="reminder-status" style="display:none;"></div>
       </div>
-
-      <hr class="result-divider" aria-hidden="true">
 
       <!-- Actions -->
       <div class="result-actions">
@@ -568,6 +509,15 @@
       </div>
     </div>
   </section>
+
+  <!-- Group Analysis (hidden, accessed from start screen) -->
+  <div class="glass-card group-card" id="group-card" style="display:none;" role="region" aria-label="チーム分析">
+    <h3 class="card-title" style="font-size:15px;">チーム分析</h3>
+    <p class="group-desc">メンバーのコードを1行ずつ入力してください</p>
+    <textarea id="group-codes" class="group-codes-input" rows="4" placeholder="コードを1行ずつ入力&#10;例: 1K2M0N1P2J1L1M2N0K14"></textarea>
+    <button id="btn-analyze-group" class="btn-secondary" type="button" style="width:100%;">チームの傾向を分析</button>
+    <div id="group-results" class="group-results" style="display:none;"></div>
+  </div>
 
   <script src="js/questions.js"></script>
   <script src="js/scoring.js"></script>

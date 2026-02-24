@@ -1,7 +1,7 @@
 {
-  "name": "退職リスク診断",
-  "short_name": "退職リスク",
-  "description": "学術研究に基づく退職リスク診断ツール",
+  "name": "はたらく環境診断",
+  "short_name": "環境診断",
+  "description": "研究に基づく職場環境診断ツール",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0a0a1a",

@@ -71,24 +71,26 @@
   }
 }
 
-/* ---- Social Proof Badge ---- */
-.social-proof-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 20px;
-  padding: 8px 16px;
-  background: rgba(99, 102, 241, 0.08);
-  border: 1px solid rgba(99, 102, 241, 0.15);
-  border-radius: 9999px;
-  font-size: clamp(12px, 3.2vw, 15px);
-  font-weight: 600;
-  color: var(--accent-secondary);
-  letter-spacing: 0.01em;
+/* ---- Feature Tags (Start Screen) ---- */
+.feature-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
 }
 
-.social-proof-badge svg {
-  flex-shrink: 0;
+.feature-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.12);
+  border-radius: 9999px;
+  font-size: clamp(12px, 3.2vw, 14px);
+  font-weight: 600;
+  color: var(--accent-secondary);
+  letter-spacing: 0.02em;
 }
 
 /* ---- Version Footer ---- */
@@ -152,25 +154,7 @@
   padding: clamp(24px, 6vw, 36px) clamp(20px, 5vw, 32px) clamp(28px, 7vw, 40px);
 }
 
-/* ---- Result Screen: Summary Headline ---- */
-.result-summary-headline {
-  font-size: clamp(14px, 3.8vw, 17px);
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-align: center;
-  letter-spacing: 0.08em;
-  margin-bottom: -8px;
-}
-
-/* ---- Result Screen: Section Dividers ---- */
-.result-divider {
-  width: 100%;
-  max-width: 480px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--border-card), transparent);
-  border: none;
-  margin: 4px 0;
-}
+/* (result-summary-headline and result-divider removed in v4.0) */
 
 /* ---- Collapsible Sections (References + Result Panels) ---- */
 .collapsible-toggle {
@@ -402,25 +386,4 @@
   margin-top: 4px;
 }
 
-/* ---- Updated result-container child animation for added elements ---- */
-.result-container > *:nth-child(8) { animation-delay: 1.05s; }
-.result-container > *:nth-child(9) { animation-delay: 1.2s; }
-.result-container > *:nth-child(10) { animation-delay: 1.35s; }
-.result-container > *:nth-child(11) { animation-delay: 1.5s; }
-.result-container > *:nth-child(12) { animation-delay: 1.65s; }
-.result-container > *:nth-child(13) { animation-delay: 1.8s; }
-.result-container > *:nth-child(14) { animation-delay: 1.95s; }
-.result-container > *:nth-child(15) { animation-delay: 2.1s; }
-.result-container > *:nth-child(16) { animation-delay: 2.25s; }
-.result-container > *:nth-child(17) { animation-delay: 2.4s; }
-.result-container > *:nth-child(18) { animation-delay: 2.55s; }
-.result-container > *:nth-child(19) { animation-delay: 2.7s; }
-.result-container > *:nth-child(20) { animation-delay: 2.85s; }
-.result-container > *:nth-child(21) { animation-delay: 3.0s; }
-.result-container > *:nth-child(22) { animation-delay: 3.15s; }
-.result-container > *:nth-child(23) { animation-delay: 3.3s; }
-.result-container > *:nth-child(24) { animation-delay: 3.45s; }
-.result-container > *:nth-child(25) { animation-delay: 3.6s; }
-.result-container > *:nth-child(26) { animation-delay: 3.75s; }
-.result-container > *:nth-child(27) { animation-delay: 3.9s; }
-.result-container > *:nth-child(28) { animation-delay: 4.05s; }
+/* (Animation delays now consolidated in style.css) */

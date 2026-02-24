@@ -893,7 +893,7 @@ const Scoring = {
     var dateStr = now.getFullYear() + '年' + (now.getMonth() + 1) + '月' + now.getDate() + '日';
 
     lines.push('═══════════════════════════════════════');
-    lines.push('　退職リスク診断　詳細レポート');
+    lines.push('　はたらく環境診断　詳細レポート');
     lines.push('　診断日: ' + dateStr);
     lines.push('═══════════════════════════════════════');
     lines.push('');
@@ -985,7 +985,7 @@ const Scoring = {
     }
 
     lines.push('═══════════════════════════════════════');
-    lines.push('退職リスク診断 v3.0');
+    lines.push('はたらく環境診断 v4.0');
     lines.push('※ この診断は学術研究（メタ分析）に基づいています');
 
     return lines.join('\n');
@@ -1216,9 +1216,8 @@ const Scoring = {
     const weightedScore = this.calculateWeightedOverallScore(dimensionScores);
     const compoundRisks = this.detectCompoundRisks(dimensionScores);
 
-    let text = '退職リスク診断結果\n';
-    text += '総合スコア: ' + overallScore + '/100 (' + risk.label + ')\n';
-    text += '詳しい分析スコア: ' + weightedScore + '/100\n';
+    let text = 'はたらく環境診断結果\n';
+    text += '総合スコア: ' + weightedScore + '/100 (' + risk.label + ')\n';
 
     if (compoundRisks.length > 0) {
       text += '\n⚠️ 注意パターン:\n';
@@ -1234,7 +1233,7 @@ const Scoring = {
       const bar = this.getRiskLevel(score).emoji;
       text += bar + ' ' + dim.name + ': ' + score + '/100\n';
     }
-    text += '\n学術研究に基づく退職リスク診断';
+    text += '\n研究に基づくはたらく環境診断';
     return text;
   },
 

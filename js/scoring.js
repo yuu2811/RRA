@@ -397,6 +397,158 @@ const DiagnosticHistory = {
     } catch (e) {
       // silently fail
     }
+  },
+
+  /**
+   * Calculate risk velocity: rate of change across last N assessments.
+   * Uses simple linear regression on scores over time.
+   *
+   * @param {number} [minEntries=3] - Minimum entries required for velocity calculation
+   * @returns {Object} { overall: {slope, direction, acceleration}, dimensions: {dimId: {slope, direction}} }
+   */
+  getVelocity: function (minEntries) {
+    minEntries = minEntries || 3;
+    var entries = this.getAll();
+    if (entries.length < minEntries) {
+      return { overall: null, dimensions: {} };
+    }
+
+    // Use last 5 entries max
+    var recent = entries.slice(Math.max(0, entries.length - 5));
+    var n = recent.length;
+
+    // Linear regression helper: returns slope per assessment
+    function linearSlope(values) {
+      if (values.length < 2) return 0;
+      var nn = values.length;
+      var sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+      for (var i = 0; i < nn; i++) {
+        sumX += i;
+        sumY += values[i];
+        sumXY += i * values[i];
+        sumX2 += i * i;
+      }
+      var denom = nn * sumX2 - sumX * sumX;
+      if (denom === 0) return 0;
+      return (nn * sumXY - sumX * sumY) / denom;
+    }
+
+    // Overall velocity
+    var overallScores = recent.map(function (e) { return e.weighted || e.overall; });
+    var overallSlope = linearSlope(overallScores);
+
+    // Acceleration: compare slope of first half vs second half
+    var acceleration = 'steady';
+    if (n >= 4) {
+      var mid = Math.floor(n / 2);
+      var firstHalf = overallScores.slice(0, mid);
+      var secondHalf = overallScores.slice(mid);
+      var slope1 = linearSlope(firstHalf);
+      var slope2 = linearSlope(secondHalf);
+      if (slope2 - slope1 > 2) acceleration = 'accelerating';
+      else if (slope1 - slope2 > 2) acceleration = 'decelerating';
+    }
+
+    var overallDirection;
+    if (overallSlope > 1.5) overallDirection = 'improving';
+    else if (overallSlope < -1.5) overallDirection = 'declining';
+    else overallDirection = 'stable';
+
+    // Per-dimension velocity
+    var dimVelocities = {};
+    var dimIds = DIMENSIONS.map(function (d) { return d.id; });
+
+    for (var di = 0; di < dimIds.length; di++) {
+      var dimId = dimIds[di];
+      var dimScores = [];
+      for (var ei = 0; ei < recent.length; ei++) {
+        if (recent[ei].dimensions && recent[ei].dimensions[dimId] !== undefined) {
+          dimScores.push(recent[ei].dimensions[dimId]);
+        }
+      }
+      if (dimScores.length >= minEntries) {
+        var dimSlope = linearSlope(dimScores);
+        var dimDir;
+        if (dimSlope > 2) dimDir = 'improving';
+        else if (dimSlope < -2) dimDir = 'declining';
+        else dimDir = 'stable';
+        dimVelocities[dimId] = {
+          slope: Math.round(dimSlope * 10) / 10,
+          direction: dimDir
+        };
+      }
+    }
+
+    return {
+      overall: {
+        slope: Math.round(overallSlope * 10) / 10,
+        direction: overallDirection,
+        acceleration: acceleration,
+        dataPoints: n
+      },
+      dimensions: dimVelocities
+    };
+  },
+
+  /**
+   * Export all diagnostic history as a JSON string.
+   * @returns {string} JSON string of all history entries
+   */
+  exportJSON: function () {
+    var entries = this.getAll();
+    return JSON.stringify({
+      version: 1,
+      app: 'rra',
+      exported: new Date().toISOString(),
+      entries: entries
+    }, null, 2);
+  },
+
+  /**
+   * Import diagnostic history from a JSON string. Merges with existing data.
+   * @param {string} jsonStr - JSON string from exportJSON
+   * @returns {Object} { success: boolean, imported: number, message: string }
+   */
+  importJSON: function (jsonStr) {
+    try {
+      var data = JSON.parse(jsonStr);
+      if (!data || !Array.isArray(data.entries)) {
+        return { success: false, imported: 0, message: '無効なデータ形式です' };
+      }
+
+      var existing = this.getAll();
+      var existingDates = {};
+      for (var i = 0; i < existing.length; i++) {
+        existingDates[existing[i].date] = true;
+      }
+
+      var imported = 0;
+      for (var j = 0; j < data.entries.length; j++) {
+        var entry = data.entries[j];
+        if (!entry.date || !entry.weighted) continue;
+        if (existingDates[entry.date]) continue; // Skip duplicates
+        existing.push(entry);
+        imported++;
+      }
+
+      // Sort and trim
+      existing.sort(function (a, b) {
+        return new Date(a.date).getTime() - new Date(b.date).getTime();
+      });
+      if (existing.length > this.MAX_ENTRIES) {
+        existing = existing.slice(existing.length - this.MAX_ENTRIES);
+      }
+
+      try {
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(existing));
+      } catch (e) {
+        return { success: false, imported: 0, message: '保存に失敗しました' };
+      }
+
+      return { success: true, imported: imported, message: imported + '件のデータを読み込みました' };
+    } catch (e) {
+      return { success: false, imported: 0, message: 'ファイルの読み込みに失敗しました' };
+    }
   }
 };
 

@@ -1678,6 +1678,279 @@ const Charts = {
   },
 
   // ============================================================
+  // Dimension Trend Heatmap
+  // ============================================================
+
+  /**
+   * Draw a heatmap grid showing per-dimension scores across historical assessments.
+   * Rows = dimensions, Columns = assessment dates, Color = score.
+   *
+   * @param {HTMLElement} container - Container element
+   * @param {Array} history - From DiagnosticHistory.getAll() (ascending by date)
+   */
+  drawDimensionHeatmap(container, history) {
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (!history || history.length < 2) {
+      container.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:13px;">診断を2回以上実施すると推移が表示されます</div>';
+      return;
+    }
+
+    // Use last 10 entries max
+    var entries = history.slice(Math.max(0, history.length - 10));
+    var n = entries.length;
+    var dims = DIMENSIONS;
+
+    // Build table
+    var table = document.createElement('div');
+    table.className = 'heatmap-grid';
+    table.style.cssText = 'overflow-x:auto;-webkit-overflow-scrolling:touch;';
+
+    var html = '<table class="heatmap-table" style="width:100%;border-collapse:collapse;font-size:11px;">';
+
+    // Header row: dates
+    html += '<tr><th class="heatmap-corner"></th>';
+    for (var ci = 0; ci < n; ci++) {
+      var d = new Date(entries[ci].date);
+      var label = (d.getMonth() + 1) + '/' + d.getDate();
+      html += '<th class="heatmap-date">' + label + '</th>';
+    }
+    html += '</tr>';
+
+    // Data rows: one per dimension
+    for (var di = 0; di < dims.length; di++) {
+      var dim = dims[di];
+      html += '<tr>';
+      html += '<td class="heatmap-dim-name">' + dim.name + '</td>';
+      for (var ei = 0; ei < n; ei++) {
+        var score = (entries[ei].dimensions && entries[ei].dimensions[dim.id]) || 0;
+        var cellColor = this._heatmapColor(score);
+        var textColor = score > 60 ? 'rgba(0,0,0,0.7)' : '#fff';
+        html += '<td class="heatmap-cell" style="background:' + cellColor + ';color:' + textColor + ';">' + score + '</td>';
+      }
+      html += '</tr>';
+    }
+
+    html += '</table>';
+    table.innerHTML = html;
+    container.appendChild(table);
+  },
+
+  /**
+   * Map score (0-100) to a color for heatmap cells.
+   * @private
+   */
+  _heatmapColor(score) {
+    if (score >= 80) return 'rgba(34,197,94,0.85)';  // green
+    if (score >= 70) return 'rgba(34,197,94,0.5)';
+    if (score >= 60) return 'rgba(234,179,8,0.5)';   // yellow
+    if (score >= 50) return 'rgba(234,179,8,0.35)';
+    if (score >= 40) return 'rgba(249,115,22,0.5)';   // orange
+    if (score >= 30) return 'rgba(249,115,22,0.35)';
+    return 'rgba(239,68,68,0.6)';                      // red
+  },
+
+  // ============================================================
+  // Risk Velocity Badges
+  // ============================================================
+
+  /**
+   * Render velocity indicators next to dimension bars and overall score.
+   *
+   * @param {HTMLElement} container - Container for velocity badges
+   * @param {Object} velocity - From DiagnosticHistory.getVelocity()
+   */
+  renderVelocityBadges(container, velocity) {
+    if (!container || !velocity || !velocity.overall) return;
+    container.innerHTML = '';
+
+    var overall = velocity.overall;
+
+    // Overall velocity summary
+    var overallHTML = '<div class="velocity-overall">';
+    var arrow, color, text;
+    if (overall.direction === 'improving') {
+      arrow = '↗'; color = '#22c55e';
+      text = '改善傾向（' + overall.slope + 'pt/回）';
+    } else if (overall.direction === 'declining') {
+      arrow = '↘'; color = '#ef4444';
+      text = '悪化傾向（' + overall.slope + 'pt/回）';
+    } else {
+      arrow = '→'; color = 'var(--text-muted)';
+      text = '安定（変化なし）';
+    }
+
+    // Acceleration indicator
+    var accelHTML = '';
+    if (overall.acceleration === 'accelerating') {
+      accelHTML = '<span class="velocity-accel" style="color:#22c55e;">加速中</span>';
+    } else if (overall.acceleration === 'decelerating') {
+      accelHTML = '<span class="velocity-accel" style="color:#f97316;">減速中</span>';
+    }
+
+    overallHTML += '<span class="velocity-arrow" style="color:' + color + '">' + arrow + '</span>';
+    overallHTML += '<span class="velocity-text">' + text + '</span>';
+    overallHTML += accelHTML;
+    overallHTML += '<span class="velocity-data-points">（過去' + overall.dataPoints + '回の診断から算出）</span>';
+    overallHTML += '</div>';
+
+    // Per-dimension velocities
+    var dimHTML = '';
+    var dims = velocity.dimensions;
+    var hasDimData = false;
+
+    for (var i = 0; i < DIMENSIONS.length; i++) {
+      var dim = DIMENSIONS[i];
+      var dv = dims[dim.id];
+      if (!dv) continue;
+      hasDimData = true;
+
+      var dArrow, dColor;
+      if (dv.direction === 'improving') { dArrow = '↗'; dColor = '#22c55e'; }
+      else if (dv.direction === 'declining') { dArrow = '↘'; dColor = '#ef4444'; }
+      else { dArrow = '→'; dColor = 'var(--text-muted)'; }
+
+      dimHTML += '<div class="velocity-dim-row">';
+      dimHTML += '<span class="velocity-dim-name">' + dim.name + '</span>';
+      dimHTML += '<span class="velocity-dim-arrow" style="color:' + dColor + '">' + dArrow + ' ' + dv.slope + 'pt/回</span>';
+      dimHTML += '</div>';
+    }
+
+    if (hasDimData) {
+      dimHTML = '<div class="velocity-dimensions">' + dimHTML + '</div>';
+    }
+
+    container.innerHTML = overallHTML + dimHTML;
+  },
+
+  // ============================================================
+  // Risk DNA Shareable Visual Profile
+  // ============================================================
+
+  /**
+   * Generate a unique "Risk DNA" radial visualization.
+   * Creates an abstract, beautiful pattern encoding dimension scores.
+   *
+   * @param {Object<string, number>} dimensionScores - Dimension scores
+   * @param {number} weightedScore - Overall weighted score
+   * @returns {string|null} Data URL of the generated PNG
+   */
+  generateRiskDNA(dimensionScores, weightedScore) {
+    var canvas = document.createElement('canvas');
+    var size = 600;
+    canvas.width = size;
+    canvas.height = size;
+    var ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+
+    var cx = size / 2, cy = size / 2;
+    var risk = Scoring.getRiskLevel(weightedScore);
+
+    // Background - dark gradient
+    var bgGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, size / 2);
+    bgGrad.addColorStop(0, '#0e0e24');
+    bgGrad.addColorStop(1, '#07071a');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, size, size);
+
+    // Draw concentric rings for each dimension
+    var dims = DIMENSIONS;
+    var maxRadius = 220;
+    var minRadius = 60;
+    var ringWidth = (maxRadius - minRadius) / dims.length;
+
+    // Color palette based on overall score
+    var baseHue = weightedScore * 1.2; // 0=red(0), 100=green(120)
+
+    for (var i = 0; i < dims.length; i++) {
+      var dim = dims[i];
+      var score = dimensionScores[dim.id] || 0;
+      var radius = minRadius + i * ringWidth + ringWidth / 2;
+      var dimRisk = Scoring.getRiskLevel(score);
+
+      // Each dimension is a "petal" in the radial pattern
+      var angleStep = (2 * Math.PI) / 60; // 60 segments per ring
+      var amplitude = (score / 100) * ringWidth * 0.8;
+
+      ctx.beginPath();
+      for (var a = 0; a <= 360; a++) {
+        var angle = (a * Math.PI) / 180;
+        // Modulate radius based on score + dimension-specific pattern
+        var noise = Math.sin(angle * (i + 3)) * 0.3 + Math.cos(angle * (i * 2 + 1)) * 0.2;
+        var r = radius + amplitude * (0.5 + 0.5 * Math.sin(angle * (i + 2) + i)) + noise * (score / 100) * 8;
+        var x = cx + r * Math.cos(angle);
+        var y = cy + r * Math.sin(angle);
+        if (a === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+
+      // Ring fill with dim-specific color
+      var hue = (baseHue + i * 25) % 360;
+      var saturation = 50 + (score / 100) * 30;
+      var lightness = 20 + (score / 100) * 30;
+      var alpha = 0.15 + (score / 100) * 0.2;
+      ctx.fillStyle = 'hsla(' + hue + ',' + saturation + '%,' + lightness + '%,' + alpha + ')';
+      ctx.fill();
+
+      // Ring stroke
+      ctx.strokeStyle = 'hsla(' + hue + ',' + (saturation + 20) + '%,' + (lightness + 20) + '%,' + (alpha + 0.1) + ')';
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+    }
+
+    // Center circle with overall score
+    ctx.beginPath();
+    ctx.arc(cx, cy, minRadius - 10, 0, 2 * Math.PI);
+    ctx.fillStyle = 'rgba(10,10,26,0.9)';
+    ctx.fill();
+    ctx.strokeStyle = risk.color + '80';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Score number
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = risk.color;
+    ctx.font = 'bold 36px -apple-system, sans-serif';
+    ctx.fillText(String(weightedScore), cx, cy - 8);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.font = '12px -apple-system, sans-serif';
+    ctx.fillText('/100', cx, cy + 18);
+
+    // Title at top
+    ctx.fillStyle = 'rgba(165,180,252,0.8)';
+    ctx.font = 'bold 14px -apple-system, sans-serif';
+    ctx.fillText('\u9000\u8077\u30EA\u30B9\u30AF DNA', cx, 30);
+
+    // Risk label at bottom
+    ctx.fillStyle = risk.color;
+    ctx.font = 'bold 16px -apple-system, sans-serif';
+    ctx.fillText(risk.label, cx, size - 30);
+
+    // Dimension labels around the perimeter
+    ctx.font = '10px -apple-system, sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    for (var li = 0; li < dims.length; li++) {
+      var labelAngle = -Math.PI / 2 + (li / dims.length) * 2 * Math.PI;
+      var labelR = maxRadius + 25;
+      var lx = cx + labelR * Math.cos(labelAngle);
+      var ly = cy + labelR * Math.sin(labelAngle);
+      var lScore = dimensionScores[dims[li].id] || 0;
+      ctx.fillStyle = Scoring.getRiskLevel(lScore).color + '99';
+      ctx.fillText(dims[li].name, lx, ly);
+    }
+
+    try {
+      return canvas.toDataURL('image/png');
+    } catch (e) {
+      return null;
+    }
+  },
+
+  // ============================================================
   // Phase 2: Share Card Image Generation
   // ============================================================
 

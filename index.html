@@ -104,8 +104,21 @@
 
       <p class="privacy-note">回答データは端末内のみに保存され、外部送信されません。</p>
 
+      <!-- Data Export/Import -->
+      <div class="data-portability" id="data-portability">
+        <button id="btn-export" class="btn-data" type="button" aria-label="データを書き出す">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          データを書き出す
+        </button>
+        <button id="btn-import" class="btn-data" type="button" aria-label="データを読み込む">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          データを読み込む
+        </button>
+        <input type="file" id="import-file" accept=".json" style="display:none;">
+      </div>
+
       <!-- Version / Credit Footer -->
-      <p class="version-footer" aria-label="バージョン情報">v3.0</p>
+      <p class="version-footer" aria-label="バージョン情報">v3.1</p>
     </div>
   </section>
 
@@ -384,6 +397,9 @@
             <svg id="trend-svg" viewBox="0 0 350 200" role="img" aria-label="スコア推移チャート"></svg>
           </div>
           <div id="trend-summary" class="trend-summary"></div>
+          <div id="velocity-badges" class="velocity-badges"></div>
+          <!-- Dimension Trend Heatmap -->
+          <div id="dimension-heatmap" class="dimension-heatmap"></div>
         </div>
       </div>
 
@@ -433,6 +449,14 @@
             <path d="M21 15l-5-5L5 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           結果画像を保存
+        </button>
+        <button id="btn-risk-dna" class="btn-secondary btn-share-img" type="button" aria-label="リスクDNA画像を保存する">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            <circle cx="12" cy="12" r="6" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
+            <circle cx="12" cy="12" r="2" fill="currentColor"/>
+          </svg>
+          リスクDNA画像を保存
         </button>
         <button id="btn-report" class="btn-secondary" type="button" aria-label="詳細レポートをコピー">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">

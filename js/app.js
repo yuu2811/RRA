@@ -637,6 +637,27 @@
       Charts.initWhatIfSimulator(els.whatifSliders, dimensionScores, weightedScore);
     }
 
+    // Risk Velocity Indicator
+    var velocity = DiagnosticHistory.getVelocity();
+    var velocityContainer = document.getElementById('velocity-badges');
+    if (velocityContainer && Charts.renderVelocityBadges) {
+      Charts.renderVelocityBadges(velocityContainer, velocity);
+    }
+
+    // Dimension Trend Heatmap
+    var heatmapContainer = document.getElementById('dimension-heatmap');
+    if (heatmapContainer && Charts.drawDimensionHeatmap) {
+      // Include current result in heatmap
+      var heatmapHistory = history.slice();
+      heatmapHistory.push({
+        date: new Date().toISOString(),
+        overall: overallScore,
+        weighted: weightedScore,
+        dimensions: dimensionScores
+      });
+      Charts.drawDimensionHeatmap(heatmapContainer, heatmapHistory);
+    }
+
     // Re-diagnosis Reminder
     initReminder();
 
@@ -800,6 +821,38 @@
         btnReport.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16"><path d="M20 6L9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> コピーしました';
         setTimeout(function () { btnReport.innerHTML = orig2; }, 2000);
       });
+    });
+  }
+
+  // Risk DNA button
+  var btnRiskDNA = document.getElementById('btn-risk-dna');
+  if (btnRiskDNA) {
+    btnRiskDNA.addEventListener('click', function () {
+      if (!state.lastResults || !Charts.generateRiskDNA) return;
+
+      var dataUrl = Charts.generateRiskDNA(state.lastResults.dimensionScores, state.lastResults.weightedScore);
+      if (!dataUrl) return;
+
+      var link = document.createElement('a');
+      link.download = 'risk-dna.png';
+      link.href = dataUrl;
+
+      var isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+      if (isIOS) {
+        var win = window.open();
+        if (win) {
+          win.document.write('<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>リスクDNA</title></head><body style="margin:0;display:flex;justify-content:center;background:#000;"><img src="' + dataUrl + '" style="max-width:100%;height:auto;"></body></html>');
+          win.document.close();
+        }
+      } else {
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      var originalText = btnRiskDNA.innerHTML;
+      btnRiskDNA.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16"><path d="M20 6L9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> 保存しました';
+      setTimeout(function () { btnRiskDNA.innerHTML = originalText; }, 2000);
     });
   }
 
@@ -1175,6 +1228,56 @@
     });
   }
   initCollapsibleToggles();
+
+  // ---------- Data Export/Import ----------
+  var btnExport = document.getElementById('btn-export');
+  var btnImport = document.getElementById('btn-import');
+  var importFile = document.getElementById('import-file');
+
+  if (btnExport) {
+    btnExport.addEventListener('click', function () {
+      var json = DiagnosticHistory.exportJSON();
+      var blob = new Blob([json], { type: 'application/json' });
+      var url = URL.createObjectURL(blob);
+      var link = document.createElement('a');
+      link.download = 'rra-data-' + new Date().toISOString().slice(0, 10) + '.json';
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      var orig = btnExport.innerHTML;
+      btnExport.textContent = '書き出しました';
+      setTimeout(function () { btnExport.innerHTML = orig; }, 2000);
+    });
+  }
+
+  if (btnImport && importFile) {
+    btnImport.addEventListener('click', function () {
+      importFile.click();
+    });
+
+    importFile.addEventListener('change', function () {
+      var file = importFile.files[0];
+      if (!file) return;
+
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        var result = DiagnosticHistory.importJSON(e.target.result);
+        var orig = btnImport.innerHTML;
+        if (result.success) {
+          btnImport.textContent = result.message;
+          updateHistorySummary();
+        } else {
+          btnImport.textContent = result.message;
+        }
+        setTimeout(function () { btnImport.innerHTML = orig; }, 3000);
+      };
+      reader.readAsText(file);
+      importFile.value = ''; // Reset for re-import
+    });
+  }
 
   // ---------- Initialize ----------
   updateHistorySummary();

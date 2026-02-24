@@ -3044,7 +3044,8 @@ body::after {
   #btn-retry,
   #btn-home,
   #btn-copy-code,
-  .social-proof-badge {
+  .social-proof-badge,
+  .result-divider {
     display: none !important;
   }
 
@@ -3076,11 +3077,7 @@ body::after {
     page-break-after: avoid !important;
   }
 
-  .result-summary-headline {
-    text-align: center !important;
-    color: #444 !important;
-    font-size: 12pt !important;
-  }
+  /* (result-summary-headline removed in v4.0) */
 
   /* Cards: remove glass effects, add borders */
   .glass-card {
@@ -3116,12 +3113,6 @@ body::after {
     overflow: visible !important;
   }
 
-  /* Dividers */
-  .result-divider {
-    border-color: #eee !important;
-    margin: 8pt 0 !important;
-  }
-
   /* Gauge - scale down for print */
   .gauge-container {
     transform: scale(0.8) !important;
@@ -3140,7 +3131,7 @@ body::after {
   }
 
   /* Dimension bars */
-  .dimension-bar-fill {
+  .dim-bar-fill {
     border-radius: 3px !important;
   }
 

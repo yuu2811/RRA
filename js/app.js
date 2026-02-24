@@ -178,7 +178,7 @@
     }
 
     var latest = history[history.length - 1];
-    var score = latest.weighted || latest.overall;
+    var score = Number(latest.weighted || latest.overall) || 0;
     var risk = Scoring.getRiskLevel(score);
     var d = new Date(latest.date);
     var dateStr = d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日';
@@ -653,7 +653,7 @@
     // Trend summary text
     if (els.trendSummary && history.length > 0) {
       var prevEntry = history[history.length - 1];
-      var prevScore = prevEntry.weighted || prevEntry.overall;
+      var prevScore = Number(prevEntry.weighted || prevEntry.overall) || 0;
       var change = weightedScore - prevScore;
       var trendClass, trendText;
       if (change > 3) {
@@ -1311,20 +1311,27 @@
     try {
       var raw = localStorage.getItem(REMINDER_KEY);
       if (!raw) return null;
-      return JSON.parse(raw);
+      var parsed = JSON.parse(raw);
+      // Validate fields to prevent XSS via tampered localStorage
+      if (!parsed || typeof parsed !== 'object') return null;
+      if (typeof parsed.date !== 'string') return null;
+      if (typeof parsed.days !== 'number' || !isFinite(parsed.days)) return null;
+      return parsed;
     } catch (e) { return null; }
   }
 
   function showReminderStatus(statusEl, optionsEl, reminder) {
     var d = new Date(reminder.date);
     var dateStr = d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日';
+    var days = parseInt(reminder.days);
+    if (isNaN(days)) return;
     var labelMap = { 14: '2週間後', 30: '1ヶ月後', 90: '3ヶ月後' };
-    var label = labelMap[reminder.days] || reminder.days + '日後';
+    var label = labelMap[days] || days + '日後';
 
     // Update button states
     var btns = optionsEl.querySelectorAll('.reminder-btn');
     btns.forEach(function (b) {
-      b.classList.toggle('active', parseInt(b.dataset.interval) === reminder.days);
+      b.classList.toggle('active', parseInt(b.dataset.interval) === days);
     });
 
     statusEl.style.display = '';
@@ -1577,6 +1584,15 @@
     importFile.addEventListener('change', function () {
       var file = importFile.files[0];
       if (!file) return;
+
+      // File size limit (1MB) to prevent DoS via large files
+      if (file.size > 1024 * 1024) {
+        var orig0 = btnImport.innerHTML;
+        btnImport.textContent = 'ファイルが大きすぎます（1MB以下）';
+        setTimeout(function () { btnImport.innerHTML = orig0; }, 3000);
+        importFile.value = '';
+        return;
+      }
 
       var reader = new FileReader();
       reader.onload = function (e) {

@@ -771,10 +771,15 @@ const Charts = {
     var cycleDuration = 2000;
     var startTime = performance.now();
     var rafId = null;
+    var stopped = false;
 
     function pulse(now) {
-      // If the dot has been removed from DOM, stop
-      if (!dot.parentNode) { rafId = null; return; }
+      // If the dot has been removed from DOM or stopped, clean up
+      if (stopped || !dot.parentNode) {
+        stopped = true;
+        rafId = null;
+        return;
+      }
 
       var elapsed = (now - startTime) % cycleDuration;
       var t = elapsed / cycleDuration;
@@ -790,11 +795,12 @@ const Charts = {
 
     rafId = requestAnimationFrame(pulse);
 
-    // Pause when tab is hidden to save CPU
-    document.addEventListener('visibilitychange', function onVis() {
-      if (!dot.parentNode) {
+    // Pause when tab is hidden to save CPU; clean up when dot is removed
+    function onVis() {
+      if (stopped || !dot.parentNode) {
         document.removeEventListener('visibilitychange', onVis);
-        if (rafId) cancelAnimationFrame(rafId);
+        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+        stopped = true;
         return;
       }
       if (document.hidden) {
@@ -805,7 +811,18 @@ const Charts = {
           rafId = requestAnimationFrame(pulse);
         }
       }
-    });
+    }
+    document.addEventListener('visibilitychange', onVis);
+
+    // Periodic self-check: if dot is detached, stop and clean up listener
+    var checkInterval = setInterval(function () {
+      if (!dot.parentNode || stopped) {
+        stopped = true;
+        clearInterval(checkInterval);
+        document.removeEventListener('visibilitychange', onVis);
+        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+      }
+    }, 5000);
   },
 
   // ---------- Compound Risks ----------
@@ -1790,7 +1807,7 @@ const Charts = {
       html += '<tr>';
       html += '<td class="heatmap-dim-name">' + dim.name + '</td>';
       for (var ei = 0; ei < n; ei++) {
-        var score = (entries[ei].dimensions && entries[ei].dimensions[dim.id]) || 0;
+        var score = Number((entries[ei].dimensions && entries[ei].dimensions[dim.id]) || 0) || 0;
         var cellColor = this._heatmapColor(score);
         var textColor = score > 60 ? 'rgba(0,0,0,0.7)' : '#fff';
         html += '<td class="heatmap-cell" style="background:' + cellColor + ';color:' + textColor + ';">' + score + '</td>';
@@ -2115,6 +2132,9 @@ const Charts = {
     var ctx = canvas.getContext('2d');
     if (!ctx) return null;
 
+    // Compute risk BEFORE any usage (fix: was declared after first reference)
+    var risk = Scoring.getRiskLevel(results.weightedScore);
+
     // Background
     var bgGrad = ctx.createLinearGradient(0, 0, w, h);
     bgGrad.addColorStop(0, '#07071a');
@@ -2159,14 +2179,13 @@ const Charts = {
     ctx.textAlign = 'center';
     ctx.fillStyle = '#a5b4fc';
     ctx.font = 'bold 14px -apple-system, sans-serif';
-    ctx.fillText('\u9000\u8077\u30EA\u30B9\u30AF\u8A3A\u65AD', w / 2, 50);
+    ctx.fillText('はたらく環境診断', w / 2, 50);
 
     ctx.fillStyle = '#f0f0f5';
     ctx.font = 'bold 28px -apple-system, sans-serif';
-    ctx.fillText('\u9000\u8077\u30EA\u30B9\u30AF\u8A3A\u65AD\u7D50\u679C', w / 2, 90);
+    ctx.fillText('はたらく環境診断結果', w / 2, 90);
 
     // Gauge circle
-    var risk = Scoring.getRiskLevel(results.weightedScore);
     var cx = w / 2, cy = 200, gaugeR = 70;
     
     // Background arc

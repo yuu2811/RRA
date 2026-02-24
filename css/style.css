@@ -828,7 +828,7 @@ body::after {
 }
 
 .advice-dim-name {
-  font-size: 14px;
+  font-size: clamp(14px, 3.8vw, 17px);
   font-weight: 700;
   margin-bottom: 6px;
   letter-spacing: 0.01em;
@@ -836,9 +836,9 @@ body::after {
 
 .advice-score-badge {
   display: inline-block;
-  font-size: 11px;
+  font-size: clamp(12px, 3.2vw, 14px);
   font-weight: 700;
-  padding: 3px 10px;
+  padding: 4px 12px;
   border-radius: var(--radius-full);
   margin-bottom: 10px;
   letter-spacing: 0.02em;
@@ -852,10 +852,10 @@ body::after {
 }
 
 .no-advice {
-  font-size: 14px;
+  font-size: clamp(14px, 3.8vw, 17px);
   color: var(--text-secondary);
   text-align: center;
-  padding: 20px 16px;
+  padding: 24px 16px;
   line-height: 1.7;
 }
 
@@ -871,11 +871,11 @@ body::after {
 }
 
 .ref-item {
-  font-size: 11px;
+  font-size: clamp(11px, 2.8vw, 13px);
   color: var(--text-muted);
   line-height: 1.7;
   padding-left: 14px;
-  border-left: 2px solid rgba(255, 255, 255, 0.05);
+  border-left: 2px solid rgba(255, 255, 255, 0.06);
 }
 
 .ref-dim {
@@ -883,7 +883,7 @@ body::after {
   color: var(--text-secondary);
   display: block;
   margin-bottom: 3px;
-  font-size: 12px;
+  font-size: clamp(12px, 3.2vw, 14px);
 }
 
 /* ---------- Result Actions ---------- */
@@ -891,12 +891,11 @@ body::after {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
   width: 100%;
   max-width: var(--card-max-width);
-  margin-top: 8px;
-  /* Keep action buttons above home indicator */
-  padding-bottom: 4px;
+  margin-top: 12px;
+  padding-bottom: calc(var(--safe-bottom) + 8px);
 }
 
 .btn-share {
@@ -1066,36 +1065,36 @@ body::after {
 }
 
 .weighted-score-label {
-  font-size: 11px;
+  font-size: clamp(12px, 3.2vw, 14px);
   font-weight: 600;
   color: var(--text-muted);
   letter-spacing: 0.04em;
 }
 
 .weighted-score-value {
-  font-size: 36px;
+  font-size: clamp(34px, 9vw, 44px);
   font-weight: 900;
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
 
 .weighted-score-value.primary {
-  font-size: 42px;
+  font-size: clamp(38px, 10vw, 50px);
 }
 
 .weighted-score-diff {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 14px;
+  font-size: clamp(14px, 3.8vw, 17px);
   font-weight: 700;
 }
 
 .weighted-explanation {
-  font-size: 12px;
+  font-size: clamp(12px, 3.2vw, 14px);
   color: var(--text-muted);
   text-align: center;
-  line-height: 1.6;
+  line-height: 1.7;
   margin-top: 8px;
 }
 
@@ -1148,13 +1147,13 @@ body::after {
 }
 
 .compound-risk-name {
-  font-size: 16px;
+  font-size: clamp(15px, 4vw, 18px);
   font-weight: 700;
   color: var(--text-primary);
 }
 
 .compound-risk-name-en {
-  font-size: 11px;
+  font-size: clamp(11px, 3vw, 13px);
   color: var(--text-muted);
   font-weight: 500;
   display: block;
@@ -1162,9 +1161,9 @@ body::after {
 
 .compound-risk-severity-badge {
   display: inline-block;
-  font-size: 10px;
+  font-size: clamp(11px, 2.8vw, 13px);
   font-weight: 700;
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: var(--radius-full);
   letter-spacing: 0.04em;
 }
@@ -1185,7 +1184,7 @@ body::after {
 }
 
 .compound-risk-desc {
-  font-size: 14px;
+  font-size: clamp(14px, 3.8vw, 17px);
   color: var(--text-secondary);
   line-height: 1.8;
   margin-bottom: 12px;
@@ -1202,18 +1201,18 @@ body::after {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 13px;
+  font-size: clamp(13px, 3.5vw, 15px);
   font-weight: 500;
   color: var(--text-secondary);
-  padding: 6px 10px;
+  padding: 8px 12px;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 8px;
 }
 
 .compound-risk-advice {
-  font-size: 13px;
+  font-size: clamp(13px, 3.5vw, 16px);
   color: var(--text-muted);
-  line-height: 1.7;
+  line-height: 1.8;
   padding-top: 12px;
   border-top: 1px solid rgba(255, 255, 255, 0.04);
 }
@@ -1256,7 +1255,7 @@ body::after {
 }
 
 .history-date {
-  font-size: 12px;
+  font-size: clamp(13px, 3.5vw, 15px);
   color: var(--text-muted);
 }
 
@@ -1267,13 +1266,13 @@ body::after {
 }
 
 .history-score {
-  font-size: 18px;
+  font-size: clamp(20px, 5.5vw, 24px);
   font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
 
 .history-trend {
-  font-size: 13px;
+  font-size: clamp(14px, 3.8vw, 16px);
   font-weight: 700;
 }
 
@@ -1350,13 +1349,13 @@ body::after {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  padding-top: 12px;
-  font-size: 14px;
+  padding-top: 14px;
+  font-size: clamp(14px, 3.8vw, 17px);
   color: var(--text-secondary);
 }
 
 .trend-arrow {
-  font-size: 20px;
+  font-size: clamp(22px, 6vw, 28px);
   font-weight: 800;
 }
 
@@ -1395,21 +1394,21 @@ body::after {
 }
 
 .history-summary-header {
-  font-size: 11px;
-  font-weight: 500;
+  font-size: clamp(12px, 3.2vw, 14px);
+  font-weight: 600;
   color: var(--text-muted);
   letter-spacing: 0.02em;
 }
 
 .history-summary-score {
-  font-size: 28px;
+  font-size: clamp(30px, 8vw, 38px);
   font-weight: 900;
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
 
 .history-summary-date {
-  font-size: 11px;
+  font-size: clamp(12px, 3.2vw, 14px);
   color: var(--text-muted);
 }
 
@@ -1461,14 +1460,15 @@ body::after {
 .dim-row-interactive {
   cursor: pointer;
   border-radius: var(--radius-sm);
-  padding: 12px;
-  margin: -12px;
-  margin-bottom: 6px;
+  padding: 14px;
+  margin: -14px;
+  margin-bottom: 8px;
   transition: background var(--transition-fast);
+  min-height: 48px;
 }
 
 .dim-row-interactive:active {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .dim-header-tap {
@@ -1490,11 +1490,16 @@ body::after {
 }
 
 .dim-expand-icon {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--text-muted);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  width: 16px;
-  text-align: center;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 50%;
 }
 
 .dim-percentile {
@@ -1508,10 +1513,10 @@ body::after {
 }
 
 .dim-drill-desc {
-  font-size: 12px;
-  color: var(--text-muted);
-  line-height: 1.6;
-  margin-bottom: 12px;
+  font-size: clamp(13px, 3.5vw, 15px);
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 14px;
 }
 
 .dim-drill-percentile-row {
@@ -1575,13 +1580,13 @@ body::after {
 }
 
 .dim-drill-q-text {
-  font-size: 11px;
+  font-size: clamp(12px, 3.2vw, 14px);
   color: var(--text-secondary);
   line-height: 1.5;
 }
 
 .dim-drill-q-num {
-  font-size: 10px;
+  font-size: clamp(11px, 2.8vw, 13px);
   font-weight: 700;
   color: var(--accent-secondary);
   opacity: 0.7;
@@ -1598,9 +1603,9 @@ body::after {
 }
 
 .dim-drill-q-bar-wrap {
-  height: 3px;
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 1.5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2.5px;
   overflow: hidden;
 }
 
@@ -1611,7 +1616,7 @@ body::after {
 }
 
 .dim-drill-q-score {
-  font-size: 11px;
+  font-size: clamp(12px, 3.2vw, 14px);
   font-weight: 700;
   text-align: right;
   font-variant-numeric: tabular-nums;
@@ -1628,10 +1633,10 @@ body::after {
 }
 
 .card-title-hint {
-  font-size: 11px;
-  font-weight: 400;
+  font-size: clamp(11px, 2.8vw, 13px);
+  font-weight: 500;
   color: var(--text-muted);
-  margin-left: 4px;
+  margin-left: 6px;
 }
 
 /* ---------- Phase 2: Strengths ---------- */
@@ -1660,20 +1665,20 @@ body::after {
 }
 
 .strength-score {
-  font-size: 24px;
+  font-size: clamp(26px, 7vw, 32px);
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
 
 .strength-name {
-  font-size: 11px;
+  font-size: clamp(12px, 3.2vw, 14px);
   font-weight: 600;
   color: var(--text-secondary);
 }
 
 .strength-label {
-  font-size: 10px;
+  font-size: clamp(11px, 2.8vw, 13px);
   color: var(--text-muted);
 }
 
@@ -1694,18 +1699,18 @@ body::after {
 
 .action-plan-urgency-badge {
   display: inline-block;
-  font-size: 11px;
+  font-size: clamp(12px, 3.2vw, 14px);
   font-weight: 700;
-  padding: 3px 10px;
+  padding: 4px 12px;
   border-radius: var(--radius-full);
   letter-spacing: 0.04em;
   margin-bottom: 8px;
 }
 
 .action-plan-summary {
-  font-size: 13px;
+  font-size: clamp(14px, 3.8vw, 17px);
   color: var(--text-secondary);
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
 .action-plan-item {
@@ -1751,22 +1756,22 @@ body::after {
 }
 
 .action-plan-item-title {
-  font-size: 14px;
+  font-size: clamp(14px, 3.8vw, 17px);
   font-weight: 700;
   color: var(--text-primary);
 }
 
 .action-plan-item-score {
-  font-size: 12px;
+  font-size: clamp(13px, 3.5vw, 15px);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
 .action-plan-item-desc {
-  font-size: 13px;
+  font-size: clamp(13px, 3.5vw, 16px);
   color: var(--text-secondary);
-  line-height: 1.6;
-  margin-bottom: 8px;
+  line-height: 1.7;
+  margin-bottom: 10px;
 }
 
 .action-plan-meta {
@@ -1776,11 +1781,11 @@ body::after {
 }
 
 .action-plan-tag {
-  font-size: 10px;
-  font-weight: 500;
+  font-size: clamp(11px, 2.8vw, 13px);
+  font-weight: 600;
   color: var(--text-muted);
   background: rgba(255, 255, 255, 0.04);
-  padding: 3px 8px;
+  padding: 4px 10px;
   border-radius: var(--radius-full);
   white-space: nowrap;
 }
@@ -1821,29 +1826,29 @@ body::after {
 }
 
 .correlation-dim-badge {
-  font-size: 12px;
+  font-size: clamp(13px, 3.5vw, 15px);
   font-weight: 600;
 }
 
 .correlation-dim-badge small {
-  font-size: 11px;
+  font-size: clamp(12px, 3vw, 14px);
   opacity: 0.7;
 }
 
 .correlation-arrow {
-  font-size: 12px;
+  font-size: clamp(13px, 3.5vw, 15px);
   color: var(--text-muted);
 }
 
 .correlation-insight-text {
-  font-size: 13px;
+  font-size: clamp(13px, 3.5vw, 16px);
   color: var(--text-secondary);
-  line-height: 1.6;
-  margin-bottom: 6px;
+  line-height: 1.7;
+  margin-bottom: 8px;
 }
 
 .correlation-strength {
-  font-size: 10px;
+  font-size: clamp(11px, 2.8vw, 13px);
   color: var(--text-muted);
   font-variant-numeric: tabular-nums;
 }

@@ -72,7 +72,6 @@
     correlationCard: document.getElementById('correlation-card'),
     correlationContent: document.getElementById('correlation-content'),
     demographicContext: document.getElementById('demographic-context'),
-    whatifSliders: document.getElementById('whatif-sliders'),
     btnShareImage: document.getElementById('btn-share-image'),
     referencesContent: document.getElementById('references-content'),
     dimensionLabel: document.getElementById('dimension-label'),
@@ -667,11 +666,6 @@
         trendText = '<span class="trend-arrow stable">→</span> <span class="trend-change">前回と同水準</span>';
       }
       els.trendSummary.innerHTML = trendText;
-    }
-
-    // What-If Scenario Simulator
-    if (Charts.initWhatIfSimulator) {
-      Charts.initWhatIfSimulator(els.whatifSliders, dimensionScores, weightedScore);
     }
 
     // Goal Setting

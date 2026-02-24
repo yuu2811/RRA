@@ -1257,6 +1257,14 @@ const Charts = {
         // Description
         drillHTML += '<p class="dim-drill-desc">' + dim.description + '</p>';
 
+        // Score explanation (why this score?)
+        if (Scoring.getDimensionExplanation) {
+          var explanation = Scoring.getDimensionExplanation(dim, score, answers);
+          if (explanation) {
+            drillHTML += '<p class="dim-drill-explanation">' + explanation + '</p>';
+          }
+        }
+
         // Percentile bar
         drillHTML += '<div class="dim-drill-percentile-row">';
         drillHTML += '<span class="dim-drill-percentile-label">' + percentile.lowLabel + '</span>';
@@ -1549,6 +1557,124 @@ const Charts = {
     }
     html += '</div>';
     container.innerHTML = html;
+  },
+
+  // ============================================================
+  // What-If Scenario Simulator
+  // ============================================================
+
+  /**
+   * Initialize the What-If scenario simulator.
+   * Creates sliders for each dimension, recalculates weighted score on change.
+   *
+   * @param {HTMLElement} slidersContainer - Container for sliders
+   * @param {Object<string, number>} dimensionScores - Current dimension scores
+   * @param {number} currentWeightedScore - Current weighted score
+   */
+  initWhatIfSimulator(slidersContainer, dimensionScores, currentWeightedScore) {
+    if (!slidersContainer) return;
+    slidersContainer.innerHTML = '';
+
+    var currentEl = document.getElementById('whatif-current');
+    var predictedEl = document.getElementById('whatif-predicted');
+    var riskChangeEl = document.getElementById('whatif-risk-change');
+
+    if (currentEl) {
+      var currentRisk = Scoring.getRiskLevel(currentWeightedScore);
+      currentEl.textContent = currentWeightedScore;
+      currentEl.style.color = currentRisk.color;
+    }
+    if (predictedEl) {
+      predictedEl.textContent = currentWeightedScore;
+      predictedEl.style.color = Scoring.getRiskLevel(currentWeightedScore).color;
+    }
+
+    var sliderState = {};
+
+    for (var i = 0; i < DIMENSIONS.length; i++) {
+      var dim = DIMENSIONS[i];
+      var score = dimensionScores[dim.id] || 0;
+      sliderState[dim.id] = score;
+
+      var row = document.createElement('div');
+      row.className = 'whatif-slider-row';
+      row.setAttribute('data-dim-id', dim.id);
+
+      var dimRisk = Scoring.getRiskLevel(score);
+
+      row.innerHTML =
+        '<div class="whatif-slider-header">' +
+          '<span class="whatif-slider-name">' + dim.name + '</span>' +
+          '<span class="whatif-slider-value" style="color:' + dimRisk.color + '">' +
+            '<span class="whatif-val">' + score + '</span>' +
+            '<span class="whatif-slider-change"></span>' +
+          '</span>' +
+        '</div>' +
+        '<input type="range" class="whatif-slider-track" min="0" max="100" value="' + score + '" data-dim-id="' + dim.id + '" data-original="' + score + '">';
+
+      slidersContainer.appendChild(row);
+    }
+
+    // Real-time recalculation on slider change
+    slidersContainer.addEventListener('input', function (e) {
+      if (!e.target.classList.contains('whatif-slider-track')) return;
+
+      var dimId = e.target.getAttribute('data-dim-id');
+      var original = parseInt(e.target.getAttribute('data-original'));
+      var newVal = parseInt(e.target.value);
+      sliderState[dimId] = newVal;
+
+      // Update display
+      var row = e.target.closest('.whatif-slider-row');
+      var valEl = row.querySelector('.whatif-val');
+      var changeEl = row.querySelector('.whatif-slider-change');
+      var newRisk = Scoring.getRiskLevel(newVal);
+      valEl.textContent = newVal;
+      valEl.parentElement.style.color = newRisk.color;
+
+      var diff = newVal - original;
+      if (diff > 0) {
+        changeEl.textContent = '+' + diff;
+        changeEl.style.color = '#22c55e';
+        row.classList.add('changed');
+      } else if (diff < 0) {
+        changeEl.textContent = String(diff);
+        changeEl.style.color = '#ef4444';
+        row.classList.add('changed');
+      } else {
+        changeEl.textContent = '';
+        row.classList.remove('changed');
+      }
+
+      // Recalculate weighted score with modified dimensions
+      var newWeighted = Scoring.calculateWeightedScore(sliderState);
+      var newRiskLevel = Scoring.getRiskLevel(newWeighted);
+      var currentRiskLevel = Scoring.getRiskLevel(currentWeightedScore);
+
+      if (predictedEl) {
+        predictedEl.textContent = newWeighted;
+        predictedEl.style.color = newRiskLevel.color;
+      }
+
+      // Show risk level change message
+      if (riskChangeEl) {
+        var totalDiff = newWeighted - currentWeightedScore;
+        if (totalDiff > 0) {
+          riskChangeEl.innerHTML =
+            '<span style="color:#22c55e">+' + totalDiff + '点の改善</span>';
+          if (newRiskLevel.level !== currentRiskLevel.level) {
+            riskChangeEl.innerHTML +=
+              '<br><span style="color:' + newRiskLevel.color + '">' +
+              currentRiskLevel.label + ' → ' + newRiskLevel.label + '</span>';
+          }
+        } else if (totalDiff < 0) {
+          riskChangeEl.innerHTML =
+            '<span style="color:#ef4444">' + totalDiff + '点の低下</span>';
+        } else {
+          riskChangeEl.innerHTML = '';
+        }
+      }
+    });
   },
 
   // ============================================================

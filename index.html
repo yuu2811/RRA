@@ -305,6 +305,34 @@
 
       <hr class="result-divider" aria-hidden="true">
 
+      <!-- What-If Scenario Simulator -->
+      <div class="glass-card whatif-card" id="whatif-card" role="region" aria-label="改善シミュレーション" aria-expanded="false">
+        <button class="collapsible-toggle" type="button" aria-label="改善シミュレーションを展開する" data-collapse-label="改善シミュレーション">
+          <h3 class="card-title" style="margin-bottom:0;">もし改善したら？ <span class="card-title-hint">タップで試す</span></h3>
+          <span class="collapsible-toggle-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </button>
+        <div class="collapsible-body">
+          <p class="whatif-desc">スライダーを動かして、各項目が改善した場合にスコアがどう変わるか試してみましょう。</p>
+          <div id="whatif-sliders" class="whatif-sliders"></div>
+          <div class="whatif-result">
+            <div class="whatif-result-row">
+              <span class="whatif-result-label">現在のスコア</span>
+              <span id="whatif-current" class="whatif-current-score">--</span>
+            </div>
+            <div class="whatif-arrow-row"><span class="whatif-arrow">→</span></div>
+            <div class="whatif-result-row">
+              <span class="whatif-result-label">改善後の予測スコア</span>
+              <span id="whatif-predicted" class="whatif-predicted-score">--</span>
+            </div>
+            <div id="whatif-risk-change" class="whatif-risk-change"></div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="result-divider" aria-hidden="true">
+
       <!-- Advice (always visible) -->
       <div class="glass-card advice-card" id="advice-card" role="region" aria-label="改善アドバイス">
         <h3 class="card-title">改善のためのアドバイス</h3>
@@ -376,6 +404,20 @@
         </div>
       </div>
 
+      <!-- Re-diagnosis Reminder -->
+      <div class="glass-card reminder-card" id="reminder-card" role="region" aria-label="再診断リマインダー">
+        <h3 class="card-title">定期的に診断しましょう</h3>
+        <p class="reminder-desc">職場環境は変化します。定期的に診断して変化を把握しましょう。</p>
+        <div class="reminder-options" id="reminder-options">
+          <button class="reminder-btn" data-interval="14" type="button">2週間後</button>
+          <button class="reminder-btn" data-interval="30" type="button">1ヶ月後</button>
+          <button class="reminder-btn" data-interval="90" type="button">3ヶ月後</button>
+        </div>
+        <div id="reminder-status" class="reminder-status" style="display:none;"></div>
+      </div>
+
+      <hr class="result-divider" aria-hidden="true">
+
       <!-- Actions -->
       <div class="result-actions">
         <button id="btn-share" class="btn-primary btn-share" type="button" aria-label="結果を共有する">
@@ -391,6 +433,15 @@
             <path d="M21 15l-5-5L5 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           結果画像を保存
+        </button>
+        <button id="btn-report" class="btn-secondary" type="button" aria-label="詳細レポートをコピー">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          詳細レポートをコピー
         </button>
         <button id="btn-retry" class="btn-secondary" type="button" aria-label="もう一度診断する">もう一度診断する</button>
         <button id="btn-home" class="btn-home" type="button" aria-label="ホームに戻る">

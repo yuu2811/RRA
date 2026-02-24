@@ -72,6 +72,7 @@
     correlationCard: document.getElementById('correlation-card'),
     correlationContent: document.getElementById('correlation-content'),
     demographicContext: document.getElementById('demographic-context'),
+    whatifSliders: document.getElementById('whatif-sliders'),
     btnShareImage: document.getElementById('btn-share-image'),
     referencesContent: document.getElementById('references-content'),
     dimensionLabel: document.getElementById('dimension-label'),
@@ -631,6 +632,14 @@
       els.trendSummary.innerHTML = trendText;
     }
 
+    // What-If Scenario Simulator
+    if (Charts.initWhatIfSimulator) {
+      Charts.initWhatIfSimulator(els.whatifSliders, dimensionScores, weightedScore);
+    }
+
+    // Re-diagnosis Reminder
+    initReminder();
+
     // References
     Charts.renderReferences(els.referencesContent);
 
@@ -759,6 +768,39 @@
   // Home button
   if (els.btnHome) {
     els.btnHome.addEventListener('click', resetApp);
+  }
+
+  // Report button (copy detailed text report to clipboard)
+  var btnReport = document.getElementById('btn-report');
+  if (btnReport) {
+    btnReport.addEventListener('click', function () {
+      if (!state.lastResults) return;
+      var report = Scoring.generateTextReport(
+        state.lastResults.overallScore,
+        state.lastResults.weightedScore,
+        state.lastResults.dimensionScores,
+        state.lastResults.compoundRisks,
+        state.demographic,
+        state.answers
+      );
+      navigator.clipboard.writeText(report).then(function () {
+        var orig = btnReport.innerHTML;
+        btnReport.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16"><path d="M20 6L9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> コピーしました';
+        setTimeout(function () { btnReport.innerHTML = orig; }, 2000);
+      }).catch(function () {
+        // Fallback: select textarea for manual copy
+        var ta = document.createElement('textarea');
+        ta.value = report;
+        ta.style.cssText = 'position:fixed;left:-9999px;';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (e) { /* noop */ }
+        ta.remove();
+        var orig2 = btnReport.innerHTML;
+        btnReport.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16"><path d="M20 6L9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> コピーしました';
+        setTimeout(function () { btnReport.innerHTML = orig2; }, 2000);
+      });
+    });
   }
 
   // Share image button
@@ -968,6 +1010,156 @@
     state.isSwiping = false;
   }, { passive: true });
 
+  // ---------- Re-diagnosis Reminder ----------
+  var REMINDER_KEY = 'rra_reminder';
+
+  function initReminder() {
+    var card = document.getElementById('reminder-card');
+    var optionsEl = document.getElementById('reminder-options');
+    var statusEl = document.getElementById('reminder-status');
+    if (!card || !optionsEl || !statusEl) return;
+
+    // Check existing reminder
+    var existing = loadReminder();
+    if (existing) {
+      showReminderStatus(statusEl, optionsEl, existing);
+    }
+
+    optionsEl.addEventListener('click', function (e) {
+      var btn = e.target.closest('.reminder-btn');
+      if (!btn) return;
+      var days = parseInt(btn.dataset.interval);
+      if (isNaN(days)) return;
+
+      // Request notification permission if needed
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission().then(function (perm) {
+          setReminder(days, statusEl, optionsEl);
+        });
+      } else {
+        setReminder(days, statusEl, optionsEl);
+      }
+    });
+  }
+
+  function setReminder(days, statusEl, optionsEl) {
+    var reminderDate = new Date();
+    reminderDate.setDate(reminderDate.getDate() + days);
+    var reminder = {
+      date: reminderDate.toISOString(),
+      days: days
+    };
+    try {
+      localStorage.setItem(REMINDER_KEY, JSON.stringify(reminder));
+    } catch (e) { /* noop */ }
+
+    showReminderStatus(statusEl, optionsEl, reminder);
+
+    // Schedule notification via setTimeout (works while page is open)
+    scheduleNotification(days);
+  }
+
+  function loadReminder() {
+    try {
+      var raw = localStorage.getItem(REMINDER_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch (e) { return null; }
+  }
+
+  function showReminderStatus(statusEl, optionsEl, reminder) {
+    var d = new Date(reminder.date);
+    var dateStr = d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日';
+    var labelMap = { 14: '2週間後', 30: '1ヶ月後', 90: '3ヶ月後' };
+    var label = labelMap[reminder.days] || reminder.days + '日後';
+
+    // Update button states
+    var btns = optionsEl.querySelectorAll('.reminder-btn');
+    btns.forEach(function (b) {
+      b.classList.toggle('active', parseInt(b.dataset.interval) === reminder.days);
+    });
+
+    statusEl.style.display = '';
+    statusEl.innerHTML =
+      '次の診断予定: ' + dateStr + '（' + label + '）' +
+      '<br><button class="reminder-cancel" type="button">キャンセル</button>';
+
+    var cancelBtn = statusEl.querySelector('.reminder-cancel');
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', function () {
+        try { localStorage.removeItem(REMINDER_KEY); } catch (e) { /* noop */ }
+        statusEl.style.display = 'none';
+        btns.forEach(function (b) { b.classList.remove('active'); });
+      });
+    }
+  }
+
+  function scheduleNotification(days) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+    // For short intervals (testing), use actual timeout; for long ones, rely on SW
+    var ms = days * 24 * 60 * 60 * 1000;
+    // Cap at 24 hours for setTimeout (browser limitation); SW handles longer intervals
+    var maxTimeout = 24 * 60 * 60 * 1000;
+    if (ms <= maxTimeout) {
+      setTimeout(function () {
+        try {
+          new Notification('退職リスク診断', {
+            body: 'リマインダー: もう一度診断して、変化を確認しましょう。',
+            icon: 'icons/icon-192.png',
+            tag: 'rra-reminder'
+          });
+        } catch (e) { /* noop */ }
+      }, ms);
+    }
+
+    // Also register with SW for persistent reminders
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'SET_REMINDER',
+        days: days,
+        date: new Date(Date.now() + ms).toISOString()
+      });
+    }
+  }
+
+  // Check reminder on load - show notification if past due
+  function checkReminderOnLoad() {
+    var reminder = loadReminder();
+    if (!reminder) return;
+    var now = new Date();
+    var reminderDate = new Date(reminder.date);
+    if (now >= reminderDate) {
+      // Past due - show inline prompt on start screen
+      if (els.historySummary) {
+        var reminderBanner = document.createElement('div');
+        reminderBanner.className = 'history-summary-card';
+        reminderBanner.style.cssText = 'margin-top:12px;border-left:3px solid var(--accent-primary);';
+        reminderBanner.innerHTML =
+          '<div style="flex:1;">' +
+            '<span style="font-size:13px;font-weight:700;color:var(--accent-secondary);">再診断の時期です</span>' +
+            '<span style="display:block;font-size:12px;color:var(--text-muted);margin-top:2px;">前回の診断から時間が経ちました。もう一度チェックしてみましょう。</span>' +
+          '</div>';
+        els.historySummary.appendChild(reminderBanner);
+        els.historySummary.style.display = '';
+      }
+
+      // Send notification if permitted
+      if ('Notification' in window && Notification.permission === 'granted') {
+        try {
+          new Notification('退職リスク診断', {
+            body: '再診断の時期です。もう一度診断して変化を確認しましょう。',
+            icon: 'icons/icon-192.png',
+            tag: 'rra-reminder-due'
+          });
+        } catch (e) { /* noop */ }
+      }
+
+      // Clear the reminder
+      try { localStorage.removeItem(REMINDER_KEY); } catch (e) { /* noop */ }
+    }
+  }
+
   // ---------- Collapsible Section Toggles ----------
   function initCollapsibleToggles() {
     var toggles = document.querySelectorAll('.collapsible-toggle, .references-toggle');
@@ -986,6 +1178,7 @@
 
   // ---------- Initialize ----------
   updateHistorySummary();
+  checkReminderOnLoad();
 
   // ---------- Service Worker Registration ----------
   if ('serviceWorker' in navigator) {

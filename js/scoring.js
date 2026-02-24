@@ -178,7 +178,7 @@ const COMPOUND_RISK_PATTERNS = [
   },
   {
     id: 'flight_risk',
-    name: '転職間近型',
+    name: '退職が近い状態',
     nameEn: 'Flight Risk',
     icon: '\uD83D\uDEAA',
     description: '他に良い仕事があると感じていて、転職したい気持ちが強く、会社への愛着も薄い状態です。退職が最も近い状態です。',
@@ -550,6 +550,131 @@ const Scoring = {
     return Math.round(weightedSum / totalWeight);
   },
 
+  /**
+   * Generate a comprehensive text report suitable for copying/printing.
+   * @param {number} overallScore
+   * @param {number} weightedScore
+   * @param {Object<string, number>} dimensionScores
+   * @param {Array} compoundRisks
+   * @param {Object} demographic
+   * @param {Object<number, number>} answers
+   * @returns {string} Multi-line text report
+   */
+  generateTextReport(overallScore, weightedScore, dimensionScores, compoundRisks, demographic, answers) {
+    var lines = [];
+    var risk = this.getRiskLevel(weightedScore);
+    var now = new Date();
+    var dateStr = now.getFullYear() + '年' + (now.getMonth() + 1) + '月' + now.getDate() + '日';
+
+    lines.push('═══════════════════════════════════════');
+    lines.push('　退職リスク診断　詳細レポート');
+    lines.push('　診断日: ' + dateStr);
+    lines.push('═══════════════════════════════════════');
+    lines.push('');
+
+    // Demographics
+    if (demographic && (demographic.age || demographic.tenure || demographic.industry)) {
+      lines.push('【回答者情報】');
+      if (demographic.age) lines.push('　年代: ' + demographic.age);
+      if (demographic.tenure) lines.push('　勤続年数: ' + demographic.tenure);
+      if (demographic.industry) lines.push('　業界: ' + demographic.industry);
+      lines.push('');
+    }
+
+    // Overall score
+    lines.push('【総合判定】');
+    lines.push('　基本スコア: ' + overallScore + '/100');
+    lines.push('　分析スコア: ' + weightedScore + '/100');
+    lines.push('　判定: ' + risk.label);
+    lines.push('');
+    lines.push(this.getOverallInterpretation(weightedScore));
+    lines.push('');
+
+    // Compound risks
+    if (compoundRisks && compoundRisks.length > 0) {
+      lines.push('───────────────────────────────────────');
+      lines.push('【注意が必要な組み合わせ】');
+      for (var i = 0; i < compoundRisks.length; i++) {
+        var cr = compoundRisks[i];
+        lines.push('');
+        lines.push(cr.icon + ' ' + cr.name + ' (' + cr.severity + ')');
+        lines.push('　' + cr.description);
+        if (cr.advice) lines.push('　→ ' + cr.advice);
+      }
+      lines.push('');
+    }
+
+    // Dimension details
+    lines.push('───────────────────────────────────────');
+    lines.push('【項目別スコア】');
+    lines.push('');
+
+    for (var di = 0; di < DIMENSIONS.length; di++) {
+      var dim = DIMENSIONS[di];
+      var score = dimensionScores[dim.id] || 0;
+      var dimRisk = this.getRiskLevel(score);
+      var bar = '';
+      for (var b = 0; b < 10; b++) {
+        bar += (b < Math.round(score / 10)) ? '█' : '░';
+      }
+      lines.push(dim.name + ': ' + score + '/100 ' + bar + ' ' + dimRisk.label);
+
+      // Explanation
+      if (answers && this.getDimensionExplanation) {
+        var explanation = this.getDimensionExplanation(dim, score, answers);
+        if (explanation) lines.push('　' + explanation);
+      }
+
+      // Advice for low scores
+      if (score < ADVICE_THRESHOLD) {
+        lines.push('　改善: ' + dim.adviceLow);
+      }
+      lines.push('');
+    }
+
+    // Action plan
+    var actionPlan = this.generateActionPlan(dimensionScores, compoundRisks);
+    if (actionPlan && actionPlan.priorities.length > 0) {
+      lines.push('───────────────────────────────────────');
+      lines.push('【改善プラン】 優先度: ' + actionPlan.urgency);
+      lines.push(actionPlan.summary);
+      lines.push('');
+      for (var ai = 0; ai < actionPlan.priorities.length; ai++) {
+        var item = actionPlan.priorities[ai];
+        lines.push((ai + 1) + '. ' + item.title);
+        lines.push('　' + item.description);
+      }
+      lines.push('');
+    }
+
+    // Strengths
+    var strengths = this.getStrengths(dimensionScores);
+    if (strengths.length > 0) {
+      lines.push('───────────────────────────────────────');
+      lines.push('【あなたの強み】');
+      for (var si = 0; si < strengths.length; si++) {
+        lines.push('　' + strengths[si].dimName + ': ' + strengths[si].score + '/100 (' + strengths[si].label + ')');
+      }
+      lines.push('');
+    }
+
+    lines.push('═══════════════════════════════════════');
+    lines.push('退職リスク診断 v3.0');
+    lines.push('※ この診断は学術研究（メタ分析）に基づいています');
+
+    return lines.join('\n');
+  },
+
+  /**
+   * Public alias for What-If simulator.
+   * Recalculates weighted score from modified dimension scores.
+   * @param {Object<string, number>} dimensionScores
+   * @returns {number}
+   */
+  calculateWeightedScore(dimensionScores) {
+    return this.calculateWeightedOverallScore(dimensionScores);
+  },
+
   // ----------------------------------------------------------
   // New: Compound Risk Pattern Detection
   // ----------------------------------------------------------
@@ -709,11 +834,11 @@ const Scoring = {
 
     // --- Weighted score interpretation ---
     if (weightedScore >= 80) {
-      text += '詳しい分析の結果、退職のリスクはとても低いと判定されました。退職に関わる大事な項目（転職への気持ち・会社への愛着など）も良い状態です。';
+      text += '詳しい分析の結果、退職のリスクはとても低いと判定されました。退職に関わる大事な項目（今の仕事を続ける気持ち・会社への愛着など）も良い状態です。';
     } else if (weightedScore >= 60) {
       text += '詳しい分析の結果、おおむね安定していますが、退職に関わりやすい項目に心配なところがあります。気になるところから改善に取り組んでみましょう。';
     } else if (weightedScore >= 40) {
-      text += '詳しい分析の結果、退職に関わる大事な項目にリスクが見つかりました。特に「転職への気持ち」や「会社への愛着」のところを見直してみましょう。';
+      text += '詳しい分析の結果、退職に関わる大事な項目にリスクが見つかりました。特に「今の仕事を続ける気持ち」や「会社への愛着」のところを見直してみましょう。';
     } else {
       text += '詳しい分析の結果、退職のリスクがとても高い状態です。退職につながりやすい項目の点数が全体的に低く、今すぐ対応が必要です。';
     }
@@ -817,6 +942,51 @@ const Scoring = {
       }
     }
     return results;
+  },
+
+  /**
+   * Generate natural-language explanation for why a dimension scored the way it did.
+   * @param {Object} dimension - Dimension object from DIMENSIONS
+   * @param {number} score - Dimension score (0-100)
+   * @param {Object<number, number>} answers - Map of question ID to answer value
+   * @returns {string} Plain-language explanation
+   */
+  getDimensionExplanation(dimension, score, answers) {
+    var qScores = this.getQuestionScores(answers, dimension);
+    if (qScores.length === 0) return '';
+
+    // Find strongest and weakest questions
+    var sorted = qScores.slice().sort(function(a, b) { return a.processedScore - b.processedScore; });
+    var weakest = sorted[0];
+    var strongest = sorted[sorted.length - 1];
+
+    var risk = this.getRiskLevel(score);
+    var parts = [];
+
+    if (risk.level === 'low') {
+      parts.push('この項目はとても良い状態です。');
+      if (strongest.processedScore === 100) {
+        parts.push('特に「' + strongest.text + '」への回答が最も高く、安定しています。');
+      }
+    } else if (risk.level === 'caution') {
+      parts.push('おおむね良好ですが、改善できる点があります。');
+      if (weakest.processedScore < 50) {
+        parts.push('「' + weakest.text + '」の回答が低めなので、ここを意識するとスコアが上がります。');
+      }
+    } else if (risk.level === 'warning') {
+      parts.push('注意が必要な状態です。');
+      parts.push('「' + weakest.text + '」の回答が特に低く、この項目のスコアを下げています。');
+    } else {
+      parts.push('リスクが高い状態です。');
+      var lowCount = sorted.filter(function(q) { return q.processedScore < 50; }).length;
+      if (lowCount >= 2) {
+        parts.push('複数の質問で低い回答になっており、全体的に改善が必要です。');
+      } else {
+        parts.push('「' + weakest.text + '」の回答が特に低く、改善の余地があります。');
+      }
+    }
+
+    return parts.join('');
   },
 
   // ----------------------------------------------------------

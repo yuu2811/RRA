@@ -509,6 +509,9 @@
     var advice = Scoring.getAdvice(dimensionScores);
     var compoundRisks = Scoring.detectCompoundRisks(dimensionScores);
 
+    // Load history BEFORE any usage (fix: was declared later causing crash)
+    var history = DiagnosticHistory.getAll();
+
     // Apply demographic context
     var demographicContext = Scoring.calculateContextualScore(weightedScore, state.demographic);
 
@@ -519,15 +522,11 @@
       showConfetti();
     }
 
-    // Demographic context display
+    // Demographic context display (subtle note, not a separate score)
     if (els.demographicContext) {
       if (demographicContext.comparison) {
         els.demographicContext.style.display = '';
         els.demographicContext.innerHTML =
-          '<div class="demo-context-row">' +
-            '<span class="demo-context-label">あなたに合わせた判定</span>' +
-            '<span class="demo-context-score" style="color:' + Scoring.getRiskLevel(demographicContext.adjustedScore).color + '">' + demographicContext.adjustedScore + '<small>/100</small></span>' +
-          '</div>' +
           '<p class="demo-context-note">' + demographicContext.comparison + '</p>';
       } else {
         els.demographicContext.style.display = 'none';
@@ -545,27 +544,20 @@
     // Interpretation
     els.riskDescription.textContent = Scoring.getOverallInterpretation(weightedScore);
 
-    // Weighted vs simple score comparison
+    // Weighted score note (simplified - no more 3-score confusion)
     if (els.weightedComparison) {
-      var simpleRisk = Scoring.getRiskLevel(overallScore);
       var diff = weightedScore - overallScore;
-      var diffHTML = '';
       if (Math.abs(diff) > 3) {
         var diffColor = diff > 0 ? '#22c55e' : '#ef4444';
         var diffArrow = diff > 0 ? '↑' : '↓';
-        diffHTML = '<div class="weighted-score-diff" style="color:' + diffColor + '">' + diffArrow + ' ' + Math.abs(diff) + 'pt</div>';
+        els.weightedComparison.innerHTML =
+          '<div style="text-align:center;font-size:13px;color:var(--text-secondary);">' +
+            '10項目の単純平均は <strong>' + overallScore + '</strong> ですが、退職に関わりやすい項目を重視すると ' +
+            '<strong style="color:' + diffColor + '">' + diffArrow + Math.abs(diff) + 'pt</strong>' +
+          '</div>';
+      } else {
+        els.weightedComparison.innerHTML = '';
       }
-
-      els.weightedComparison.innerHTML =
-        '<div class="weighted-score-item">' +
-          '<span class="weighted-score-label">基本スコア</span>' +
-          '<span class="weighted-score-value" style="color:' + simpleRisk.color + '">' + overallScore + '</span>' +
-        '</div>' +
-        diffHTML +
-        '<div class="weighted-score-item">' +
-          '<span class="weighted-score-label">詳しい分析</span>' +
-          '<span class="weighted-score-value primary" style="color:' + risk.color + '">' + weightedScore + '</span>' +
-        '</div>';
     }
 
     // Radar chart (with previous assessment overlay if available)
@@ -645,7 +637,6 @@
     }
 
     // Trend chart (history)
-    var history = DiagnosticHistory.getAll();
     if (els.trendSvg) {
       // Need to include the current result in the chart
       var chartHistory = history.slice(); // copy

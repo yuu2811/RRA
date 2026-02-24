@@ -3,7 +3,7 @@
  * Cache-first strategy for offline support
  */
 
-const CACHE_NAME = 'rra-v8';
+const CACHE_NAME = 'rra-v12';
 const ASSETS = [
   './',
   './index.html',
@@ -36,6 +36,40 @@ self.addEventListener('activate', (event) => {
     )
   );
   self.clients.claim();
+});
+
+// Handle messages from the app (e.g., reminders)
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SET_REMINDER') {
+    // Store reminder info for later notification
+    const reminderDate = new Date(event.data.date);
+    const now = Date.now();
+    const delay = reminderDate.getTime() - now;
+    if (delay > 0 && delay <= 7776000000) { // Max 90 days
+      setTimeout(() => {
+        self.registration.showNotification('退職リスク診断', {
+          body: 'リマインダー: もう一度診断して、変化を確認しましょう。',
+          icon: 'icons/icon-192.png',
+          badge: 'icons/icon-192.png',
+          tag: 'rra-reminder',
+          data: { url: './' }
+        });
+      }, Math.min(delay, 2147483647)); // setTimeout max safe value
+    }
+  }
+});
+
+// Handle notification clicks
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window' }).then((clients) => {
+      if (clients.length > 0) {
+        return clients[0].focus();
+      }
+      return self.clients.openWindow('./');
+    })
+  );
 });
 
 // Fetch: cache-first, network fallback

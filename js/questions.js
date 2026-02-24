@@ -33,16 +33,16 @@ const DIMENSIONS = [
   },
   {
     id: 'turnover_intention',
-    name: '転職への気持ち',
+    name: '今の仕事を続ける気持ち',
     nameEn: 'Turnover Intention',
-    description: '辞めたい・転職したいと思っている度合い',
+    description: '今の職場で働き続けたいと思っているかどうか',
     reference: 'Bothma, C.F.C. & Roodt, G. (2013). The Validation of the Turnover Intention Scale. SA Journal of Human Resource Management, 11(1), 1-12.',
     questions: [
       { id: 7, text: '最近、退職や転職を考えることがある', reversed: true },
       { id: 8, text: '来年も今の職場で働いていると思う', reversed: false },
       { id: 9, text: '他の仕事を積極的に探している', reversed: true }
     ],
-    adviceLow: '転職したい気持ちが強い状態です。まず何が不満なのか紙に書き出してみましょう。次に、上司や人事の担当者に相談して、改善できることがないか話し合ってみてください。一人で抱え込まないことが大切です。'
+    adviceLow: '今の仕事を続けたい気持ちが弱くなっている状態です。まず何が不満なのか紙に書き出してみましょう。次に、上司や人事の担当者に相談して、改善できることがないか話し合ってみてください。一人で抱え込まないことが大切です。'
   },
   {
     id: 'role_clarity',
@@ -124,9 +124,9 @@ const DIMENSIONS = [
   },
   {
     id: 'perceived_alternatives',
-    name: '転職の可能性',
+    name: '他の仕事への関心',
     nameEn: 'Perceived Alternatives',
-    description: '他にもっと良い仕事があると感じているか',
+    description: '今より良い条件の仕事が他にあると感じているかどうか',
     reference: 'March, J.G. & Simon, H.A. (1958). Organizations. New York: Wiley. / Griffeth, R.W., Hom, P.W., & Gaertner, S. (2000). A Meta-Analysis of Antecedents and Correlates of Employee Turnover. Journal of Management, 26(3), 463-488.',
     questions: [
       { id: 28, text: '転職先はすぐに見つかると思う', reversed: true },

@@ -71,6 +71,8 @@
     actionPlanContent: document.getElementById('action-plan-content'),
     correlationCard: document.getElementById('correlation-card'),
     correlationContent: document.getElementById('correlation-content'),
+    demographicContext: document.getElementById('demographic-context'),
+    whatifSliders: document.getElementById('whatif-sliders'),
     btnShareImage: document.getElementById('btn-share-image'),
     referencesContent: document.getElementById('references-content'),
     dimensionLabel: document.getElementById('dimension-label'),
@@ -447,7 +449,7 @@
           '<div style="position:absolute;inset:6px;border:2px solid transparent;border-bottom-color:rgba(167,139,250,0.5);border-radius:50%;animation:calcSpin 1.2s cubic-bezier(0.4,0,0.2,1) infinite reverse;"></div>' +
         '</div>' +
         '<div style="font-size:17px;font-weight:700;color:var(--text-primary);opacity:0;animation:calcFadeIn 0.4s ease-out 0.2s forwards;letter-spacing:0.02em;">診断結果を分析中...</div>' +
-        '<div style="font-size:13px;color:var(--text-muted);margin-top:10px;opacity:0;animation:calcFadeIn 0.4s ease-out 0.5s forwards;">30問の回答をAIが分析しています</div>' +
+        '<div style="font-size:13px;color:var(--text-muted);margin-top:10px;opacity:0;animation:calcFadeIn 0.4s ease-out 0.5s forwards;">30問の回答から結果を計算しています</div>' +
         '<div style="margin-top:20px;width:120px;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;opacity:0;animation:calcFadeIn 0.3s ease-out 0.7s forwards;"><div style="width:0%;height:100%;background:linear-gradient(90deg,#6366f1,#a78bfa);border-radius:2px;animation:calcProgress 1s ease-in-out 0.8s forwards;"></div></div>' +
       '</div>';
 
@@ -503,6 +505,21 @@
 
     showScreen('result');
 
+    // Demographic context display
+    if (els.demographicContext) {
+      if (demographicContext.comparison) {
+        els.demographicContext.style.display = '';
+        els.demographicContext.innerHTML =
+          '<div class="demo-context-row">' +
+            '<span class="demo-context-label">あなたに合わせた判定</span>' +
+            '<span class="demo-context-score" style="color:' + Scoring.getRiskLevel(demographicContext.adjustedScore).color + '">' + demographicContext.adjustedScore + '<small>/100</small></span>' +
+          '</div>' +
+          '<p class="demo-context-note">' + demographicContext.comparison + '</p>';
+      } else {
+        els.demographicContext.style.display = 'none';
+      }
+    }
+
     // Overall gauge - use weighted score as primary
     Charts.drawGauge(els.gaugeSvg, weightedScore, risk.color);
     Charts.animateScore(els.gaugeScore, weightedScore);
@@ -539,6 +556,12 @@
 
     // Radar chart
     Charts.drawRadar(els.radarSvg, dimensionScores);
+
+    // Benchmark Bell Curves
+    var benchmarkContent = document.getElementById('benchmark-content');
+    if (benchmarkContent && Charts.renderBenchmarkCurves) {
+      Charts.renderBenchmarkCurves(benchmarkContent, dimensionScores);
+    }
 
     // Strengths
     var strengths = Scoring.getStrengths(dimensionScores);
@@ -614,6 +637,42 @@
       }
       els.trendSummary.innerHTML = trendText;
     }
+
+    // What-If Scenario Simulator
+    if (Charts.initWhatIfSimulator) {
+      Charts.initWhatIfSimulator(els.whatifSliders, dimensionScores, weightedScore);
+    }
+
+    // Team Mode: Generate and display score code
+    var scoreCodeEl = document.getElementById('my-score-code');
+    if (scoreCodeEl && typeof encodeScoreCode === 'function') {
+      var code = encodeScoreCode(dimensionScores);
+      scoreCodeEl.textContent = code;
+    }
+
+    // Risk Velocity Indicator
+    var velocity = DiagnosticHistory.getVelocity();
+    var velocityContainer = document.getElementById('velocity-badges');
+    if (velocityContainer && Charts.renderVelocityBadges) {
+      Charts.renderVelocityBadges(velocityContainer, velocity);
+    }
+
+    // Dimension Trend Heatmap
+    var heatmapContainer = document.getElementById('dimension-heatmap');
+    if (heatmapContainer && Charts.drawDimensionHeatmap) {
+      // Include current result in heatmap
+      var heatmapHistory = history.slice();
+      heatmapHistory.push({
+        date: new Date().toISOString(),
+        overall: overallScore,
+        weighted: weightedScore,
+        dimensions: dimensionScores
+      });
+      Charts.drawDimensionHeatmap(heatmapContainer, heatmapHistory);
+    }
+
+    // Re-diagnosis Reminder
+    initReminder();
 
     // References
     Charts.renderReferences(els.referencesContent);
@@ -745,6 +804,71 @@
     els.btnHome.addEventListener('click', resetApp);
   }
 
+  // Report button (copy detailed text report to clipboard)
+  var btnReport = document.getElementById('btn-report');
+  if (btnReport) {
+    btnReport.addEventListener('click', function () {
+      if (!state.lastResults) return;
+      var report = Scoring.generateTextReport(
+        state.lastResults.overallScore,
+        state.lastResults.weightedScore,
+        state.lastResults.dimensionScores,
+        state.lastResults.compoundRisks,
+        state.demographic,
+        state.answers
+      );
+      navigator.clipboard.writeText(report).then(function () {
+        var orig = btnReport.innerHTML;
+        btnReport.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16"><path d="M20 6L9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> コピーしました';
+        setTimeout(function () { btnReport.innerHTML = orig; }, 2000);
+      }).catch(function () {
+        // Fallback: select textarea for manual copy
+        var ta = document.createElement('textarea');
+        ta.value = report;
+        ta.style.cssText = 'position:fixed;left:-9999px;';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (e) { /* noop */ }
+        ta.remove();
+        var orig2 = btnReport.innerHTML;
+        btnReport.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16"><path d="M20 6L9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> コピーしました';
+        setTimeout(function () { btnReport.innerHTML = orig2; }, 2000);
+      });
+    });
+  }
+
+  // Risk DNA button
+  var btnRiskDNA = document.getElementById('btn-risk-dna');
+  if (btnRiskDNA) {
+    btnRiskDNA.addEventListener('click', function () {
+      if (!state.lastResults || !Charts.generateRiskDNA) return;
+
+      var dataUrl = Charts.generateRiskDNA(state.lastResults.dimensionScores, state.lastResults.weightedScore);
+      if (!dataUrl) return;
+
+      var link = document.createElement('a');
+      link.download = 'risk-dna.png';
+      link.href = dataUrl;
+
+      var isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+      if (isIOS) {
+        var win = window.open();
+        if (win) {
+          win.document.write('<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>リスクDNA</title></head><body style="margin:0;display:flex;justify-content:center;background:#000;"><img src="' + dataUrl + '" style="max-width:100%;height:auto;"></body></html>');
+          win.document.close();
+        }
+      } else {
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      var originalText = btnRiskDNA.innerHTML;
+      btnRiskDNA.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16"><path d="M20 6L9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> 保存しました';
+      setTimeout(function () { btnRiskDNA.innerHTML = originalText; }, 2000);
+    });
+  }
+
   // Share image button
   if (els.btnShareImage) {
     els.btnShareImage.addEventListener('click', function () {
@@ -783,19 +907,72 @@
   }
 
   // Keyboard support for likert (accessibility)
+  var focusedLikertIndex = -1;
+
+  function updateLikertFocus(index) {
+    var buttons = els.likertScale.querySelectorAll('.likert-btn');
+    buttons.forEach(function (btn) { btn.classList.remove('keyboard-focus'); });
+    if (index >= 0 && index < buttons.length) {
+      focusedLikertIndex = index;
+      buttons[index].classList.add('keyboard-focus');
+      buttons[index].focus();
+    }
+  }
+
   document.addEventListener('keydown', function (e) {
     if (!screens.question.classList.contains('active')) return;
+
+    // Number keys 1-5: instant answer
     var key = parseInt(e.key);
     if (key >= 1 && key <= 5) {
       handleAnswer(key);
+      focusedLikertIndex = -1;
+      return;
     }
-    if (e.key === 'ArrowLeft' || e.key === 'Backspace') {
+
+    // Arrow right/down: move focus to next Likert button
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      var next = Math.min(focusedLikertIndex + 1, 4);
+      updateLikertFocus(next);
+      return;
+    }
+
+    // Arrow left within Likert focus: move to previous button
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      if (focusedLikertIndex > 0) {
+        e.preventDefault();
+        updateLikertFocus(focusedLikertIndex - 1);
+        return;
+      }
+      // If at first button or no focus, go to previous question
+      if (focusedLikertIndex <= 0 && state.currentQuestion > 0) {
+        state.direction = 'prev';
+        state.currentQuestion--;
+        focusedLikertIndex = -1;
+        Haptics.navigate();
+        showQuestion(state.currentQuestion);
+        return;
+      }
+    }
+
+    // Backspace: go to previous question
+    if (e.key === 'Backspace') {
       if (state.currentQuestion > 0) {
         state.direction = 'prev';
         state.currentQuestion--;
+        focusedLikertIndex = -1;
         Haptics.navigate();
         showQuestion(state.currentQuestion);
       }
+      return;
+    }
+
+    // Enter/Space: select focused Likert button
+    if ((e.key === 'Enter' || e.key === ' ') && focusedLikertIndex >= 0) {
+      e.preventDefault();
+      handleAnswer(focusedLikertIndex + 1);
+      focusedLikertIndex = -1;
     }
   });
 
@@ -899,8 +1076,346 @@
     state.isSwiping = false;
   }, { passive: true });
 
+  // ---------- Re-diagnosis Reminder ----------
+  var REMINDER_KEY = 'rra_reminder';
+
+  function initReminder() {
+    var card = document.getElementById('reminder-card');
+    var optionsEl = document.getElementById('reminder-options');
+    var statusEl = document.getElementById('reminder-status');
+    if (!card || !optionsEl || !statusEl) return;
+
+    // Check existing reminder
+    var existing = loadReminder();
+    if (existing) {
+      showReminderStatus(statusEl, optionsEl, existing);
+    }
+
+    optionsEl.addEventListener('click', function (e) {
+      var btn = e.target.closest('.reminder-btn');
+      if (!btn) return;
+      var days = parseInt(btn.dataset.interval);
+      if (isNaN(days)) return;
+
+      // Request notification permission if needed
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission().then(function (perm) {
+          setReminder(days, statusEl, optionsEl);
+        });
+      } else {
+        setReminder(days, statusEl, optionsEl);
+      }
+    });
+  }
+
+  function setReminder(days, statusEl, optionsEl) {
+    var reminderDate = new Date();
+    reminderDate.setDate(reminderDate.getDate() + days);
+    var reminder = {
+      date: reminderDate.toISOString(),
+      days: days
+    };
+    try {
+      localStorage.setItem(REMINDER_KEY, JSON.stringify(reminder));
+    } catch (e) { /* noop */ }
+
+    showReminderStatus(statusEl, optionsEl, reminder);
+
+    // Schedule notification via setTimeout (works while page is open)
+    scheduleNotification(days);
+  }
+
+  function loadReminder() {
+    try {
+      var raw = localStorage.getItem(REMINDER_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch (e) { return null; }
+  }
+
+  function showReminderStatus(statusEl, optionsEl, reminder) {
+    var d = new Date(reminder.date);
+    var dateStr = d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日';
+    var labelMap = { 14: '2週間後', 30: '1ヶ月後', 90: '3ヶ月後' };
+    var label = labelMap[reminder.days] || reminder.days + '日後';
+
+    // Update button states
+    var btns = optionsEl.querySelectorAll('.reminder-btn');
+    btns.forEach(function (b) {
+      b.classList.toggle('active', parseInt(b.dataset.interval) === reminder.days);
+    });
+
+    statusEl.style.display = '';
+    statusEl.innerHTML =
+      '次の診断予定: ' + dateStr + '（' + label + '）' +
+      '<br><button class="reminder-cancel" type="button">キャンセル</button>';
+
+    var cancelBtn = statusEl.querySelector('.reminder-cancel');
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', function () {
+        try { localStorage.removeItem(REMINDER_KEY); } catch (e) { /* noop */ }
+        statusEl.style.display = 'none';
+        btns.forEach(function (b) { b.classList.remove('active'); });
+      });
+    }
+  }
+
+  function scheduleNotification(days) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+    // For short intervals (testing), use actual timeout; for long ones, rely on SW
+    var ms = days * 24 * 60 * 60 * 1000;
+    // Cap at 24 hours for setTimeout (browser limitation); SW handles longer intervals
+    var maxTimeout = 24 * 60 * 60 * 1000;
+    if (ms <= maxTimeout) {
+      setTimeout(function () {
+        try {
+          new Notification('退職リスク診断', {
+            body: 'リマインダー: もう一度診断して、変化を確認しましょう。',
+            icon: 'icons/icon-192.png',
+            tag: 'rra-reminder'
+          });
+        } catch (e) { /* noop */ }
+      }, ms);
+    }
+
+    // Also register with SW for persistent reminders
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        type: 'SET_REMINDER',
+        days: days,
+        date: new Date(Date.now() + ms).toISOString()
+      });
+    }
+  }
+
+  // Check reminder on load - show notification if past due
+  function checkReminderOnLoad() {
+    var reminder = loadReminder();
+    if (!reminder) return;
+    var now = new Date();
+    var reminderDate = new Date(reminder.date);
+    if (now >= reminderDate) {
+      // Past due - show inline prompt on start screen
+      if (els.historySummary) {
+        var reminderBanner = document.createElement('div');
+        reminderBanner.className = 'history-summary-card';
+        reminderBanner.style.cssText = 'margin-top:12px;border-left:3px solid var(--accent-primary);';
+        reminderBanner.innerHTML =
+          '<div style="flex:1;">' +
+            '<span style="font-size:13px;font-weight:700;color:var(--accent-secondary);">再診断の時期です</span>' +
+            '<span style="display:block;font-size:12px;color:var(--text-muted);margin-top:2px;">前回の診断から時間が経ちました。もう一度チェックしてみましょう。</span>' +
+          '</div>';
+        els.historySummary.appendChild(reminderBanner);
+        els.historySummary.style.display = '';
+      }
+
+      // Send notification if permitted
+      if ('Notification' in window && Notification.permission === 'granted') {
+        try {
+          new Notification('退職リスク診断', {
+            body: '再診断の時期です。もう一度診断して変化を確認しましょう。',
+            icon: 'icons/icon-192.png',
+            tag: 'rra-reminder-due'
+          });
+        } catch (e) { /* noop */ }
+      }
+
+      // Clear the reminder
+      try { localStorage.removeItem(REMINDER_KEY); } catch (e) { /* noop */ }
+    }
+  }
+
+  // ---------- Collapsible Section Toggles ----------
+  function initCollapsibleToggles() {
+    var toggles = document.querySelectorAll('.collapsible-toggle, .references-toggle');
+    toggles.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var card = btn.closest('[aria-expanded]');
+        if (!card) return;
+        var isExpanded = card.getAttribute('aria-expanded') === 'true';
+        card.setAttribute('aria-expanded', isExpanded ? 'false' : 'true');
+        var label = btn.getAttribute('data-collapse-label') || '';
+        btn.setAttribute('aria-label', isExpanded ? label + 'を展開する' : label + 'を折りたたむ');
+      });
+    });
+  }
+  initCollapsibleToggles();
+
+  // ---------- Team Mode ----------
+  // Copy score code button
+  var btnCopyCode = document.getElementById('btn-copy-code');
+  if (btnCopyCode) {
+    btnCopyCode.addEventListener('click', function () {
+      var codeEl = document.getElementById('my-score-code');
+      if (!codeEl) return;
+      var code = codeEl.textContent;
+      navigator.clipboard.writeText(code).then(function () {
+        var orig = btnCopyCode.textContent;
+        btnCopyCode.textContent = 'コピーしました';
+        setTimeout(function () { btnCopyCode.textContent = orig; }, 2000);
+      }).catch(function () {
+        // Fallback
+        var ta = document.createElement('textarea');
+        ta.value = code;
+        ta.style.cssText = 'position:fixed;left:-9999px;';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (e) { /* noop */ }
+        ta.remove();
+        var orig2 = btnCopyCode.textContent;
+        btnCopyCode.textContent = 'コピーしました';
+        setTimeout(function () { btnCopyCode.textContent = orig2; }, 2000);
+      });
+    });
+  }
+
+  // Show group card if user has history (returning user)
+  var groupCard = document.getElementById('group-card');
+  var historyForGroupCheck = DiagnosticHistory.getAll();
+  if (groupCard && historyForGroupCheck.length > 0) {
+    groupCard.style.display = '';
+  }
+
+  // Group analysis
+  var btnAnalyzeGroup = document.getElementById('btn-analyze-group');
+  if (btnAnalyzeGroup) {
+    btnAnalyzeGroup.addEventListener('click', function () {
+      var codesArea = document.getElementById('group-codes');
+      var resultsEl = document.getElementById('group-results');
+      if (!codesArea || !resultsEl || typeof decodeScoreCode !== 'function' || typeof analyzeGroup !== 'function') return;
+
+      var lines = codesArea.value.trim().split('\n').filter(function (l) { return l.trim().length > 0; });
+      if (lines.length < 2) {
+        resultsEl.style.display = '';
+        resultsEl.innerHTML = '<p style="color:var(--text-muted);font-size:13px;text-align:center;">2人以上のコードを入力してください</p>';
+        return;
+      }
+
+      var scoreSets = [];
+      var invalidLines = [];
+      for (var i = 0; i < lines.length; i++) {
+        var decoded = decodeScoreCode(lines[i].trim());
+        if (decoded) {
+          scoreSets.push(decoded);
+        } else {
+          invalidLines.push(i + 1);
+        }
+      }
+
+      if (scoreSets.length < 2) {
+        resultsEl.style.display = '';
+        resultsEl.innerHTML = '<p style="color:var(--red);font-size:13px;text-align:center;">有効なコードが2つ以上見つかりませんでした</p>';
+        return;
+      }
+
+      var analysis = analyzeGroup(scoreSets);
+      if (!analysis) return;
+
+      var html = '';
+
+      // Invalid lines warning
+      if (invalidLines.length > 0) {
+        html += '<p style="color:var(--text-muted);font-size:11px;margin-bottom:8px;">' + invalidLines.length + '件のコードが無効のためスキップしました</p>';
+      }
+
+      // Group summary
+      html += '<div class="group-summary">';
+      html += '<span class="group-score-big" style="color:' + analysis.overallRisk.color + '">' + analysis.overallMean + '</span>';
+      html += '<span style="font-size:12px;color:var(--text-muted)">チーム平均スコア（' + analysis.memberCount + '人）</span>';
+      html += '<div style="margin-top:6px;"><span style="font-size:14px;font-weight:700;color:' + analysis.overallRisk.color + '">' + analysis.overallRisk.label + '</span></div>';
+      html += '</div>';
+
+      // Compound risks
+      if (analysis.compoundRisks.length > 0) {
+        html += '<div style="margin:12px 0;padding:10px;background:rgba(239,68,68,0.08);border-radius:10px;">';
+        html += '<div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:6px;">チームの注意パターン</div>';
+        for (var ci = 0; ci < analysis.compoundRisks.length; ci++) {
+          html += '<div style="font-size:12px;color:var(--text-secondary);">' + analysis.compoundRisks[ci].icon + ' ' + analysis.compoundRisks[ci].name + '</div>';
+        }
+        html += '</div>';
+      }
+
+      // Dimension details
+      html += '<div class="group-risk-dims">';
+      for (var di = 0; di < DIMENSIONS.length; di++) {
+        var dim = DIMENSIONS[di];
+        var ds = analysis.dimensions[dim.id];
+        if (!ds) continue;
+        var dimRisk = Scoring.getRiskLevel(ds.mean);
+        html += '<div class="group-dim-row">';
+        html += '<span style="font-size:11px;color:var(--text-secondary);min-width:70px;">' + dim.name + '</span>';
+        html += '<div class="group-dim-bar"><div class="group-dim-bar-fill" style="width:' + ds.mean + '%;background:' + dimRisk.color + ';"></div></div>';
+        html += '<span style="font-size:12px;font-weight:700;color:' + dimRisk.color + ';min-width:24px;text-align:right;">' + ds.mean + '</span>';
+        html += '</div>';
+      }
+      html += '</div>';
+
+      // Top risk areas
+      if (analysis.highestRiskDimensions.length > 0) {
+        html += '<div style="margin-top:12px;font-size:12px;color:var(--text-muted);">改善優先: ';
+        html += analysis.highestRiskDimensions.map(function (d) { return '<strong style="color:' + Scoring.getRiskLevel(d.mean).color + '">' + d.name + '</strong>'; }).join('、');
+        html += '</div>';
+      }
+
+      resultsEl.style.display = '';
+      resultsEl.innerHTML = html;
+    });
+  }
+
+  // ---------- Data Export/Import ----------
+  var btnExport = document.getElementById('btn-export');
+  var btnImport = document.getElementById('btn-import');
+  var importFile = document.getElementById('import-file');
+
+  if (btnExport) {
+    btnExport.addEventListener('click', function () {
+      var json = DiagnosticHistory.exportJSON();
+      var blob = new Blob([json], { type: 'application/json' });
+      var url = URL.createObjectURL(blob);
+      var link = document.createElement('a');
+      link.download = 'rra-data-' + new Date().toISOString().slice(0, 10) + '.json';
+      link.href = url;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      var orig = btnExport.innerHTML;
+      btnExport.textContent = '書き出しました';
+      setTimeout(function () { btnExport.innerHTML = orig; }, 2000);
+    });
+  }
+
+  if (btnImport && importFile) {
+    btnImport.addEventListener('click', function () {
+      importFile.click();
+    });
+
+    importFile.addEventListener('change', function () {
+      var file = importFile.files[0];
+      if (!file) return;
+
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        var result = DiagnosticHistory.importJSON(e.target.result);
+        var orig = btnImport.innerHTML;
+        if (result.success) {
+          btnImport.textContent = result.message;
+          updateHistorySummary();
+        } else {
+          btnImport.textContent = result.message;
+        }
+        setTimeout(function () { btnImport.innerHTML = orig; }, 3000);
+      };
+      reader.readAsText(file);
+      importFile.value = ''; // Reset for re-import
+    });
+  }
+
   // ---------- Initialize ----------
   updateHistorySummary();
+  checkReminderOnLoad();
 
   // ---------- Service Worker Registration ----------
   if ('serviceWorker' in navigator) {

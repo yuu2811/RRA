@@ -95,6 +95,15 @@
       <!-- History Summary (shown if previous results exist) -->
       <div id="history-summary" class="history-summary-container" style="display:none;"></div>
 
+      <!-- Group Analysis -->
+      <div class="glass-card group-card" id="group-card" style="display:none;" role="region" aria-label="チーム分析">
+        <h3 class="card-title" style="font-size:15px;">チーム分析</h3>
+        <p class="group-desc">メンバーのコードを1行ずつ入力してください</p>
+        <textarea id="group-codes" class="group-codes-input" rows="4" placeholder="コードを1行ずつ入力&#10;例: 1K2M0N1P2J1L1M2N0K14"></textarea>
+        <button id="btn-analyze-group" class="btn-secondary" type="button" style="width:100%;">チームの傾向を分析</button>
+        <div id="group-results" class="group-results" style="display:none;"></div>
+      </div>
+
       <button id="btn-start" class="btn-primary" type="button" aria-label="診断を始める">
         診断を始める
         <svg class="btn-arrow" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
@@ -104,8 +113,21 @@
 
       <p class="privacy-note">回答データは端末内のみに保存され、外部送信されません。</p>
 
+      <!-- Data Export/Import -->
+      <div class="data-portability" id="data-portability">
+        <button id="btn-export" class="btn-data" type="button" aria-label="データを書き出す">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          データを書き出す
+        </button>
+        <button id="btn-import" class="btn-data" type="button" aria-label="データを読み込む">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          データを読み込む
+        </button>
+        <input type="file" id="import-file" accept=".json" style="display:none;">
+      </div>
+
       <!-- Version / Credit Footer -->
-      <p class="version-footer" aria-label="バージョン情報">v3.0</p>
+      <p class="version-footer" aria-label="バージョン情報">v3.1</p>
     </div>
   </section>
 
@@ -265,6 +287,8 @@
         <h3 class="card-title">詳しい分析スコア</h3>
         <div id="weighted-comparison" class="weighted-comparison"></div>
         <p class="weighted-explanation">退職に関わりやすい項目を重視して計算したスコアです。より実態に近い判定になります。</p>
+        <!-- Demographic Context (shown only when demographic info provided) -->
+        <div id="demographic-context" class="demographic-context-section" style="display:none;"></div>
       </div>
 
       <hr class="result-divider" aria-hidden="true">
@@ -274,6 +298,22 @@
         <h3 class="card-title">項目別スコア</h3>
         <div class="radar-container" id="radar-container">
           <svg id="radar-svg" viewBox="0 0 350 350" role="img" aria-label="レーダーチャート"></svg>
+        </div>
+      </div>
+
+      <hr class="result-divider" aria-hidden="true">
+
+      <!-- Benchmark Comparison (Bell Curves) -->
+      <div class="glass-card benchmark-card" id="benchmark-card" role="region" aria-label="みんなとの比較" aria-expanded="false">
+        <button class="collapsible-toggle" type="button" aria-label="みんなとの比較を展開する" data-collapse-label="みんなとの比較">
+          <h3 class="card-title" style="margin-bottom:0;">みんなとの比較 <span class="card-title-hint">タップで展開</span></h3>
+          <span class="collapsible-toggle-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </button>
+        <div class="collapsible-body">
+          <p class="benchmark-desc">研究データに基づく平均的な働く人の分布と比較した、あなたのスコアの位置です。</p>
+          <div id="benchmark-content" class="benchmark-content"></div>
         </div>
       </div>
 
@@ -303,6 +343,34 @@
 
       <hr class="result-divider" aria-hidden="true">
 
+      <!-- What-If Scenario Simulator -->
+      <div class="glass-card whatif-card" id="whatif-card" role="region" aria-label="改善シミュレーション" aria-expanded="false">
+        <button class="collapsible-toggle" type="button" aria-label="改善シミュレーションを展開する" data-collapse-label="改善シミュレーション">
+          <h3 class="card-title" style="margin-bottom:0;">もし改善したら？ <span class="card-title-hint">タップで試す</span></h3>
+          <span class="collapsible-toggle-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </button>
+        <div class="collapsible-body">
+          <p class="whatif-desc">スライダーを動かして、各項目が改善した場合にスコアがどう変わるか試してみましょう。</p>
+          <div id="whatif-sliders" class="whatif-sliders"></div>
+          <div class="whatif-result">
+            <div class="whatif-result-row">
+              <span class="whatif-result-label">現在のスコア</span>
+              <span id="whatif-current" class="whatif-current-score">--</span>
+            </div>
+            <div class="whatif-arrow-row"><span class="whatif-arrow">→</span></div>
+            <div class="whatif-result-row">
+              <span class="whatif-result-label">改善後の予測スコア</span>
+              <span id="whatif-predicted" class="whatif-predicted-score">--</span>
+            </div>
+            <div id="whatif-risk-change" class="whatif-risk-change"></div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="result-divider" aria-hidden="true">
+
       <!-- Advice (always visible) -->
       <div class="glass-card advice-card" id="advice-card" role="region" aria-label="改善アドバイス">
         <h3 class="card-title">改善のためのアドバイス</h3>
@@ -313,7 +381,7 @@
 
       <!-- Collapsible: Dimension Details -->
       <div class="glass-card details-card" role="region" aria-label="各項目の詳細スコア" aria-expanded="false">
-        <button class="collapsible-toggle" type="button" aria-label="各項目の詳細を展開する" onclick="var card=this.closest('[aria-expanded]');card.setAttribute('aria-expanded',card.getAttribute('aria-expanded')==='true'?'false':'true');this.setAttribute('aria-label',card.getAttribute('aria-expanded')==='true'?'各項目の詳細を折りたたむ':'各項目の詳細を展開する');">
+        <button class="collapsible-toggle" type="button" aria-label="各項目の詳細を展開する" data-collapse-label="各項目の詳細">
           <h3 class="card-title" style="margin-bottom:0;">各項目の詳細 <span class="card-title-hint">タップで展開</span></h3>
           <span class="collapsible-toggle-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -328,7 +396,7 @@
 
       <!-- Collapsible: Correlation Insights -->
       <div class="glass-card correlation-card" id="correlation-card" role="region" aria-label="項目どうしの関連" aria-expanded="false">
-        <button class="collapsible-toggle" type="button" aria-label="項目どうしの関連を展開する" onclick="var card=this.closest('[aria-expanded]');card.setAttribute('aria-expanded',card.getAttribute('aria-expanded')==='true'?'false':'true');this.setAttribute('aria-label',card.getAttribute('aria-expanded')==='true'?'項目どうしの関連を折りたたむ':'項目どうしの関連を展開する');">
+        <button class="collapsible-toggle" type="button" aria-label="項目どうしの関連を展開する" data-collapse-label="項目どうしの関連">
           <h3 class="card-title" style="margin-bottom:0;">項目どうしの関連</h3>
           <span class="collapsible-toggle-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -343,7 +411,7 @@
 
       <!-- Collapsible: Trend Chart (History) -->
       <div class="glass-card trend-card" id="trend-card" role="region" aria-label="診断スコア推移" aria-expanded="false">
-        <button class="collapsible-toggle" type="button" aria-label="スコア推移を展開する" onclick="var card=this.closest('[aria-expanded]');card.setAttribute('aria-expanded',card.getAttribute('aria-expanded')==='true'?'false':'true');this.setAttribute('aria-label',card.getAttribute('aria-expanded')==='true'?'スコア推移を折りたたむ':'スコア推移を展開する');">
+        <button class="collapsible-toggle" type="button" aria-label="スコア推移を展開する" data-collapse-label="スコア推移">
           <h3 class="card-title" style="margin-bottom:0;">スコア推移</h3>
           <span class="collapsible-toggle-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -354,6 +422,9 @@
             <svg id="trend-svg" viewBox="0 0 350 200" role="img" aria-label="スコア推移チャート"></svg>
           </div>
           <div id="trend-summary" class="trend-summary"></div>
+          <div id="velocity-badges" class="velocity-badges"></div>
+          <!-- Dimension Trend Heatmap -->
+          <div id="dimension-heatmap" class="dimension-heatmap"></div>
         </div>
       </div>
 
@@ -361,7 +432,7 @@
 
       <!-- References (Collapsible) -->
       <div class="glass-card references-card" aria-expanded="false" role="region" aria-label="参考文献">
-        <button class="references-toggle" type="button" aria-label="参考文献を展開する" id="btn-references-toggle" onclick="this.closest('.references-card').setAttribute('aria-expanded', this.closest('.references-card').getAttribute('aria-expanded') === 'true' ? 'false' : 'true'); this.setAttribute('aria-label', this.closest('.references-card').getAttribute('aria-expanded') === 'true' ? '参考文献を折りたたむ' : '参考文献を展開する');">
+        <button class="references-toggle" type="button" aria-label="参考文献を展開する" id="btn-references-toggle" data-collapse-label="参考文献">
           <h3 class="card-title" style="margin-bottom:0;">参考文献（この診断の根拠）</h3>
           <span class="references-toggle-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none">
@@ -373,6 +444,33 @@
           <div id="references-content" class="references-content"></div>
         </div>
       </div>
+
+      <!-- Team Mode: Score Code -->
+      <div class="glass-card team-card" id="team-card" role="region" aria-label="チーム診断">
+        <h3 class="card-title">チーム診断</h3>
+        <p class="team-desc">コードを共有して、チームの傾向を匿名で分析できます。</p>
+        <div class="team-code-display">
+          <span class="team-code-label">あなたのコード</span>
+          <div class="team-code-value" id="my-score-code" aria-live="polite">---</div>
+          <button id="btn-copy-code" class="btn-data" type="button">コピー</button>
+        </div>
+      </div>
+
+      <hr class="result-divider" aria-hidden="true">
+
+      <!-- Re-diagnosis Reminder -->
+      <div class="glass-card reminder-card" id="reminder-card" role="region" aria-label="再診断リマインダー">
+        <h3 class="card-title">定期的に診断しましょう</h3>
+        <p class="reminder-desc">職場環境は変化します。定期的に診断して変化を把握しましょう。</p>
+        <div class="reminder-options" id="reminder-options">
+          <button class="reminder-btn" data-interval="14" type="button">2週間後</button>
+          <button class="reminder-btn" data-interval="30" type="button">1ヶ月後</button>
+          <button class="reminder-btn" data-interval="90" type="button">3ヶ月後</button>
+        </div>
+        <div id="reminder-status" class="reminder-status" style="display:none;"></div>
+      </div>
+
+      <hr class="result-divider" aria-hidden="true">
 
       <!-- Actions -->
       <div class="result-actions">
@@ -389,6 +487,23 @@
             <path d="M21 15l-5-5L5 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           結果画像を保存
+        </button>
+        <button id="btn-risk-dna" class="btn-secondary btn-share-img" type="button" aria-label="リスクDNA画像を保存する">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            <circle cx="12" cy="12" r="6" stroke="currentColor" stroke-width="1.5" opacity="0.5"/>
+            <circle cx="12" cy="12" r="2" fill="currentColor"/>
+          </svg>
+          リスクDNA画像を保存
+        </button>
+        <button id="btn-report" class="btn-secondary" type="button" aria-label="詳細レポートをコピー">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          詳細レポートをコピー
         </button>
         <button id="btn-retry" class="btn-secondary" type="button" aria-label="もう一度診断する">もう一度診断する</button>
         <button id="btn-home" class="btn-home" type="button" aria-label="ホームに戻る">

@@ -1206,6 +1206,44 @@ body::after {
   margin-top: 8px;
 }
 
+/* ---------- Demographic Context Section ---------- */
+.demographic-context-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.demo-context-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.demo-context-label {
+  font-size: clamp(13px, 3.5vw, 15px);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.demo-context-score {
+  font-size: clamp(26px, 7vw, 32px);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.demo-context-score small {
+  font-size: clamp(12px, 3vw, 14px);
+  opacity: 0.5;
+}
+
+.demo-context-note {
+  font-size: clamp(12px, 3.2vw, 14px);
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
 /* ---------- Compound Risk Patterns ---------- */
 .compound-card {
   max-width: var(--card-max-width);
@@ -1627,6 +1665,17 @@ body::after {
   margin-bottom: 14px;
 }
 
+.dim-drill-explanation {
+  font-size: clamp(12px, 3.2vw, 14px);
+  color: var(--accent-tertiary);
+  line-height: 1.7;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  background: rgba(99, 102, 241, 0.06);
+  border-radius: 8px;
+  border-left: 3px solid var(--accent-primary);
+}
+
 .dim-drill-percentile-row {
   display: flex;
   align-items: center;
@@ -1961,6 +2010,530 @@ body::after {
   font-variant-numeric: tabular-nums;
 }
 
+/* ---------- What-If Scenario Simulator ---------- */
+.whatif-card {
+  max-width: var(--card-max-width);
+}
+
+.whatif-desc {
+  font-size: clamp(13px, 3.5vw, 15px);
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+
+.whatif-sliders {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.whatif-slider-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.whatif-slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.whatif-slider-name {
+  font-size: clamp(12px, 3.2vw, 14px);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.whatif-slider-value {
+  font-size: clamp(13px, 3.5vw, 15px);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  min-width: 48px;
+  text-align: right;
+}
+
+.whatif-slider-change {
+  font-size: clamp(11px, 2.8vw, 13px);
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+.whatif-slider-track {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+
+.whatif-slider-track::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
+}
+
+.whatif-slider-track::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
+}
+
+.whatif-slider-row.changed .whatif-slider-name {
+  color: var(--accent-secondary);
+}
+
+.whatif-result {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.whatif-result-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.whatif-result-label {
+  font-size: clamp(11px, 2.8vw, 13px);
+  color: var(--text-muted);
+  font-weight: 600;
+  text-align: center;
+}
+
+.whatif-current-score,
+.whatif-predicted-score {
+  font-size: clamp(28px, 7.5vw, 36px);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.whatif-arrow-row {
+  display: flex;
+  align-items: center;
+}
+
+.whatif-arrow {
+  font-size: 24px;
+  color: var(--text-muted);
+}
+
+.whatif-risk-change {
+  text-align: center;
+  margin-top: 12px;
+  font-size: clamp(13px, 3.5vw, 15px);
+  font-weight: 600;
+  line-height: 1.6;
+  min-height: 24px;
+}
+
+/* ---------- Benchmark Bell Curves ---------- */
+.benchmark-desc {
+  font-size: clamp(12px, 3.2vw, 14px);
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+
+.benchmark-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.benchmark-item {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+}
+
+.benchmark-dim {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.benchmark-svg {
+  width: 100%;
+  max-width: 140px;
+  height: auto;
+}
+
+.benchmark-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+  padding: 0 2px;
+}
+
+.benchmark-percentile {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.benchmark-label {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* ---------- Dimension Trend Heatmap ---------- */
+.dimension-heatmap {
+  margin-top: 16px;
+}
+
+.heatmap-table {
+  font-size: 11px;
+  border-collapse: separate;
+  border-spacing: 2px;
+}
+
+.heatmap-corner {
+  width: 80px;
+  min-width: 80px;
+}
+
+.heatmap-date {
+  text-align: center;
+  padding: 4px 6px;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.heatmap-dim-name {
+  white-space: nowrap;
+  padding: 4px 8px 4px 0;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 10px;
+  max-width: 80px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.heatmap-cell {
+  text-align: center;
+  padding: 6px 4px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 10px;
+  min-width: 32px;
+  transition: transform var(--transition-fast);
+}
+
+.heatmap-cell:active {
+  transform: scale(1.1);
+}
+
+/* ---------- Velocity Badges ---------- */
+.velocity-badges {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.velocity-overall {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.velocity-arrow {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.velocity-text {
+  font-size: clamp(13px, 3.5vw, 15px);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.velocity-accel {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.velocity-data-points {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.velocity-dimensions {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 6px;
+}
+
+.velocity-dim-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  font-size: 11px;
+}
+
+.velocity-dim-name {
+  color: var(--text-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80px;
+}
+
+.velocity-dim-arrow {
+  font-weight: 700;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* ---------- Team / Group Mode ---------- */
+.team-desc {
+  font-size: clamp(12px, 3.2vw, 14px);
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 12px;
+}
+
+.team-code-display {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.team-code-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.team-code-value {
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent-secondary);
+  letter-spacing: 1px;
+  background: rgba(99, 102, 241, 0.08);
+  padding: 6px 14px;
+  border-radius: 8px;
+  user-select: all;
+  -webkit-user-select: all;
+}
+
+.group-desc {
+  font-size: clamp(12px, 3.2vw, 14px);
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+
+.group-codes-input {
+  width: 100%;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 13px;
+  resize: vertical;
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+
+.group-codes-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+}
+
+.group-results {
+  margin-top: 14px;
+}
+
+.group-summary {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.group-score-big {
+  font-size: 36px;
+  font-weight: 800;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.group-risk-dims {
+  margin-top: 12px;
+}
+
+.group-dim-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 8px;
+  margin-bottom: 4px;
+}
+
+.group-dim-bar {
+  height: 6px;
+  border-radius: 3px;
+  flex: 1;
+  margin: 0 10px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.group-dim-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease-out;
+}
+
+/* ---------- Data Portability ---------- */
+.data-portability {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-data {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-full);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  min-height: 36px;
+}
+
+.btn-data:active {
+  background: rgba(99, 102, 241, 0.08);
+  color: var(--accent-secondary);
+}
+
+/* ---------- Re-diagnosis Reminder ---------- */
+.reminder-card {
+  max-width: var(--card-max-width);
+  text-align: center;
+}
+
+.reminder-desc {
+  font-size: clamp(13px, 3.5vw, 15px);
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+
+.reminder-options {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.reminder-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 18px;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: var(--radius-full);
+  color: var(--accent-secondary);
+  font-size: clamp(13px, 3.5vw, 15px);
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  min-height: 44px;
+}
+
+.reminder-btn:active {
+  transform: scale(0.95);
+}
+
+.reminder-btn.active {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: #fff;
+}
+
+.reminder-status {
+  margin-top: 14px;
+  font-size: clamp(12px, 3.2vw, 14px);
+  color: var(--green);
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.reminder-status .reminder-cancel {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: clamp(12px, 3.2vw, 14px);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 500;
+  text-decoration: underline;
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* ---------- Phase 2: Share Image Button ---------- */
 .btn-share-img {
   width: 100%;
@@ -2219,7 +2792,9 @@ body::after {
   outline-offset: 2px;
 }
 
-.likert-btn:focus-visible {
+.likert-btn:focus-visible,
+.likert-btn.keyboard-focus {
+  outline: 3px solid var(--accent-secondary);
   outline-offset: -1px;
 }
 

@@ -110,6 +110,22 @@ const ACTION_TEMPLATES = {
 };
 
 // ============================================================
+// Risk Thresholds & Scoring Constants
+// ============================================================
+const RISK_THRESHOLDS = {
+  LOW: 80,         // Score >= 80 = low risk
+  CAUTION: 60,     // Score >= 60 = caution
+  WARNING: 40,     // Score >= 40 = warning
+  // Score < 40 = high risk
+};
+
+const ADVICE_THRESHOLD = 60;     // Show advice for dimensions below this
+const STRENGTH_THRESHOLD = 70;   // Dimensions above this are strengths
+const TREND_THRESHOLD = 3;       // Score change > 3 = meaningful trend
+const LIKERT_MIN = 1;
+const LIKERT_MAX = 5;
+
+// ============================================================
 // 1. Meta-Analytic Weighted Scoring
 // Effect sizes from Griffeth et al. (2000) & Rubenstein et al. (2018)
 // ============================================================
@@ -162,7 +178,7 @@ const COMPOUND_RISK_PATTERNS = [
   },
   {
     id: 'flight_risk',
-    name: '転職間近型',
+    name: '退職が近い状態',
     nameEn: 'Flight Risk',
     icon: '\uD83D\uDEAA',
     description: '他に良い仕事があると感じていて、転職したい気持ちが強く、会社への愛着も薄い状態です。退職が最も近い状態です。',
@@ -381,8 +397,294 @@ const DiagnosticHistory = {
     } catch (e) {
       // silently fail
     }
+  },
+
+  /**
+   * Calculate risk velocity: rate of change across last N assessments.
+   * Uses simple linear regression on scores over time.
+   *
+   * @param {number} [minEntries=3] - Minimum entries required for velocity calculation
+   * @returns {Object} { overall: {slope, direction, acceleration}, dimensions: {dimId: {slope, direction}} }
+   */
+  getVelocity: function (minEntries) {
+    minEntries = minEntries || 3;
+    var entries = this.getAll();
+    if (entries.length < minEntries) {
+      return { overall: null, dimensions: {} };
+    }
+
+    // Use last 5 entries max
+    var recent = entries.slice(Math.max(0, entries.length - 5));
+    var n = recent.length;
+
+    // Linear regression helper: returns slope per assessment
+    function linearSlope(values) {
+      if (values.length < 2) return 0;
+      var nn = values.length;
+      var sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+      for (var i = 0; i < nn; i++) {
+        sumX += i;
+        sumY += values[i];
+        sumXY += i * values[i];
+        sumX2 += i * i;
+      }
+      var denom = nn * sumX2 - sumX * sumX;
+      if (denom === 0) return 0;
+      return (nn * sumXY - sumX * sumY) / denom;
+    }
+
+    // Overall velocity
+    var overallScores = recent.map(function (e) { return e.weighted || e.overall; });
+    var overallSlope = linearSlope(overallScores);
+
+    // Acceleration: compare slope of first half vs second half
+    var acceleration = 'steady';
+    if (n >= 4) {
+      var mid = Math.floor(n / 2);
+      var firstHalf = overallScores.slice(0, mid);
+      var secondHalf = overallScores.slice(mid);
+      var slope1 = linearSlope(firstHalf);
+      var slope2 = linearSlope(secondHalf);
+      if (slope2 - slope1 > 2) acceleration = 'accelerating';
+      else if (slope1 - slope2 > 2) acceleration = 'decelerating';
+    }
+
+    var overallDirection;
+    if (overallSlope > 1.5) overallDirection = 'improving';
+    else if (overallSlope < -1.5) overallDirection = 'declining';
+    else overallDirection = 'stable';
+
+    // Per-dimension velocity
+    var dimVelocities = {};
+    var dimIds = DIMENSIONS.map(function (d) { return d.id; });
+
+    for (var di = 0; di < dimIds.length; di++) {
+      var dimId = dimIds[di];
+      var dimScores = [];
+      for (var ei = 0; ei < recent.length; ei++) {
+        if (recent[ei].dimensions && recent[ei].dimensions[dimId] !== undefined) {
+          dimScores.push(recent[ei].dimensions[dimId]);
+        }
+      }
+      if (dimScores.length >= minEntries) {
+        var dimSlope = linearSlope(dimScores);
+        var dimDir;
+        if (dimSlope > 2) dimDir = 'improving';
+        else if (dimSlope < -2) dimDir = 'declining';
+        else dimDir = 'stable';
+        dimVelocities[dimId] = {
+          slope: Math.round(dimSlope * 10) / 10,
+          direction: dimDir
+        };
+      }
+    }
+
+    return {
+      overall: {
+        slope: Math.round(overallSlope * 10) / 10,
+        direction: overallDirection,
+        acceleration: acceleration,
+        dataPoints: n
+      },
+      dimensions: dimVelocities
+    };
+  },
+
+  /**
+   * Export all diagnostic history as a JSON string.
+   * @returns {string} JSON string of all history entries
+   */
+  exportJSON: function () {
+    var entries = this.getAll();
+    return JSON.stringify({
+      version: 1,
+      app: 'rra',
+      exported: new Date().toISOString(),
+      entries: entries
+    }, null, 2);
+  },
+
+  /**
+   * Import diagnostic history from a JSON string. Merges with existing data.
+   * @param {string} jsonStr - JSON string from exportJSON
+   * @returns {Object} { success: boolean, imported: number, message: string }
+   */
+  importJSON: function (jsonStr) {
+    try {
+      var data = JSON.parse(jsonStr);
+      if (!data || !Array.isArray(data.entries)) {
+        return { success: false, imported: 0, message: '無効なデータ形式です' };
+      }
+
+      var existing = this.getAll();
+      var existingDates = {};
+      for (var i = 0; i < existing.length; i++) {
+        existingDates[existing[i].date] = true;
+      }
+
+      var imported = 0;
+      for (var j = 0; j < data.entries.length; j++) {
+        var entry = data.entries[j];
+        if (!entry.date || !entry.weighted) continue;
+        if (existingDates[entry.date]) continue; // Skip duplicates
+        existing.push(entry);
+        imported++;
+      }
+
+      // Sort and trim
+      existing.sort(function (a, b) {
+        return new Date(a.date).getTime() - new Date(b.date).getTime();
+      });
+      if (existing.length > this.MAX_ENTRIES) {
+        existing = existing.slice(existing.length - this.MAX_ENTRIES);
+      }
+
+      try {
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(existing));
+      } catch (e) {
+        return { success: false, imported: 0, message: '保存に失敗しました' };
+      }
+
+      return { success: true, imported: imported, message: imported + '件のデータを読み込みました' };
+    } catch (e) {
+      return { success: false, imported: 0, message: 'ファイルの読み込みに失敗しました' };
+    }
   }
 };
+
+// ============================================================
+// 5. Score Code Encoding/Decoding (Team Mode)
+// ============================================================
+
+/**
+ * Encodes 10 dimension scores (0-100) into a compact URL-safe string.
+ * Format: Each score uses 2 chars (base36), total = 20 chars + 2 char checksum.
+ *
+ * @param {Object<string, number>} dimensionScores
+ * @returns {string} 22-character code
+ */
+function encodeScoreCode(dimensionScores) {
+  var parts = [];
+  var sum = 0;
+  for (var i = 0; i < DIMENSIONS.length; i++) {
+    var score = Math.max(0, Math.min(99, Math.round(dimensionScores[DIMENSIONS[i].id] || 0)));
+    parts.push((score < 10 ? '0' : '') + score.toString(36));
+    sum += score;
+  }
+  // Simple checksum: sum mod 1296 in base36 (2 chars)
+  var checksum = sum % 1296;
+  parts.push((checksum < 36 ? '0' : '') + checksum.toString(36));
+  return parts.join('').toUpperCase();
+}
+
+/**
+ * Decodes a score code back into dimension scores.
+ *
+ * @param {string} code - 22-character code from encodeScoreCode
+ * @returns {Object|null} dimensionScores or null if invalid
+ */
+function decodeScoreCode(code) {
+  if (!code || typeof code !== 'string') return null;
+  code = code.trim().toUpperCase();
+  if (code.length !== 22) return null;
+
+  var scores = {};
+  var sum = 0;
+  for (var i = 0; i < 10; i++) {
+    var chunk = code.substring(i * 2, i * 2 + 2);
+    var val = parseInt(chunk, 36);
+    if (isNaN(val) || val < 0 || val > 99) return null;
+    scores[DIMENSIONS[i].id] = val;
+    sum += val;
+  }
+
+  // Verify checksum
+  var checksumChunk = code.substring(20, 22);
+  var expectedChecksum = parseInt(checksumChunk, 36);
+  if (isNaN(expectedChecksum) || (sum % 1296) !== expectedChecksum) return null;
+
+  return scores;
+}
+
+/**
+ * Analyze a group of score sets and produce aggregate statistics.
+ *
+ * @param {Array<Object<string, number>>} scoresSets - Array of dimensionScores objects
+ * @returns {Object} Group analysis result
+ */
+function analyzeGroup(scoresSets) {
+  if (!scoresSets || scoresSets.length === 0) return null;
+
+  var n = scoresSets.length;
+  var dimStats = {};
+
+  for (var i = 0; i < DIMENSIONS.length; i++) {
+    var dimId = DIMENSIONS[i].id;
+    var values = [];
+    for (var j = 0; j < n; j++) {
+      if (scoresSets[j][dimId] !== undefined) {
+        values.push(scoresSets[j][dimId]);
+      }
+    }
+    if (values.length === 0) continue;
+
+    var sum = 0;
+    for (var k = 0; k < values.length; k++) sum += values[k];
+    var mean = sum / values.length;
+
+    var varianceSum = 0;
+    for (var m = 0; m < values.length; m++) {
+      varianceSum += (values[m] - mean) * (values[m] - mean);
+    }
+    var sd = values.length > 1 ? Math.sqrt(varianceSum / (values.length - 1)) : 0;
+
+    var min = Math.min.apply(null, values);
+    var max = Math.max.apply(null, values);
+
+    dimStats[dimId] = {
+      mean: Math.round(mean),
+      sd: Math.round(sd),
+      min: min,
+      max: max,
+      count: values.length
+    };
+  }
+
+  // Group overall weighted score
+  var weightedScores = scoresSets.map(function (scores) {
+    return Scoring.calculateWeightedOverallScore(scores);
+  });
+  var overallSum = 0;
+  for (var oi = 0; oi < weightedScores.length; oi++) overallSum += weightedScores[oi];
+  var overallMean = Math.round(overallSum / weightedScores.length);
+
+  // Group compound risks (detect on mean scores)
+  var meanScores = {};
+  for (var di = 0; di < DIMENSIONS.length; di++) {
+    var ds = dimStats[DIMENSIONS[di].id];
+    if (ds) meanScores[DIMENSIONS[di].id] = ds.mean;
+  }
+  var groupCompoundRisks = Scoring.detectCompoundRisks(meanScores);
+
+  // Find highest-risk dimensions (lowest mean)
+  var riskDims = [];
+  for (var ri = 0; ri < DIMENSIONS.length; ri++) {
+    var rds = dimStats[DIMENSIONS[ri].id];
+    if (rds) riskDims.push({ id: DIMENSIONS[ri].id, name: DIMENSIONS[ri].name, mean: rds.mean });
+  }
+  riskDims.sort(function (a, b) { return a.mean - b.mean; });
+
+  return {
+    memberCount: n,
+    overallMean: overallMean,
+    overallRisk: Scoring.getRiskLevel(overallMean),
+    dimensions: dimStats,
+    meanScores: meanScores,
+    compoundRisks: groupCompoundRisks,
+    highestRiskDimensions: riskDims.slice(0, 3),
+    weightedScores: weightedScores
+  };
+}
 
 // ============================================================
 // Scoring Object
@@ -457,9 +759,9 @@ const Scoring = {
    * @returns {Object} Risk level with label, color, and emoji
    */
   getRiskLevel(score) {
-    if (score >= 80) return { level: 'low', label: '\u4f4e\u30ea\u30b9\u30af', color: '#22c55e', emoji: '\uD83D\uDFE2' };
-    if (score >= 60) return { level: 'caution', label: '\u3084\u3084\u6ce8\u610f', color: '#eab308', emoji: '\uD83D\uDFE1' };
-    if (score >= 40) return { level: 'warning', label: '\u8981\u6ce8\u610f', color: '#f97316', emoji: '\uD83D\uDFE0' };
+    if (score >= RISK_THRESHOLDS.LOW) return { level: 'low', label: '\u4f4e\u30ea\u30b9\u30af', color: '#22c55e', emoji: '\uD83D\uDFE2' };
+    if (score >= RISK_THRESHOLDS.CAUTION) return { level: 'caution', label: '\u3084\u3084\u6ce8\u610f', color: '#eab308', emoji: '\uD83D\uDFE1' };
+    if (score >= RISK_THRESHOLDS.WARNING) return { level: 'warning', label: '\u8981\u6ce8\u610f', color: '#f97316', emoji: '\uD83D\uDFE0' };
     return { level: 'high', label: '\u9ad8\u30ea\u30b9\u30af', color: '#ef4444', emoji: '\uD83D\uDD34' };
   },
 
@@ -469,13 +771,13 @@ const Scoring = {
    * @returns {string} Interpretation text
    */
   getOverallInterpretation(score) {
-    if (score >= 80) {
+    if (score >= RISK_THRESHOLDS.LOW) {
       return '今の職場で安定して働けている状態です。会社との相性も良く、長く続けられる見込みがあります。この良い状態を保つために、今の職場環境を大切にしていきましょう。';
     }
-    if (score >= 60) {
+    if (score >= RISK_THRESHOLDS.CAUTION) {
       return 'おおむね安定していますが、いくつか気になる点があります。スコアの低い項目に注目して、早めに対策すると、さらに安心して働けるようになります。';
     }
-    if (score >= 40) {
+    if (score >= RISK_THRESHOLDS.WARNING) {
       return 'いくつかの項目で注意が必要な状態です。点数の低いところを確認して、できることから取り組んでみましょう。';
     }
     return '退職のリスクが高い状態です。何が原因か確認し、すぐに手を打ちましょう。まず点数の低いところから、上司や周りの人に相談してみてください。';
@@ -490,7 +792,7 @@ const Scoring = {
     const advice = [];
     for (const dim of DIMENSIONS) {
       const score = dimensionScores[dim.id];
-      if (score < 60) {
+      if (score < ADVICE_THRESHOLD) {
         advice.push({
           dimensionName: dim.name,
           score: score,
@@ -532,6 +834,131 @@ const Scoring = {
 
     if (totalWeight === 0) return 0;
     return Math.round(weightedSum / totalWeight);
+  },
+
+  /**
+   * Generate a comprehensive text report suitable for copying/printing.
+   * @param {number} overallScore
+   * @param {number} weightedScore
+   * @param {Object<string, number>} dimensionScores
+   * @param {Array} compoundRisks
+   * @param {Object} demographic
+   * @param {Object<number, number>} answers
+   * @returns {string} Multi-line text report
+   */
+  generateTextReport(overallScore, weightedScore, dimensionScores, compoundRisks, demographic, answers) {
+    var lines = [];
+    var risk = this.getRiskLevel(weightedScore);
+    var now = new Date();
+    var dateStr = now.getFullYear() + '年' + (now.getMonth() + 1) + '月' + now.getDate() + '日';
+
+    lines.push('═══════════════════════════════════════');
+    lines.push('　退職リスク診断　詳細レポート');
+    lines.push('　診断日: ' + dateStr);
+    lines.push('═══════════════════════════════════════');
+    lines.push('');
+
+    // Demographics
+    if (demographic && (demographic.age || demographic.tenure || demographic.industry)) {
+      lines.push('【回答者情報】');
+      if (demographic.age) lines.push('　年代: ' + demographic.age);
+      if (demographic.tenure) lines.push('　勤続年数: ' + demographic.tenure);
+      if (demographic.industry) lines.push('　業界: ' + demographic.industry);
+      lines.push('');
+    }
+
+    // Overall score
+    lines.push('【総合判定】');
+    lines.push('　基本スコア: ' + overallScore + '/100');
+    lines.push('　分析スコア: ' + weightedScore + '/100');
+    lines.push('　判定: ' + risk.label);
+    lines.push('');
+    lines.push(this.getOverallInterpretation(weightedScore));
+    lines.push('');
+
+    // Compound risks
+    if (compoundRisks && compoundRisks.length > 0) {
+      lines.push('───────────────────────────────────────');
+      lines.push('【注意が必要な組み合わせ】');
+      for (var i = 0; i < compoundRisks.length; i++) {
+        var cr = compoundRisks[i];
+        lines.push('');
+        lines.push(cr.icon + ' ' + cr.name + ' (' + cr.severity + ')');
+        lines.push('　' + cr.description);
+        if (cr.advice) lines.push('　→ ' + cr.advice);
+      }
+      lines.push('');
+    }
+
+    // Dimension details
+    lines.push('───────────────────────────────────────');
+    lines.push('【項目別スコア】');
+    lines.push('');
+
+    for (var di = 0; di < DIMENSIONS.length; di++) {
+      var dim = DIMENSIONS[di];
+      var score = dimensionScores[dim.id] || 0;
+      var dimRisk = this.getRiskLevel(score);
+      var bar = '';
+      for (var b = 0; b < 10; b++) {
+        bar += (b < Math.round(score / 10)) ? '█' : '░';
+      }
+      lines.push(dim.name + ': ' + score + '/100 ' + bar + ' ' + dimRisk.label);
+
+      // Explanation
+      if (answers && this.getDimensionExplanation) {
+        var explanation = this.getDimensionExplanation(dim, score, answers);
+        if (explanation) lines.push('　' + explanation);
+      }
+
+      // Advice for low scores
+      if (score < ADVICE_THRESHOLD) {
+        lines.push('　改善: ' + dim.adviceLow);
+      }
+      lines.push('');
+    }
+
+    // Action plan
+    var actionPlan = this.generateActionPlan(dimensionScores, compoundRisks);
+    if (actionPlan && actionPlan.priorities.length > 0) {
+      lines.push('───────────────────────────────────────');
+      lines.push('【改善プラン】 優先度: ' + actionPlan.urgency);
+      lines.push(actionPlan.summary);
+      lines.push('');
+      for (var ai = 0; ai < actionPlan.priorities.length; ai++) {
+        var item = actionPlan.priorities[ai];
+        lines.push((ai + 1) + '. ' + item.title);
+        lines.push('　' + item.description);
+      }
+      lines.push('');
+    }
+
+    // Strengths
+    var strengths = this.getStrengths(dimensionScores);
+    if (strengths.length > 0) {
+      lines.push('───────────────────────────────────────');
+      lines.push('【あなたの強み】');
+      for (var si = 0; si < strengths.length; si++) {
+        lines.push('　' + strengths[si].dimName + ': ' + strengths[si].score + '/100 (' + strengths[si].label + ')');
+      }
+      lines.push('');
+    }
+
+    lines.push('═══════════════════════════════════════');
+    lines.push('退職リスク診断 v3.0');
+    lines.push('※ この診断は学術研究（メタ分析）に基づいています');
+
+    return lines.join('\n');
+  },
+
+  /**
+   * Public alias for What-If simulator.
+   * Recalculates weighted score from modified dimension scores.
+   * @param {Object<string, number>} dimensionScores
+   * @returns {number}
+   */
+  calculateWeightedScore(dimensionScores) {
+    return this.calculateWeightedOverallScore(dimensionScores);
   },
 
   // ----------------------------------------------------------
@@ -693,11 +1120,11 @@ const Scoring = {
 
     // --- Weighted score interpretation ---
     if (weightedScore >= 80) {
-      text += '詳しい分析の結果、退職のリスクはとても低いと判定されました。退職に関わる大事な項目（転職への気持ち・会社への愛着など）も良い状態です。';
+      text += '詳しい分析の結果、退職のリスクはとても低いと判定されました。退職に関わる大事な項目（今の仕事を続ける気持ち・会社への愛着など）も良い状態です。';
     } else if (weightedScore >= 60) {
       text += '詳しい分析の結果、おおむね安定していますが、退職に関わりやすい項目に心配なところがあります。気になるところから改善に取り組んでみましょう。';
     } else if (weightedScore >= 40) {
-      text += '詳しい分析の結果、退職に関わる大事な項目にリスクが見つかりました。特に「転職への気持ち」や「会社への愛着」のところを見直してみましょう。';
+      text += '詳しい分析の結果、退職に関わる大事な項目にリスクが見つかりました。特に「今の仕事を続ける気持ち」や「会社への愛着」のところを見直してみましょう。';
     } else {
       text += '詳しい分析の結果、退職のリスクがとても高い状態です。退職につながりやすい項目の点数が全体的に低く、今すぐ対応が必要です。';
     }
@@ -801,6 +1228,51 @@ const Scoring = {
       }
     }
     return results;
+  },
+
+  /**
+   * Generate natural-language explanation for why a dimension scored the way it did.
+   * @param {Object} dimension - Dimension object from DIMENSIONS
+   * @param {number} score - Dimension score (0-100)
+   * @param {Object<number, number>} answers - Map of question ID to answer value
+   * @returns {string} Plain-language explanation
+   */
+  getDimensionExplanation(dimension, score, answers) {
+    var qScores = this.getQuestionScores(answers, dimension);
+    if (qScores.length === 0) return '';
+
+    // Find strongest and weakest questions
+    var sorted = qScores.slice().sort(function(a, b) { return a.processedScore - b.processedScore; });
+    var weakest = sorted[0];
+    var strongest = sorted[sorted.length - 1];
+
+    var risk = this.getRiskLevel(score);
+    var parts = [];
+
+    if (risk.level === 'low') {
+      parts.push('この項目はとても良い状態です。');
+      if (strongest.processedScore === 100) {
+        parts.push('特に「' + strongest.text + '」への回答が最も高く、安定しています。');
+      }
+    } else if (risk.level === 'caution') {
+      parts.push('おおむね良好ですが、改善できる点があります。');
+      if (weakest.processedScore < 50) {
+        parts.push('「' + weakest.text + '」の回答が低めなので、ここを意識するとスコアが上がります。');
+      }
+    } else if (risk.level === 'warning') {
+      parts.push('注意が必要な状態です。');
+      parts.push('「' + weakest.text + '」の回答が特に低く、この項目のスコアを下げています。');
+    } else {
+      parts.push('リスクが高い状態です。');
+      var lowCount = sorted.filter(function(q) { return q.processedScore < 50; }).length;
+      if (lowCount >= 2) {
+        parts.push('複数の質問で低い回答になっており、全体的に改善が必要です。');
+      } else {
+        parts.push('「' + weakest.text + '」の回答が特に低く、改善の余地があります。');
+      }
+    }
+
+    return parts.join('');
   },
 
   // ----------------------------------------------------------
@@ -962,7 +1434,7 @@ const Scoring = {
 
     // Add dimension-specific actions for top impact dimensions
     for (const di of dimImpacts) {
-      if (di.score >= 70) continue; // Skip healthy dimensions
+      if (di.score >= STRENGTH_THRESHOLD) continue; // Skip healthy dimensions
       if (priorities.length >= 8) break; // Cap total actions
 
       const templates = ACTION_TEMPLATES[di.dimId];
@@ -979,7 +1451,7 @@ const Scoring = {
 
       priorities.push({
         type: 'dimension',
-        priority: di.score < 40 ? 'high' : di.score < 60 ? 'medium' : 'low',
+        priority: di.score < RISK_THRESHOLDS.WARNING ? 'high' : di.score < ADVICE_THRESHOLD ? 'medium' : 'low',
         title: di.dimName + 'の改善',
         description: template.action,
         category: template.category,
@@ -1039,7 +1511,7 @@ const Scoring = {
     const strengths = [];
     for (const dim of DIMENSIONS) {
       const score = dimensionScores[dim.id];
-      if (score >= 70) {
+      if (score >= STRENGTH_THRESHOLD) {
         const percentile = this.getDimensionPercentile(dim.id, score);
         strengths.push({
           dimId: dim.id,

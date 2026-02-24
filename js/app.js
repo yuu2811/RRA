@@ -79,7 +79,8 @@
       document.getElementById('step-dot-1'),
       document.getElementById('step-dot-2')
     ],
-    btnHome: document.getElementById('btn-home')
+    btnHome: document.getElementById('btn-home'),
+    progressPct: document.getElementById('progress-pct')
   };
 
   // ---------- 120Hz Spring Animation Utility ----------
@@ -236,27 +237,72 @@
   function showDimensionCompleteFlash() {
     var bar = els.progressBar;
     bar.style.transition = 'none';
-    bar.style.boxShadow = '0 0 16px 4px rgba(99, 102, 241, 0.6)';
+    bar.style.boxShadow = '0 0 20px 6px rgba(99, 102, 241, 0.7)';
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
-        bar.style.transition = 'box-shadow 0.8s ease-out';
+        bar.style.transition = 'box-shadow 1s ease-out';
         bar.style.boxShadow = 'none';
       });
     });
+
+    // Show dimension complete celebration
+    var completed = Math.floor(state.currentQuestion / 3);
+    var messages = [
+      '', // dimension 0→1 transition
+      '順調です！',
+      'いいペースです！',
+      '3分の1完了！',
+      'もう少しで半分！',
+      '半分クリア！あと半分です',
+      '後半に入りました！',
+      'あと少しです！',
+      'ラストスパート！',
+      'もう一息！'
+    ];
+    var msg = messages[completed] || '';
+    if (msg) showMotivationToast(msg, 'milestone');
   }
 
   function showProgressMilestone(index) {
     var el = els.progressCount;
     el.style.transition = 'none';
-    el.style.transform = 'scale(1.25)';
-    el.style.color = 'var(--accent-secondary)';
+    el.style.transform = 'scale(1.3)';
+    el.style.color = 'var(--accent-tertiary)';
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
-        el.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.8s ease-out';
+        el.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), color 1s ease-out';
         el.style.transform = 'scale(1)';
         el.style.color = '';
       });
     });
+  }
+
+  // ---------- Motivation Toast ----------
+  function showMotivationToast(message, type) {
+    var existing = document.querySelector('.motivation-toast');
+    if (existing) existing.remove();
+
+    var toast = document.createElement('div');
+    toast.className = 'motivation-toast';
+    var bgColor = type === 'milestone'
+      ? 'linear-gradient(135deg, rgba(99,102,241,0.95), rgba(129,140,248,0.95))'
+      : 'rgba(34,197,94,0.9)';
+    toast.style.cssText = 'position:fixed;top:' + (parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-top')) || 16) + 'px;left:50%;transform:translateX(-50%) translateY(-20px);background:' + bgColor + ';color:#fff;padding:10px 24px;border-radius:999px;font-size:14px;font-weight:700;z-index:2000;opacity:0;transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 8px 32px rgba(99,102,241,0.3);letter-spacing:0.03em;white-space:nowrap;';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(-50%) translateY(0)';
+      });
+    });
+
+    setTimeout(function () {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(-50%) translateY(-10px)';
+      setTimeout(function () { toast.remove(); }, 400);
+    }, 1500);
   }
 
   // ---------- Question Display with Spring Transition ----------
@@ -284,9 +330,13 @@
       }
     });
 
+    var pct = Math.round((index + 1) / TOTAL_QUESTIONS * 100);
     requestAnimationFrame(function () {
-      els.progressBar.style.width = ((index + 1) / TOTAL_QUESTIONS * 100) + '%';
+      els.progressBar.style.width = pct + '%';
     });
+    if (els.progressPct) {
+      els.progressPct.textContent = pct + '%';
+    }
 
     var card = els.questionCard;
     var isNext = state.direction === 'next';
@@ -333,11 +383,15 @@
       btn.classList.toggle('selected', isSelected);
 
       if (isSelected) {
+        // Spring scale animation
         btn.style.transition = 'none';
-        btn.style.transform = 'scale(0.92)';
+        btn.style.transform = 'scale(0.90)';
         void btn.offsetWidth;
         btn.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
         btn.style.transform = 'scale(1)';
+
+        // Ripple effect
+        createRipple(btn);
       }
     });
 
@@ -350,7 +404,21 @@
       } else {
         showCalculatingTransition();
       }
-    }, 300);
+    }, 280);
+  }
+
+  // ---------- Ripple Effect ----------
+  function createRipple(btn) {
+    var ripple = document.createElement('span');
+    ripple.className = 'ripple';
+    var size = Math.max(btn.offsetWidth, btn.offsetHeight);
+    ripple.style.width = ripple.style.height = size + 'px';
+    ripple.style.left = '50%';
+    ripple.style.top = '50%';
+    ripple.style.marginLeft = -(size / 2) + 'px';
+    ripple.style.marginTop = -(size / 2) + 'px';
+    btn.appendChild(ripple);
+    setTimeout(function () { ripple.remove(); }, 600);
   }
 
   // ---------- "Calculating..." Transition ----------
@@ -373,15 +441,20 @@
     overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1000;background:var(--bg-primary);opacity:0;transition:opacity 0.6s ease-in-out;';
     overlay.innerHTML =
       '<div style="text-align:center;">' +
-        '<div class="calculating-spinner" style="width:48px;height:48px;border:3px solid rgba(99,102,241,0.15);border-top-color:var(--accent-secondary);border-radius:50%;animation:calcSpin 0.8s linear infinite;margin:0 auto 20px;"></div>' +
-        '<div style="font-size:16px;font-weight:700;color:var(--text-primary);opacity:0;animation:calcFadeIn 0.4s ease-out 0.2s forwards;">診断結果を分析中...</div>' +
-        '<div style="font-size:13px;color:var(--text-muted);margin-top:8px;opacity:0;animation:calcFadeIn 0.4s ease-out 0.4s forwards;">結果をまとめています</div>' +
+        '<div style="position:relative;width:64px;height:64px;margin:0 auto 24px;">' +
+          '<div style="position:absolute;inset:0;border:3px solid rgba(99,102,241,0.08);border-radius:50%;"></div>' +
+          '<div class="calculating-spinner" style="position:absolute;inset:0;border:3px solid transparent;border-top-color:#818cf8;border-right-color:rgba(129,140,248,0.3);border-radius:50%;animation:calcSpin 0.8s cubic-bezier(0.4,0,0.2,1) infinite;"></div>' +
+          '<div style="position:absolute;inset:6px;border:2px solid transparent;border-bottom-color:rgba(167,139,250,0.5);border-radius:50%;animation:calcSpin 1.2s cubic-bezier(0.4,0,0.2,1) infinite reverse;"></div>' +
+        '</div>' +
+        '<div style="font-size:17px;font-weight:700;color:var(--text-primary);opacity:0;animation:calcFadeIn 0.4s ease-out 0.2s forwards;letter-spacing:0.02em;">診断結果を分析中...</div>' +
+        '<div style="font-size:13px;color:var(--text-muted);margin-top:10px;opacity:0;animation:calcFadeIn 0.4s ease-out 0.5s forwards;">30問の回答をAIが分析しています</div>' +
+        '<div style="margin-top:20px;width:120px;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;opacity:0;animation:calcFadeIn 0.3s ease-out 0.7s forwards;"><div style="width:0%;height:100%;background:linear-gradient(90deg,#6366f1,#a78bfa);border-radius:2px;animation:calcProgress 1s ease-in-out 0.8s forwards;"></div></div>' +
       '</div>';
 
     if (!document.getElementById('calc-keyframes')) {
       var style = document.createElement('style');
       style.id = 'calc-keyframes';
-      style.textContent = '@keyframes calcSpin{to{transform:rotate(360deg)}}@keyframes calcFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}';
+      style.textContent = '@keyframes calcSpin{to{transform:rotate(360deg)}}@keyframes calcFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}@keyframes calcProgress{from{width:0%}to{width:100%}}';
       document.head.appendChild(style);
     }
 

@@ -181,7 +181,10 @@
       <div class="progress-area">
         <div class="progress-info">
           <span id="progress-category" class="progress-category"></span>
-          <span id="progress-count" class="progress-count"></span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span id="progress-count" class="progress-count"></span>
+            <span id="progress-pct" class="progress-pct"></span>
+          </div>
         </div>
         <div class="progress-bar-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="全体の進捗">
           <div id="progress-bar" class="progress-bar-fill"></div>

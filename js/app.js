@@ -452,7 +452,7 @@
         '</div>' +
         diffHTML +
         '<div class="weighted-score-item">' +
-          '<span class="weighted-score-label">科学的分析</span>' +
+          '<span class="weighted-score-label">詳しい分析</span>' +
           '<span class="weighted-score-value primary" style="color:' + risk.color + '">' + weightedScore + '</span>' +
         '</div>';
     }

@@ -91,7 +91,7 @@ const DIMENSIONS = [
     reference: 'Ng, T.W.H., Eby, L.T., Sorensen, K.L., & Feldman, D.C. (2005). Predictors of Objective and Subjective Career Success: A Meta-Analysis. Personnel Psychology, 58(2), 367-408.',
     questions: [
       { id: 19, text: '今の会社でステップアップの機会がある', reversed: false },
-      { id: 20, text: 'スキルアップのための研修や支援が充実している', reversed: false },
+      { id: 20, text: '仕事の腕を磨くための研修や支援がしっかりある', reversed: false },
       { id: 21, text: '将来の昇進や自分の進む道が見えない', reversed: true }
     ],
     adviceLow: '成長やステップアップの機会が足りないと感じている状態です。上司と将来について話し合い、研修や資格取得の支援が使えないか確認してみましょう。新しい仕事や役割に挑戦するのも成長につながります。'

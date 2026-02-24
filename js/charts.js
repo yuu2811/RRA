@@ -837,7 +837,7 @@ const Charts = {
       var adviceHTML = '';
       if (risk.advice) {
         adviceHTML += '<div style="background:rgba(255,255,255,0.03);border-radius:6px;padding:10px 12px;">';
-        adviceHTML += '<div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">\u63A8\u5968\u30A2\u30AF\u30B7\u30E7\u30F3</div>';
+        adviceHTML += '<div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:4px;">こうしてみましょう</div>';
         adviceHTML += '<p style="font-size:13px;color:var(--text-secondary);line-height:1.5;margin:0;">' + risk.advice + '</p>';
         adviceHTML += '</div>';
       }
@@ -874,7 +874,7 @@ const Charts = {
     var scoreRow = document.createElement('div');
     scoreRow.className = 'demo-score-row';
     scoreRow.innerHTML =
-      '<span class="demo-label">属性補正後スコア</span>' +
+      '<span class="demo-label">あなたに合わせたスコア</span>' +
       '<span class="demo-score" style="color:' + adjustedColor + '">' + adjustedScore + '</span>';
     wrapper.appendChild(scoreRow);
 
@@ -1127,7 +1127,7 @@ const Charts = {
     simpleCard.className = 'score-compare-card';
     simpleCard.style.cssText = 'flex:1;text-align:center;padding:14px 10px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);';
     simpleCard.innerHTML =
-      '<div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;font-weight:500;">\u5358\u7D14\u5E73\u5747</div>' +
+      '<div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;font-weight:500;">基本スコア</div>' +
       '<div style="font-size:26px;font-weight:700;color:' + overallRisk.color + ';line-height:1;">' + overallScore + '</div>' +
       '<div style="font-size:10px;color:' + overallRisk.color + ';margin-top:4px;">' + overallRisk.label + '</div>';
 
@@ -1136,7 +1136,7 @@ const Charts = {
     weightedCard.className = 'score-compare-card score-compare-primary';
     weightedCard.style.cssText = 'flex:1;text-align:center;padding:14px 10px;border-radius:10px;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.2);position:relative;';
     weightedCard.innerHTML =
-      '<div style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;font-weight:600;">\u30A8\u30D3\u30C7\u30F3\u30B9\u52A0\u91CD</div>' +
+      '<div style="font-size:11px;color:var(--text-secondary);margin-bottom:8px;font-weight:600;">詳しい分析</div>' +
       '<div style="font-size:30px;font-weight:800;color:' + weightedRisk.color + ';line-height:1;">' + weightedScore + '</div>' +
       '<div style="font-size:10px;color:' + weightedRisk.color + ';margin-top:4px;">' + weightedRisk.label + '</div>';
 
@@ -1373,7 +1373,7 @@ const Charts = {
     if (!actionPlan || actionPlan.priorities.length === 0) {
       container.innerHTML = '<div style="text-align:center;padding:24px 16px;color:var(--green);font-size:14px;">' +
         '<span style="font-size:24px;display:block;margin-bottom:8px;">\u2728</span>' +
-        '\u5168\u4f53\u7684\u306b\u826f\u597d\u306a\u72b6\u614b\u3067\u3059\u3002\u73fe\u5728\u306e\u53d6\u308a\u7d44\u307f\u3092\u7d99\u7d9a\u3057\u3066\u304f\u3060\u3055\u3044\u3002' +
+        '全体的に良い状態です。今のまま続けていきましょう。' +
         '</div>';
       return;
     }
@@ -1459,7 +1459,7 @@ const Charts = {
 
     if (!insights || insights.length === 0) {
       container.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:13px;">' +
-        '\u7279\u7b46\u3059\u3079\u304d\u6b21\u5143\u9593\u306e\u30d1\u30bf\u30fc\u30f3\u306f\u691c\u51fa\u3055\u308C\u307E\u305B\u3093\u3067\u3057\u305F' +
+        '特に気になる項目どうしの関連は見つかりませんでした' +
         '</div>';
       return;
     }

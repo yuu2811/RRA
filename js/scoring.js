@@ -80,7 +80,7 @@ const ACTION_TEMPLATES = {
   job_satisfaction: [
     { timeframe: 'immediate', effort: 'low', action: '毎日の仕事で「やりがいを感じる瞬間」をメモしてみる', category: '気づく' },
     { timeframe: 'short', effort: 'medium', action: '自分の得意なことを活かせる仕事を増やせないか上司に相談する', category: '仕事を見直す' },
-    { timeframe: 'medium', effort: 'high', action: '職場で困っていることを具体的にまとめて、改善を提案する', category: '環境を良くする' }
+    { timeframe: 'medium', effort: 'high', action: '職場で困っていることを上司に相談して、一緒に解決策を考える', category: '環境を良くする' }
   ],
   po_fit: [
     { timeframe: 'immediate', effort: 'low', action: '会社の方針と自分の考えが合うところ・合わないところを書き出す', category: '整理する' },
@@ -219,15 +219,15 @@ const COMPOUND_RISK_PATTERNS = [
 const DEMOGRAPHIC_BASELINES = {
   age: {
     '20s': { modifier: 1.15, label: '20\u4ee3\u306f\u8ee2\u8077\u7387\u304c\u6700\u3082\u9ad8\u3044\u5e74\u4ee3\u3067\u3059' },
-    '30s': { modifier: 1.0, label: '30\u4ee3\u306f\u30ad\u30e3\u30ea\u30a2\u5b89\u5b9a\u671f\u306b\u5165\u308b\u5e74\u4ee3\u3067\u3059' },
-    '40s': { modifier: 0.85, label: '40\u4ee3\u306f\u5b9a\u7740\u7387\u304c\u9ad8\u307e\u308b\u5e74\u4ee3\u3067\u3059' },
-    '50s+': { modifier: 0.75, label: '50\u4ee3\u4ee5\u4e0a\u306f\u9000\u8077\u30ea\u30b9\u30af\u304c\u7d71\u8a08\u7684\u306b\u4f4e\u3044\u5e74\u4ee3\u3067\u3059' }
+    '30s': { modifier: 1.0, label: '30代は仕事が落ち着いてくる年代です' },
+    '40s': { modifier: 0.85, label: '40代は長く働き続ける人が多い年代です' },
+    '50s+': { modifier: 0.75, label: '50代以上は転職する人が少ない年代です' }
   },
   tenure: {
     '<1year': { modifier: 1.3, label: '\u5165\u793e1\u5e74\u672a\u6e80\u306f\u6700\u3082\u30ea\u30b9\u30af\u304c\u9ad8\u3044\u671f\u9593\u3067\u3059' },
     '1-3years': { modifier: 1.1, label: '1〜3年目は理想と現実のギャップを感じやすい時期です' },
     '3-5years': { modifier: 0.95, label: '3〜5年目は将来の方向性を考える時期です' },
-    '5-10years': { modifier: 0.85, label: '5\u5e74\u4ee5\u4e0a\u5728\u7c4d\u3067\u5b9a\u7740\u50be\u5411\u304c\u5f37\u307e\u308a\u307e\u3059' },
+    '5-10years': { modifier: 0.85, label: '5年以上働いていると会社に馴染んでいる人が多いです' },
     '>10years': { modifier: 0.75, label: '10年以上のベテランは会社への愛着が強い傾向です' }
   },
   industry: {
@@ -467,9 +467,9 @@ const Scoring = {
       return 'おおむね安定していますが、いくつか気になる点があります。スコアの低い項目に注目して、早めに対策すると、さらに安心して働けるようになります。';
     }
     if (score >= 40) {
-      return 'いくつかの項目で注意が必要な状態です。スコアの低い項目について、具体的な改善を考えてみましょう。早めの対応が大切です。';
+      return 'いくつかの項目で注意が必要な状態です。点数の低いところを確認して、できることから取り組んでみましょう。';
     }
-    return '退職のリスクが高い状態です。何が原因か確認し、すぐに対策を考えることが必要です。スコアの低い項目から優先的に改善し、上司や人事と話し合いましょう。';
+    return '退職のリスクが高い状態です。何が原因か確認し、すぐに手を打ちましょう。まず点数の低いところから、上司や周りの人に相談してみてください。';
   },
 
   /**
@@ -684,13 +684,13 @@ const Scoring = {
 
     // --- Weighted score interpretation ---
     if (weightedScore >= 80) {
-      text += '科学的な分析の結果、退職のリスクは非常に低いと判定されました。退職に関わる重要な項目（転職への気持ち・会社への愛着など）も良好な状態です。';
+      text += '詳しい分析の結果、退職のリスクはとても低いと判定されました。退職に関わる大事な項目（転職への気持ち・会社への愛着など）も良い状態です。';
     } else if (weightedScore >= 60) {
-      text += '科学的な分析の結果、おおむね安定していますが、退職に関わりやすい項目に一部課題が見られます。重点的な改善をおすすめします。';
+      text += '詳しい分析の結果、おおむね安定していますが、退職に関わりやすい項目に心配なところがあります。気になるところから改善に取り組んでみましょう。';
     } else if (weightedScore >= 40) {
-      text += '科学的な分析の結果、退職に関わる重要な項目にリスクが見つかりました。特に「転職への気持ち」や「会社への愛着」の改善が急がれます。';
+      text += '詳しい分析の結果、退職に関わる大事な項目にリスクが見つかりました。特に「転職への気持ち」や「会社への愛着」のところを見直してみましょう。';
     } else {
-      text += '科学的な分析の結果、退職のリスクが非常に高い状態です。退職に直結しやすい項目が全体的に低スコアであり、早急な対応が必要です。';
+      text += '詳しい分析の結果、退職のリスクがとても高い状態です。退職につながりやすい項目の点数が全体的に低く、今すぐ対応が必要です。';
     }
 
     // --- Compound risk patterns ---
@@ -703,10 +703,10 @@ const Scoring = {
         if (cr.severity === 'critical') {
           text += ' ― すぐに対応が必要';
         } else {
-          text += ' ― 早めの対応を推奨';
+          text += ' ― 早めに手を打ちましょう';
         }
       }
-      text += '\n複数の項目が同時に悪化しており、個別の問題よりも深刻な状態です。優先的に対応しましょう。';
+      text += '\n複数の項目が同時に悪くなっていて、一つ一つの問題よりも深刻な状態です。まずここから取り組みましょう。';
     }
 
     // --- Trend information ---
@@ -742,7 +742,7 @@ const Scoring = {
 
     let text = '退職リスク診断結果\n';
     text += '総合スコア: ' + overallScore + '/100 (' + risk.label + ')\n';
-    text += '科学的分析スコア: ' + weightedScore + '/100\n';
+    text += '詳しい分析スコア: ' + weightedScore + '/100\n';
 
     if (compoundRisks.length > 0) {
       text += '\n⚠️ 注意パターン:\n';
@@ -1002,7 +1002,7 @@ const Scoring = {
     if (urgency === 'critical') {
       summary = 'すぐに対応が必要です。上から順に、できることから取り組んでください。';
     } else if (urgency === 'high') {
-      summary = '早めの改善をおすすめします。効果の大きい項目から取り組むと効率的です。';
+      summary = '早めの改善をおすすめします。一番大事な項目から順に取り組んでいきましょう。';
     } else if (urgency === 'moderate') {
       summary = 'いくつか改善できるところがあります。気になる項目から取り組んでみましょう。';
     } else {

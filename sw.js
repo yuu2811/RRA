@@ -3,7 +3,7 @@
  * Cache-first strategy for offline support
  */
 
-const CACHE_NAME = 'rra-v5';
+const CACHE_NAME = 'rra-v6';
 const ASSETS = [
   './',
   './index.html',

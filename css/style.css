@@ -1017,16 +1017,21 @@ body::after {
 /* ---------- Animations for result items ---------- */
 .result-container > * {
   opacity: 0;
-  animation: fadeIn 0.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  animation: fadeIn 0.4s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
 }
 
-.result-container > *:nth-child(1) { animation-delay: 0.0s; }
-.result-container > *:nth-child(2) { animation-delay: 0.12s; }
-.result-container > *:nth-child(3) { animation-delay: 0.24s; }
-.result-container > *:nth-child(4) { animation-delay: 0.36s; }
-.result-container > *:nth-child(5) { animation-delay: 0.48s; }
-.result-container > *:nth-child(6) { animation-delay: 0.60s; }
-.result-container > *:nth-child(7) { animation-delay: 0.72s; }
+.result-container > *:nth-child(1) { animation-delay: 0s; }
+.result-container > *:nth-child(2) { animation-delay: 0.06s; }
+.result-container > *:nth-child(3) { animation-delay: 0.12s; }
+.result-container > *:nth-child(4) { animation-delay: 0.18s; }
+.result-container > *:nth-child(5) { animation-delay: 0.24s; }
+.result-container > *:nth-child(6) { animation-delay: 0.30s; }
+.result-container > *:nth-child(7) { animation-delay: 0.36s; }
+.result-container > *:nth-child(8) { animation-delay: 0.42s; }
+.result-container > *:nth-child(9) { animation-delay: 0.48s; }
+.result-container > *:nth-child(10) { animation-delay: 0.54s; }
+/* Everything beyond 10th child appears immediately */
+.result-container > *:nth-child(n+11) { animation-delay: 0.6s; }
 
 /* ---------- Utility ---------- */
 .hidden:not(.btn-nav) {
@@ -1152,58 +1157,15 @@ body::after {
   color: var(--text-primary);
 }
 
-/* ---------- Weighted Score Card ---------- */
-.weighted-card {
-  max-width: var(--card-max-width);
-}
-
-.weighted-comparison {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-  padding: 12px 0;
-}
-
-.weighted-score-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-
-.weighted-score-label {
-  font-size: clamp(12px, 3.2vw, 14px);
-  font-weight: 600;
-  color: var(--text-muted);
-  letter-spacing: 0.04em;
-}
-
-.weighted-score-value {
-  font-size: clamp(34px, 9vw, 44px);
-  font-weight: 900;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-}
-
-.weighted-score-value.primary {
-  font-size: clamp(38px, 10vw, 50px);
-}
-
-.weighted-score-diff {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: clamp(14px, 3.8vw, 17px);
-  font-weight: 700;
-}
-
-.weighted-explanation {
+/* ---------- Weighted Note (inside score card) ---------- */
+.weighted-note {
   font-size: clamp(12px, 3.2vw, 14px);
   color: var(--text-muted);
   text-align: center;
   line-height: 1.7;
-  margin-top: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 /* ---------- Demographic Context Section ---------- */
@@ -3216,7 +3178,7 @@ body::after {
 
   /* Print footer */
   .result-container::after {
-    content: "退職リスク診断 v3.1 - 科学的な研究に基づく退職リスク分析ツール";
+    content: "はたらく環境診断 v4.0 - 研究に基づく職場環境分析ツール";
     display: block;
     text-align: center;
     font-size: 9pt;

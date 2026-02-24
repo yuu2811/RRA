@@ -3,7 +3,7 @@
  * Cache-first strategy for offline support
  */
 
-const CACHE_NAME = 'rra-v15';
+const CACHE_NAME = 'rra-v16';
 const ASSETS = [
   './',
   './index.html',
@@ -47,7 +47,7 @@ self.addEventListener('message', (event) => {
     const delay = reminderDate.getTime() - now;
     if (delay > 0 && delay <= 7776000000) { // Max 90 days
       setTimeout(() => {
-        self.registration.showNotification('退職リスク診断', {
+        self.registration.showNotification('はたらく環境診断', {
           body: 'リマインダー: もう一度診断して、変化を確認しましょう。',
           icon: 'icons/icon-192.png',
           badge: 'icons/icon-192.png',

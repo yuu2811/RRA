@@ -552,7 +552,7 @@
         var diffArrow = diff > 0 ? '↑' : '↓';
         els.weightedComparison.innerHTML =
           '<div style="text-align:center;font-size:13px;color:var(--text-secondary);">' +
-            '10項目の単純平均は <strong>' + overallScore + '</strong> ですが、退職に関わりやすい項目を重視すると ' +
+            '10項目の単純平均は <strong>' + overallScore + '</strong> ですが、影響の大きい項目を重視すると ' +
             '<strong style="color:' + diffColor + '">' + diffArrow + Math.abs(diff) + 'pt</strong>' +
           '</div>';
       } else {
@@ -732,7 +732,7 @@
 
     if (navigator.share) {
       navigator.share({
-        title: '退職リスク診断結果',
+        title: 'はたらく環境診断結果',
         text: shareText
       }).catch(function (err) {
         if (err.name !== 'AbortError') {
@@ -1069,7 +1069,7 @@
       if (isIOS) {
         var win = window.open();
         if (win) {
-          win.document.write('<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>退職リスク診断結果</title></head><body style="margin:0;display:flex;justify-content:center;background:#000;"><img src="' + dataUrl + '" style="max-width:100%;height:auto;"></body></html>');
+          win.document.write('<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>はたらく環境診断結果</title></head><body style="margin:0;display:flex;justify-content:center;background:#000;"><img src="' + dataUrl + '" style="max-width:100%;height:auto;"></body></html>');
           win.document.close();
         }
       } else {
@@ -1352,7 +1352,7 @@
     if (ms <= maxTimeout) {
       setTimeout(function () {
         try {
-          new Notification('退職リスク診断', {
+          new Notification('はたらく環境診断', {
             body: 'リマインダー: もう一度診断して、変化を確認しましょう。',
             icon: 'icons/icon-192.png',
             tag: 'rra-reminder'
@@ -1395,7 +1395,7 @@
       // Send notification if permitted
       if ('Notification' in window && Notification.permission === 'granted') {
         try {
-          new Notification('退職リスク診断', {
+          new Notification('はたらく環境診断', {
             body: '再診断の時期です。もう一度診断して変化を確認しましょう。',
             icon: 'icons/icon-192.png',
             tag: 'rra-reminder-due'

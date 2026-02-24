@@ -2150,6 +2150,61 @@ body::after {
   min-height: 24px;
 }
 
+/* ---------- Benchmark Bell Curves ---------- */
+.benchmark-desc {
+  font-size: clamp(12px, 3.2vw, 14px);
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+
+.benchmark-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.benchmark-item {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+}
+
+.benchmark-dim {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.benchmark-svg {
+  width: 100%;
+  max-width: 140px;
+  height: auto;
+}
+
+.benchmark-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+  padding: 0 2px;
+}
+
+.benchmark-percentile {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.benchmark-label {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
 /* ---------- Dimension Trend Heatmap ---------- */
 .dimension-heatmap {
   margin-top: 16px;
@@ -2268,6 +2323,111 @@ body::after {
   font-weight: 700;
   font-size: 11px;
   white-space: nowrap;
+}
+
+/* ---------- Team / Group Mode ---------- */
+.team-desc {
+  font-size: clamp(12px, 3.2vw, 14px);
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 12px;
+}
+
+.team-code-display {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.team-code-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.team-code-value {
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent-secondary);
+  letter-spacing: 1px;
+  background: rgba(99, 102, 241, 0.08);
+  padding: 6px 14px;
+  border-radius: 8px;
+  user-select: all;
+  -webkit-user-select: all;
+}
+
+.group-desc {
+  font-size: clamp(12px, 3.2vw, 14px);
+  color: var(--text-muted);
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+
+.group-codes-input {
+  width: 100%;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 13px;
+  resize: vertical;
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
+
+.group-codes-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+}
+
+.group-results {
+  margin-top: 14px;
+}
+
+.group-summary {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.group-score-big {
+  font-size: 36px;
+  font-weight: 800;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.group-risk-dims {
+  margin-top: 12px;
+}
+
+.group-dim-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 8px;
+  margin-bottom: 4px;
+}
+
+.group-dim-bar {
+  height: 6px;
+  border-radius: 3px;
+  flex: 1;
+  margin: 0 10px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.group-dim-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease-out;
 }
 
 /* ---------- Data Portability ---------- */

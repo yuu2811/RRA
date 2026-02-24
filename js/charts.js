@@ -1825,6 +1825,85 @@ const Charts = {
   },
 
   // ============================================================
+  // Benchmark Bell Curves (Normative Percentile Visualization)
+  // ============================================================
+
+  /**
+   * Render mini bell curves showing where the user's score falls
+   * in the population distribution for each dimension.
+   *
+   * @param {HTMLElement} container
+   * @param {Object<string, number>} dimensionScores
+   */
+  renderBenchmarkCurves(container, dimensionScores) {
+    if (!container) return;
+    container.innerHTML = '';
+
+    var html = '<div class="benchmark-grid">';
+
+    for (var i = 0; i < DIMENSIONS.length; i++) {
+      var dim = DIMENSIONS[i];
+      var score = dimensionScores[dim.id] || 0;
+      var perc = Scoring.getDimensionPercentile(dim.id, score);
+      var risk = Scoring.getRiskLevel(score);
+
+      // Generate SVG bell curve
+      var w = 140, h = 60;
+      var svgParts = [];
+      svgParts.push('<svg viewBox="0 0 ' + w + ' ' + h + '" width="' + w + '" height="' + h + '" class="benchmark-svg">');
+
+      // Draw the bell curve path
+      var curvePoints = [];
+      for (var x = 0; x <= w; x += 2) {
+        // Map x to z-score range (-3 to +3)
+        var z = (x / w) * 6 - 3;
+        // Normal distribution PDF
+        var y = Math.exp(-0.5 * z * z) / Math.sqrt(2 * Math.PI);
+        var py = h - 6 - y * (h - 12) * 2.5;
+        curvePoints.push(x + ',' + py);
+      }
+
+      // Fill area under curve up to user's percentile
+      var userX = Math.round((perc.percentile / 100) * w);
+
+      // Shaded area (from left to user's position)
+      var areaPath = 'M0,' + (h - 6);
+      for (var ax = 0; ax <= userX; ax += 2) {
+        var az = (ax / w) * 6 - 3;
+        var ay = Math.exp(-0.5 * az * az) / Math.sqrt(2 * Math.PI);
+        var apy = h - 6 - ay * (h - 12) * 2.5;
+        areaPath += ' L' + ax + ',' + apy;
+      }
+      areaPath += ' L' + userX + ',' + (h - 6) + ' Z';
+      svgParts.push('<path d="' + areaPath + '" fill="' + risk.color + '" opacity="0.25"/>');
+
+      // Bell curve line
+      svgParts.push('<polyline points="' + curvePoints.join(' ') + '" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>');
+
+      // User position marker
+      var markerZ = (userX / w) * 6 - 3;
+      var markerY = Math.exp(-0.5 * markerZ * markerZ) / Math.sqrt(2 * Math.PI);
+      var markerPy = h - 6 - markerY * (h - 12) * 2.5;
+      svgParts.push('<line x1="' + userX + '" y1="' + markerPy + '" x2="' + userX + '" y2="' + (h - 6) + '" stroke="' + risk.color + '" stroke-width="2"/>');
+      svgParts.push('<circle cx="' + userX + '" cy="' + markerPy + '" r="3" fill="' + risk.color + '"/>');
+
+      svgParts.push('</svg>');
+
+      html += '<div class="benchmark-item">';
+      html += '<div class="benchmark-dim">' + dim.name + '</div>';
+      html += svgParts.join('');
+      html += '<div class="benchmark-meta">';
+      html += '<span class="benchmark-percentile" style="color:' + risk.color + '">上位 ' + (100 - perc.percentile) + '%</span>';
+      html += '<span class="benchmark-label">' + perc.label + '</span>';
+      html += '</div>';
+      html += '</div>';
+    }
+
+    html += '</div>';
+    container.innerHTML = html;
+  },
+
+  // ============================================================
   // Risk DNA Shareable Visual Profile
   // ============================================================
 

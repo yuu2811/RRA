@@ -95,6 +95,15 @@
       <!-- History Summary (shown if previous results exist) -->
       <div id="history-summary" class="history-summary-container" style="display:none;"></div>
 
+      <!-- Group Analysis -->
+      <div class="glass-card group-card" id="group-card" style="display:none;" role="region" aria-label="チーム分析">
+        <h3 class="card-title" style="font-size:15px;">チーム分析</h3>
+        <p class="group-desc">メンバーのコードを1行ずつ入力してください</p>
+        <textarea id="group-codes" class="group-codes-input" rows="4" placeholder="コードを1行ずつ入力&#10;例: 1K2M0N1P2J1L1M2N0K14"></textarea>
+        <button id="btn-analyze-group" class="btn-secondary" type="button" style="width:100%;">チームの傾向を分析</button>
+        <div id="group-results" class="group-results" style="display:none;"></div>
+      </div>
+
       <button id="btn-start" class="btn-primary" type="button" aria-label="診断を始める">
         診断を始める
         <svg class="btn-arrow" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
@@ -294,6 +303,22 @@
 
       <hr class="result-divider" aria-hidden="true">
 
+      <!-- Benchmark Comparison (Bell Curves) -->
+      <div class="glass-card benchmark-card" id="benchmark-card" role="region" aria-label="みんなとの比較" aria-expanded="false">
+        <button class="collapsible-toggle" type="button" aria-label="みんなとの比較を展開する" data-collapse-label="みんなとの比較">
+          <h3 class="card-title" style="margin-bottom:0;">みんなとの比較 <span class="card-title-hint">タップで展開</span></h3>
+          <span class="collapsible-toggle-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </button>
+        <div class="collapsible-body">
+          <p class="benchmark-desc">研究データに基づく平均的な働く人の分布と比較した、あなたのスコアの位置です。</p>
+          <div id="benchmark-content" class="benchmark-content"></div>
+        </div>
+      </div>
+
+      <hr class="result-divider" aria-hidden="true">
+
       <!-- Strengths (shown when there are high-scoring dimensions) -->
       <div class="glass-card strengths-card" id="strengths-card" role="region" aria-label="あなたの強み" style="display:none;">
         <h3 class="card-title">あなたの強み</h3>
@@ -419,6 +444,19 @@
           <div id="references-content" class="references-content"></div>
         </div>
       </div>
+
+      <!-- Team Mode: Score Code -->
+      <div class="glass-card team-card" id="team-card" role="region" aria-label="チーム診断">
+        <h3 class="card-title">チーム診断</h3>
+        <p class="team-desc">コードを共有して、チームの傾向を匿名で分析できます。</p>
+        <div class="team-code-display">
+          <span class="team-code-label">あなたのコード</span>
+          <div class="team-code-value" id="my-score-code" aria-live="polite">---</div>
+          <button id="btn-copy-code" class="btn-data" type="button">コピー</button>
+        </div>
+      </div>
+
+      <hr class="result-divider" aria-hidden="true">
 
       <!-- Re-diagnosis Reminder -->
       <div class="glass-card reminder-card" id="reminder-card" role="region" aria-label="再診断リマインダー">

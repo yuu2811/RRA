@@ -553,6 +553,140 @@ const DiagnosticHistory = {
 };
 
 // ============================================================
+// 5. Score Code Encoding/Decoding (Team Mode)
+// ============================================================
+
+/**
+ * Encodes 10 dimension scores (0-100) into a compact URL-safe string.
+ * Format: Each score uses 2 chars (base36), total = 20 chars + 2 char checksum.
+ *
+ * @param {Object<string, number>} dimensionScores
+ * @returns {string} 22-character code
+ */
+function encodeScoreCode(dimensionScores) {
+  var parts = [];
+  var sum = 0;
+  for (var i = 0; i < DIMENSIONS.length; i++) {
+    var score = Math.max(0, Math.min(99, Math.round(dimensionScores[DIMENSIONS[i].id] || 0)));
+    parts.push((score < 10 ? '0' : '') + score.toString(36));
+    sum += score;
+  }
+  // Simple checksum: sum mod 1296 in base36 (2 chars)
+  var checksum = sum % 1296;
+  parts.push((checksum < 36 ? '0' : '') + checksum.toString(36));
+  return parts.join('').toUpperCase();
+}
+
+/**
+ * Decodes a score code back into dimension scores.
+ *
+ * @param {string} code - 22-character code from encodeScoreCode
+ * @returns {Object|null} dimensionScores or null if invalid
+ */
+function decodeScoreCode(code) {
+  if (!code || typeof code !== 'string') return null;
+  code = code.trim().toUpperCase();
+  if (code.length !== 22) return null;
+
+  var scores = {};
+  var sum = 0;
+  for (var i = 0; i < 10; i++) {
+    var chunk = code.substring(i * 2, i * 2 + 2);
+    var val = parseInt(chunk, 36);
+    if (isNaN(val) || val < 0 || val > 99) return null;
+    scores[DIMENSIONS[i].id] = val;
+    sum += val;
+  }
+
+  // Verify checksum
+  var checksumChunk = code.substring(20, 22);
+  var expectedChecksum = parseInt(checksumChunk, 36);
+  if (isNaN(expectedChecksum) || (sum % 1296) !== expectedChecksum) return null;
+
+  return scores;
+}
+
+/**
+ * Analyze a group of score sets and produce aggregate statistics.
+ *
+ * @param {Array<Object<string, number>>} scoresSets - Array of dimensionScores objects
+ * @returns {Object} Group analysis result
+ */
+function analyzeGroup(scoresSets) {
+  if (!scoresSets || scoresSets.length === 0) return null;
+
+  var n = scoresSets.length;
+  var dimStats = {};
+
+  for (var i = 0; i < DIMENSIONS.length; i++) {
+    var dimId = DIMENSIONS[i].id;
+    var values = [];
+    for (var j = 0; j < n; j++) {
+      if (scoresSets[j][dimId] !== undefined) {
+        values.push(scoresSets[j][dimId]);
+      }
+    }
+    if (values.length === 0) continue;
+
+    var sum = 0;
+    for (var k = 0; k < values.length; k++) sum += values[k];
+    var mean = sum / values.length;
+
+    var varianceSum = 0;
+    for (var m = 0; m < values.length; m++) {
+      varianceSum += (values[m] - mean) * (values[m] - mean);
+    }
+    var sd = values.length > 1 ? Math.sqrt(varianceSum / (values.length - 1)) : 0;
+
+    var min = Math.min.apply(null, values);
+    var max = Math.max.apply(null, values);
+
+    dimStats[dimId] = {
+      mean: Math.round(mean),
+      sd: Math.round(sd),
+      min: min,
+      max: max,
+      count: values.length
+    };
+  }
+
+  // Group overall weighted score
+  var weightedScores = scoresSets.map(function (scores) {
+    return Scoring.calculateWeightedOverallScore(scores);
+  });
+  var overallSum = 0;
+  for (var oi = 0; oi < weightedScores.length; oi++) overallSum += weightedScores[oi];
+  var overallMean = Math.round(overallSum / weightedScores.length);
+
+  // Group compound risks (detect on mean scores)
+  var meanScores = {};
+  for (var di = 0; di < DIMENSIONS.length; di++) {
+    var ds = dimStats[DIMENSIONS[di].id];
+    if (ds) meanScores[DIMENSIONS[di].id] = ds.mean;
+  }
+  var groupCompoundRisks = Scoring.detectCompoundRisks(meanScores);
+
+  // Find highest-risk dimensions (lowest mean)
+  var riskDims = [];
+  for (var ri = 0; ri < DIMENSIONS.length; ri++) {
+    var rds = dimStats[DIMENSIONS[ri].id];
+    if (rds) riskDims.push({ id: DIMENSIONS[ri].id, name: DIMENSIONS[ri].name, mean: rds.mean });
+  }
+  riskDims.sort(function (a, b) { return a.mean - b.mean; });
+
+  return {
+    memberCount: n,
+    overallMean: overallMean,
+    overallRisk: Scoring.getRiskLevel(overallMean),
+    dimensions: dimStats,
+    meanScores: meanScores,
+    compoundRisks: groupCompoundRisks,
+    highestRiskDimensions: riskDims.slice(0, 3),
+    weightedScores: weightedScores
+  };
+}
+
+// ============================================================
 // Scoring Object
 // ============================================================
 

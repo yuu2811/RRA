@@ -557,6 +557,12 @@
     // Radar chart
     Charts.drawRadar(els.radarSvg, dimensionScores);
 
+    // Benchmark Bell Curves
+    var benchmarkContent = document.getElementById('benchmark-content');
+    if (benchmarkContent && Charts.renderBenchmarkCurves) {
+      Charts.renderBenchmarkCurves(benchmarkContent, dimensionScores);
+    }
+
     // Strengths
     var strengths = Scoring.getStrengths(dimensionScores);
     if (els.strengthsContent && els.strengthsCard) {
@@ -635,6 +641,13 @@
     // What-If Scenario Simulator
     if (Charts.initWhatIfSimulator) {
       Charts.initWhatIfSimulator(els.whatifSliders, dimensionScores, weightedScore);
+    }
+
+    // Team Mode: Generate and display score code
+    var scoreCodeEl = document.getElementById('my-score-code');
+    if (scoreCodeEl && typeof encodeScoreCode === 'function') {
+      var code = encodeScoreCode(dimensionScores);
+      scoreCodeEl.textContent = code;
     }
 
     // Risk Velocity Indicator
@@ -1228,6 +1241,127 @@
     });
   }
   initCollapsibleToggles();
+
+  // ---------- Team Mode ----------
+  // Copy score code button
+  var btnCopyCode = document.getElementById('btn-copy-code');
+  if (btnCopyCode) {
+    btnCopyCode.addEventListener('click', function () {
+      var codeEl = document.getElementById('my-score-code');
+      if (!codeEl) return;
+      var code = codeEl.textContent;
+      navigator.clipboard.writeText(code).then(function () {
+        var orig = btnCopyCode.textContent;
+        btnCopyCode.textContent = 'コピーしました';
+        setTimeout(function () { btnCopyCode.textContent = orig; }, 2000);
+      }).catch(function () {
+        // Fallback
+        var ta = document.createElement('textarea');
+        ta.value = code;
+        ta.style.cssText = 'position:fixed;left:-9999px;';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (e) { /* noop */ }
+        ta.remove();
+        var orig2 = btnCopyCode.textContent;
+        btnCopyCode.textContent = 'コピーしました';
+        setTimeout(function () { btnCopyCode.textContent = orig2; }, 2000);
+      });
+    });
+  }
+
+  // Show group card if user has history (returning user)
+  var groupCard = document.getElementById('group-card');
+  var historyForGroupCheck = DiagnosticHistory.getAll();
+  if (groupCard && historyForGroupCheck.length > 0) {
+    groupCard.style.display = '';
+  }
+
+  // Group analysis
+  var btnAnalyzeGroup = document.getElementById('btn-analyze-group');
+  if (btnAnalyzeGroup) {
+    btnAnalyzeGroup.addEventListener('click', function () {
+      var codesArea = document.getElementById('group-codes');
+      var resultsEl = document.getElementById('group-results');
+      if (!codesArea || !resultsEl || typeof decodeScoreCode !== 'function' || typeof analyzeGroup !== 'function') return;
+
+      var lines = codesArea.value.trim().split('\n').filter(function (l) { return l.trim().length > 0; });
+      if (lines.length < 2) {
+        resultsEl.style.display = '';
+        resultsEl.innerHTML = '<p style="color:var(--text-muted);font-size:13px;text-align:center;">2人以上のコードを入力してください</p>';
+        return;
+      }
+
+      var scoreSets = [];
+      var invalidLines = [];
+      for (var i = 0; i < lines.length; i++) {
+        var decoded = decodeScoreCode(lines[i].trim());
+        if (decoded) {
+          scoreSets.push(decoded);
+        } else {
+          invalidLines.push(i + 1);
+        }
+      }
+
+      if (scoreSets.length < 2) {
+        resultsEl.style.display = '';
+        resultsEl.innerHTML = '<p style="color:var(--red);font-size:13px;text-align:center;">有効なコードが2つ以上見つかりませんでした</p>';
+        return;
+      }
+
+      var analysis = analyzeGroup(scoreSets);
+      if (!analysis) return;
+
+      var html = '';
+
+      // Invalid lines warning
+      if (invalidLines.length > 0) {
+        html += '<p style="color:var(--text-muted);font-size:11px;margin-bottom:8px;">' + invalidLines.length + '件のコードが無効のためスキップしました</p>';
+      }
+
+      // Group summary
+      html += '<div class="group-summary">';
+      html += '<span class="group-score-big" style="color:' + analysis.overallRisk.color + '">' + analysis.overallMean + '</span>';
+      html += '<span style="font-size:12px;color:var(--text-muted)">チーム平均スコア（' + analysis.memberCount + '人）</span>';
+      html += '<div style="margin-top:6px;"><span style="font-size:14px;font-weight:700;color:' + analysis.overallRisk.color + '">' + analysis.overallRisk.label + '</span></div>';
+      html += '</div>';
+
+      // Compound risks
+      if (analysis.compoundRisks.length > 0) {
+        html += '<div style="margin:12px 0;padding:10px;background:rgba(239,68,68,0.08);border-radius:10px;">';
+        html += '<div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:6px;">チームの注意パターン</div>';
+        for (var ci = 0; ci < analysis.compoundRisks.length; ci++) {
+          html += '<div style="font-size:12px;color:var(--text-secondary);">' + analysis.compoundRisks[ci].icon + ' ' + analysis.compoundRisks[ci].name + '</div>';
+        }
+        html += '</div>';
+      }
+
+      // Dimension details
+      html += '<div class="group-risk-dims">';
+      for (var di = 0; di < DIMENSIONS.length; di++) {
+        var dim = DIMENSIONS[di];
+        var ds = analysis.dimensions[dim.id];
+        if (!ds) continue;
+        var dimRisk = Scoring.getRiskLevel(ds.mean);
+        html += '<div class="group-dim-row">';
+        html += '<span style="font-size:11px;color:var(--text-secondary);min-width:70px;">' + dim.name + '</span>';
+        html += '<div class="group-dim-bar"><div class="group-dim-bar-fill" style="width:' + ds.mean + '%;background:' + dimRisk.color + ';"></div></div>';
+        html += '<span style="font-size:12px;font-weight:700;color:' + dimRisk.color + ';min-width:24px;text-align:right;">' + ds.mean + '</span>';
+        html += '</div>';
+      }
+      html += '</div>';
+
+      // Top risk areas
+      if (analysis.highestRiskDimensions.length > 0) {
+        html += '<div style="margin-top:12px;font-size:12px;color:var(--text-muted);">改善優先: ';
+        html += analysis.highestRiskDimensions.map(function (d) { return '<strong style="color:' + Scoring.getRiskLevel(d.mean).color + '">' + d.name + '</strong>'; }).join('、');
+        html += '</div>';
+      }
+
+      resultsEl.style.display = '';
+      resultsEl.innerHTML = html;
+    });
+  }
 
   // ---------- Data Export/Import ----------
   var btnExport = document.getElementById('btn-export');

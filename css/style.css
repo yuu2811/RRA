@@ -1162,7 +1162,7 @@ body::after {
   align-items: center;
   justify-content: center;
   gap: 20px;
-  padding: 16px 0;
+  padding: 12px 0;
 }
 
 .weighted-score-item {

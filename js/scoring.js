@@ -19,16 +19,16 @@
  * Source: Derived from meta-analytic effect sizes and large-scale employee surveys
  */
 const DIMENSION_NORMS = {
-  job_embeddedness:       { mean: 58, sd: 18, highLabel: '強い帰属', lowLabel: '弱い帰属' },
-  org_commitment:         { mean: 55, sd: 20, highLabel: '高い忠誠心', lowLabel: '低い忠誠心' },
-  turnover_intention:     { mean: 62, sd: 22, highLabel: '定着傾向', lowLabel: '離職傾向' },
-  role_clarity:           { mean: 65, sd: 16, highLabel: '明確', lowLabel: '曖昧' },
-  job_satisfaction:       { mean: 60, sd: 19, highLabel: '高い満足', lowLabel: '低い満足' },
-  po_fit:                 { mean: 57, sd: 20, highLabel: '高い適合', lowLabel: 'ミスマッチ' },
-  career_dev:             { mean: 50, sd: 22, highLabel: '成長実感', lowLabel: '停滞感' },
-  work_life_balance:      { mean: 52, sd: 21, highLabel: '良好', lowLabel: '不均衡' },
-  leadership:             { mean: 56, sd: 23, highLabel: '支援的', lowLabel: '不十分' },
-  perceived_alternatives: { mean: 48, sd: 24, highLabel: '低い認知', lowLabel: '高い認知' }
+  job_embeddedness:       { mean: 58, sd: 18, highLabel: 'しっかり根付いている', lowLabel: 'つながりが弱い' },
+  org_commitment:         { mean: 55, sd: 20, highLabel: '愛着が強い', lowLabel: '愛着が薄い' },
+  turnover_intention:     { mean: 62, sd: 22, highLabel: '続けたい', lowLabel: '辞めたい' },
+  role_clarity:           { mean: 65, sd: 16, highLabel: 'はっきりしている', lowLabel: 'あいまい' },
+  job_satisfaction:       { mean: 60, sd: 19, highLabel: '満足している', lowLabel: '不満がある' },
+  po_fit:                 { mean: 57, sd: 20, highLabel: '合っている', lowLabel: '合っていない' },
+  career_dev:             { mean: 50, sd: 22, highLabel: '成長できている', lowLabel: '行き詰まっている' },
+  work_life_balance:      { mean: 52, sd: 21, highLabel: 'バランスが良い', lowLabel: 'バランスが悪い' },
+  leadership:             { mean: 56, sd: 23, highLabel: '頼りになる', lowLabel: '不十分' },
+  perceived_alternatives: { mean: 48, sd: 24, highLabel: '今の会社に満足', lowLabel: '他に目が向いている' }
 };
 
 /**
@@ -39,16 +39,16 @@ const DIMENSION_NORMS = {
  * interpretation: Japanese description of the relationship
  */
 const DIMENSION_CORRELATIONS = [
-  { dims: ['job_satisfaction', 'org_commitment'], r: 0.65, interpretation: '職務満足が高いほど組織コミットメントも高まる傾向があります' },
-  { dims: ['org_commitment', 'turnover_intention'], r: 0.58, interpretation: '組織コミットメントが低下すると離職意図が高まります' },
-  { dims: ['leadership', 'job_satisfaction'], r: 0.52, interpretation: 'リーダーシップの質は職務満足に強く影響します' },
-  { dims: ['work_life_balance', 'job_satisfaction'], r: 0.48, interpretation: 'ワークライフバランスは職務満足の重要な規定要因です' },
-  { dims: ['role_clarity', 'job_satisfaction'], r: 0.45, interpretation: '役割が明確なほど職務満足が高まります' },
-  { dims: ['po_fit', 'org_commitment'], r: 0.50, interpretation: '組織との価値観適合は帰属意識を強化します' },
-  { dims: ['career_dev', 'turnover_intention'], r: 0.42, interpretation: 'キャリア開発機会の不足は離職意図を高めます' },
-  { dims: ['job_embeddedness', 'turnover_intention'], r: 0.55, interpretation: '職務埋め込みが強いほど離職意図が抑制されます' },
-  { dims: ['leadership', 'org_commitment'], r: 0.47, interpretation: '上司のリーダーシップは組織への愛着に影響します' },
-  { dims: ['work_life_balance', 'turnover_intention'], r: 0.40, interpretation: 'ワークライフバランスの崩壊は離職の直接的な引き金になります' }
+  { dims: ['job_satisfaction', 'org_commitment'], r: 0.65, interpretation: '仕事に満足している人ほど、会社への愛着も強い傾向があります' },
+  { dims: ['org_commitment', 'turnover_intention'], r: 0.58, interpretation: '会社への愛着が薄れると、転職を考え始めやすくなります' },
+  { dims: ['leadership', 'job_satisfaction'], r: 0.52, interpretation: '上司との関係は、仕事の満足度に大きく影響します' },
+  { dims: ['work_life_balance', 'job_satisfaction'], r: 0.48, interpretation: '仕事と生活のバランスは、仕事の満足度を左右する大きな要素です' },
+  { dims: ['role_clarity', 'job_satisfaction'], r: 0.45, interpretation: '自分の仕事がはっきりしている人ほど、満足度が高くなります' },
+  { dims: ['po_fit', 'org_commitment'], r: 0.50, interpretation: '会社との相性が良いと、会社への愛着も強くなります' },
+  { dims: ['career_dev', 'turnover_intention'], r: 0.42, interpretation: '成長の機会が少ないと、転職を考えやすくなります' },
+  { dims: ['job_embeddedness', 'turnover_intention'], r: 0.55, interpretation: '職場とのつながりが強い人ほど、辞めたい気持ちが抑えられます' },
+  { dims: ['leadership', 'org_commitment'], r: 0.47, interpretation: '上司の良し悪しは、会社への愛着に影響します' },
+  { dims: ['work_life_balance', 'turnover_intention'], r: 0.40, interpretation: '仕事と生活のバランスが崩れると、退職のきっかけになりやすいです' }
 ];
 
 /**
@@ -58,54 +58,54 @@ const DIMENSION_CORRELATIONS = [
  */
 const ACTION_TEMPLATES = {
   job_embeddedness: [
-    { timeframe: 'immediate', effort: 'low', action: 'チーム内の同僚と週1回のランチや雑談の時間を設ける', category: '人間関係' },
-    { timeframe: 'short', effort: 'medium', action: '部署横断プロジェクトやタスクフォースへの参加を申し出る', category: 'ネットワーク' },
-    { timeframe: 'medium', effort: 'high', action: 'メンター・メンティー関係を構築し、組織内での存在価値を高める', category: '帰属意識' }
+    { timeframe: 'immediate', effort: 'low', action: '同僚と週に1回でもランチや雑談の時間を作ってみる', category: '人間関係' },
+    { timeframe: 'short', effort: 'medium', action: '他の部署やチームの仕事にも関わってみる', category: '交流を広げる' },
+    { timeframe: 'medium', effort: 'high', action: '後輩の面倒を見たり、頼られる存在になる', category: '居場所づくり' }
   ],
   org_commitment: [
-    { timeframe: 'immediate', effort: 'low', action: '組織のミッション・ビジョンを再確認し、自分の仕事との接点を整理する', category: '理念理解' },
-    { timeframe: 'short', effort: 'medium', action: '経営層や他部署とのタウンホールミーティングに参加する', category: '組織理解' },
-    { timeframe: 'medium', effort: 'medium', action: '自分の貢献が組織全体にどう影響するかを可視化するレポートを作成する', category: '貢献実感' }
+    { timeframe: 'immediate', effort: 'low', action: '会社の目標や大切にしていることを改めて確認する', category: '会社を知る' },
+    { timeframe: 'short', effort: 'medium', action: '経営者や他の部署の人と話す機会を作る', category: '会社を知る' },
+    { timeframe: 'medium', effort: 'medium', action: '自分の仕事が会社全体にどう役立っているか整理してみる', category: 'やりがい' }
   ],
   turnover_intention: [
-    { timeframe: 'immediate', effort: 'low', action: '現在の不満要因を具体的にリストアップし、改善可能なものを特定する', category: '課題整理' },
-    { timeframe: 'short', effort: 'medium', action: '上司またはHR担当者とキャリア面談を設定し、懸念を率直に共有する', category: '対話' },
-    { timeframe: 'medium', effort: 'high', action: '社内異動や役割変更の可能性を探り、新鮮な挑戦の機会を見つける', category: '環境改善' }
+    { timeframe: 'immediate', effort: 'low', action: '今の不満を紙に書き出して、変えられるものを見つける', category: '整理する' },
+    { timeframe: 'short', effort: 'medium', action: '上司や人事の担当者に、今の悩みを率直に伝えてみる', category: '話し合う' },
+    { timeframe: 'medium', effort: 'high', action: '部署の異動や役割の変更ができないか探ってみる', category: '環境を変える' }
   ],
   role_clarity: [
-    { timeframe: 'immediate', effort: 'low', action: '上司と15分の1on1で、今月の最優先事項トップ3を確認する', category: '優先順位' },
-    { timeframe: 'short', effort: 'medium', action: 'ジョブ・ディスクリプションを上司と共に見直し、期待値を明文化する', category: '職務定義' },
-    { timeframe: 'medium', effort: 'medium', action: '四半期ごとの目標設定・レビューサイクルを導入提案する', category: '制度化' }
+    { timeframe: 'immediate', effort: 'low', action: '上司に15分でも時間をもらい、今一番大事な仕事を確認する', category: '確認する' },
+    { timeframe: 'short', effort: 'medium', action: '自分の仕事の範囲と期待されていることを上司と書き出して共有する', category: '明確にする' },
+    { timeframe: 'medium', effort: 'medium', action: '定期的に目標の確認と振り返りの場を設ける', category: '仕組みにする' }
   ],
   job_satisfaction: [
-    { timeframe: 'immediate', effort: 'low', action: '日々の業務で「やりがいを感じる瞬間」を記録し、パターンを把握する', category: '自己分析' },
-    { timeframe: 'short', effort: 'medium', action: 'ジョブ・クラフティング：自分の強みを活かせるタスクの割合を増やす交渉をする', category: '業務改善' },
-    { timeframe: 'medium', effort: 'high', action: '職場環境改善の提案書を作成し、具体的な改善アクションを実行する', category: '環境改善' }
+    { timeframe: 'immediate', effort: 'low', action: '毎日の仕事で「やりがいを感じる瞬間」をメモしてみる', category: '気づく' },
+    { timeframe: 'short', effort: 'medium', action: '自分の得意なことを活かせる仕事を増やせないか上司に相談する', category: '仕事を見直す' },
+    { timeframe: 'medium', effort: 'high', action: '職場で困っていることを具体的にまとめて、改善を提案する', category: '環境を良くする' }
   ],
   po_fit: [
-    { timeframe: 'immediate', effort: 'low', action: '自分の価値観と組織の理念の一致点・不一致点を書き出して整理する', category: '価値観分析' },
-    { timeframe: 'short', effort: 'medium', action: '社内の異なるチームや部署の文化を知るための情報収集を行う', category: '探索' },
-    { timeframe: 'medium', effort: 'high', action: 'キャリアカウンセリングを受け、最適な組織内配置を検討する', category: '適合改善' }
+    { timeframe: 'immediate', effort: 'low', action: '会社の方針と自分の考えが合うところ・合わないところを書き出す', category: '整理する' },
+    { timeframe: 'short', effort: 'medium', action: '社内の他のチームや部署の雰囲気を見てみる', category: '探してみる' },
+    { timeframe: 'medium', effort: 'high', action: '自分に合う配置や役割がないか、上司や人事に相談する', category: '相談する' }
   ],
   career_dev: [
-    { timeframe: 'immediate', effort: 'low', action: '3年後のキャリアビジョンを書き出し、現在の業務との関連を整理する', category: 'ビジョン策定' },
-    { timeframe: 'short', effort: 'medium', action: '社内研修・資格取得支援・メンター制度など利用可能な制度を調査・申請する', category: 'スキルアップ' },
-    { timeframe: 'medium', effort: 'high', action: '新規プロジェクトのリードや越境的な役割に挑戦し、成長の機会を創出する', category: '挑戦' }
+    { timeframe: 'immediate', effort: 'low', action: '3年後にどうなっていたいかを書き出してみる', category: '将来を考える' },
+    { timeframe: 'short', effort: 'medium', action: '会社の研修や資格取得の支援が使えないか調べて申し込む', category: 'スキルを磨く' },
+    { timeframe: 'medium', effort: 'high', action: '新しい仕事やプロジェクトに手を挙げて挑戦してみる', category: '挑戦する' }
   ],
   work_life_balance: [
-    { timeframe: 'immediate', effort: 'low', action: '今週のタスクを緊急度と重要度でマトリクス分類し、不要なものを断る', category: '業務整理' },
-    { timeframe: 'short', effort: 'medium', action: '有給休暇を計画的に取得するスケジュールを立て、上司と共有する', category: '休息確保' },
-    { timeframe: 'medium', effort: 'high', action: '産業医・EAPカウンセラーとの面談を通じて、組織的な支援策を得る', category: '専門支援' }
+    { timeframe: 'immediate', effort: 'low', action: '今週の仕事を「急ぎ」「大事」「後でいい」に分けて、無理なものは断る', category: '仕事を整理する' },
+    { timeframe: 'short', effort: 'medium', action: '休みの予定を立てて上司に伝え、しっかり休める体制を作る', category: '休みを取る' },
+    { timeframe: 'medium', effort: 'high', action: '体やメンタルがつらい時は、産業医や会社の相談窓口を利用する', category: '専門家に相談' }
   ],
   leadership: [
-    { timeframe: 'immediate', effort: 'low', action: '上司との定期的な1on1ミーティングを提案し、コミュニケーション頻度を高める', category: 'コミュニケーション' },
-    { timeframe: 'short', effort: 'medium', action: '具体的なフィードバックを上司に求め、成長支援の方向性をすり合わせる', category: 'フィードバック' },
-    { timeframe: 'medium', effort: 'high', action: '必要に応じてHR部門を介した調整や、別のマネージャーへの相談を検討する', category: '関係改善' }
+    { timeframe: 'immediate', effort: 'low', action: '上司と定期的に話す時間を作ってもらうよう提案する', category: '話す機会を作る' },
+    { timeframe: 'short', effort: 'medium', action: '自分がどうしたいか、何に困っているかを上司に伝えてみる', category: '伝えてみる' },
+    { timeframe: 'medium', effort: 'high', action: '改善が難しければ、人事の担当者や他の管理者に相談する', category: '相談先を広げる' }
   ],
   perceived_alternatives: [
-    { timeframe: 'immediate', effort: 'low', action: '現職の隠れたメリット（福利厚生、人間関係、学習機会）を棚卸しする', category: '再評価' },
-    { timeframe: 'short', effort: 'medium', action: '市場価値を正しく把握するため、社内でのスキル評価やフィードバックを受ける', category: '自己理解' },
-    { timeframe: 'medium', effort: 'medium', action: '現職での新たな挑戦や成長機会を見つけ、エンゲージメントを高める', category: 'エンゲージメント' }
+    { timeframe: 'immediate', effort: 'low', action: '今の会社の良いところ（待遇・人間関係・学べること）を改めて確認する', category: '良さを見直す' },
+    { timeframe: 'short', effort: 'medium', action: '自分の強みや得意なことを上司や同僚に聞いてみる', category: '自分を知る' },
+    { timeframe: 'medium', effort: 'medium', action: '今の会社で新しいことに挑戦できないか探してみる', category: 'やる気を取り戻す' }
   ]
 };
 
@@ -151,58 +151,58 @@ const META_WEIGHTS = {
 const COMPOUND_RISK_PATTERNS = [
   {
     id: 'burnout',
-    name: '\u71c3\u3048\u5c3d\u304d\u578b',
+    name: '燃え尽き型',
     nameEn: 'Burnout',
     icon: '\uD83D\uDD25',
-    description: '\u6162\u6027\u7684\u306a\u904e\u8ca0\u8377\u3068\u30b9\u30c8\u30ec\u30b9\u306b\u3088\u308a\u3001\u5fc3\u8eab\u306e\u6d88\u8017\u304c\u9032\u884c\u3057\u3066\u3044\u308b\u72b6\u614b\u3067\u3059\u3002\u30ef\u30fc\u30af\u30e9\u30a4\u30d5\u30d0\u30e9\u30f3\u30b9\u3001\u8077\u52d9\u6e80\u8db3\u3001\u30ea\u30fc\u30c0\u30fc\u30b7\u30c3\u30d7\u306e\u3059\u3079\u3066\u304c\u4f4e\u8ff7\u3057\u3066\u304a\u308a\u3001\u30d0\u30fc\u30f3\u30a2\u30a6\u30c8\u306f\u96e2\u8077\u306e\u6700\u3082\u5f37\u529b\u306a\u524d\u99c6\u75c7\u72b6\u306e\u4e00\u3064\u3067\u3059\u3002',
+    description: '仕事の負担が続いて、心と体が疲れ切っている状態です。仕事と生活のバランス・仕事の満足度・上司との関係のすべてが低く、このままでは退職につながりやすい状態です。',
     severity: 'critical',
     dimensions: ['work_life_balance', 'job_satisfaction', 'leadership'],
     threshold: 40,
-    advice: '\u696d\u52d9\u91cf\u306e\u9069\u6b63\u5316\u304c\u6025\u52d9\u3067\u3059\u3002\u4e0a\u53f8\u3068\u306e\u9762\u8ac7\u3067\u512a\u5148\u9806\u4f4d\u3092\u898b\u76f4\u3057\u3001\u4e0d\u8981\u306a\u696d\u52d9\u306e\u524a\u6e1b\u3092\u691c\u8a0e\u3057\u3066\u304f\u3060\u3055\u3044\u3002\u7523\u696d\u533b\u3084EAP\u306e\u5229\u7528\u3082\u63a8\u5968\u3057\u307e\u3059\u3002\u5fc3\u8eab\u306e\u56de\u5fa9\u306a\u304f\u3057\u3066\u6301\u7d9a\u7684\u306a\u5c31\u696d\u306f\u56f0\u96e3\u3067\u3059\u3002'
+    advice: '仕事の量を見直すことが最優先です。上司と話し合い、やらなくてよい仕事を減らしましょう。体やメンタルがつらい時は、産業医や会社の相談窓口に頼ってください。まず休むことが大切です。'
   },
   {
     id: 'flight_risk',
-    name: '\u9003\u907f\u578b',
+    name: '転職間近型',
     nameEn: 'Flight Risk',
     icon: '\uD83D\uDEAA',
-    description: '\u4ee3\u66ff\u9078\u629e\u80a2\u306e\u8a8d\u77e5\u304c\u9ad8\u304f\uff08\u30b9\u30b3\u30a2\u304c\u4f4e\u3044\uff09\u3001\u96e2\u8077\u610f\u56f3\u304c\u5f37\u304f\uff08\u30b9\u30b3\u30a2\u304c\u4f4e\u3044\uff09\u3001\u7d44\u7e54\u30b3\u30df\u30c3\u30c8\u30e1\u30f3\u30c8\u3082\u4f4e\u3044\u72b6\u614b\u3067\u3059\u3002\u96e2\u8077\u304c\u6700\u3082\u5207\u8feb\u3057\u3066\u3044\u308b\u30d1\u30bf\u30fc\u30f3\u3067\u3059\u3002',
+    description: '他に良い仕事があると感じていて、転職したい気持ちが強く、会社への愛着も薄い状態です。退職が最も近い状態です。',
     severity: 'critical',
     dimensions: ['perceived_alternatives', 'turnover_intention', 'org_commitment'],
     threshold: 40,
-    advice: '\u7dca\u6025\u306e\u30ea\u30c6\u30f3\u30b7\u30e7\u30f3\u9762\u8ac7\u3092\u63a8\u5968\u3057\u307e\u3059\u3002\u5177\u4f53\u7684\u306a\u4e0d\u6e80\u8981\u56e0\u306e\u7279\u5b9a\u3068\u3001\u77ed\u671f\u7684\u306a\u6539\u5584\u7b56\uff08\u5831\u916c\u898b\u76f4\u3057\u3001\u5f79\u5272\u5909\u66f4\u3001\u30d7\u30ed\u30b8\u30a7\u30af\u30c8\u7570\u52d5\u7b49\uff09\u306e\u63d0\u793a\u304c\u5fc5\u8981\u3067\u3059\u3002'
+    advice: 'すぐに上司や人事と話し合いの場を作りましょう。何が不満なのかを具体的に伝え、給与・仕事内容・配置の見直しなど、短期間でできる改善策を一緒に考えることが大切です。'
   },
   {
     id: 'misfit',
-    name: '\u4e0d\u9069\u5408\u578b',
+    name: '合わない型',
     nameEn: 'Misfit',
     icon: '\uD83D\uDD00',
-    description: '\u500b\u4eba\u306e\u4fa1\u5024\u89b3\u3068\u7d44\u7e54\u6587\u5316\u306e\u4e56\u96e2\u304c\u5927\u304d\u304f\u3001\u4e0a\u53f8\u3068\u306e\u95a2\u4fc2\u3084\u5f79\u5272\u8a8d\u8b58\u306b\u3082\u8ab2\u984c\u304c\u3042\u308b\u72b6\u614b\u3067\u3059\u3002\u6839\u672c\u7684\u306a\u30df\u30b9\u30de\u30c3\u30c1\u304c\u96e2\u8077\u3092\u5f15\u304d\u8d77\u3053\u3059\u30d1\u30bf\u30fc\u30f3\u3067\u3059\u3002',
+    description: '会社の考え方と自分の考え方にずれがあり、上司との関係や仕事の進め方にも問題を感じている状態です。根本的に「合わない」と感じることが退職につながりやすいです。',
     severity: 'warning',
     dimensions: ['po_fit', 'leadership', 'role_clarity'],
     threshold: 40,
-    advice: '\u90e8\u7f72\u7570\u52d5\u3084\u30c1\u30fc\u30e0\u5909\u66f4\u3092\u691c\u8a0e\u3057\u3066\u304f\u3060\u3055\u3044\u3002\u73fe\u5728\u306e\u914d\u7f6e\u304c\u672c\u4eba\u306e\u5f37\u307f\u3084\u4fa1\u5024\u89b3\u3068\u5408\u81f4\u3057\u3066\u3044\u308b\u304b\u3001\u30ad\u30e3\u30ea\u30a2\u30ab\u30a6\u30f3\u30bb\u30ea\u30f3\u30b0\u3092\u901a\u3058\u305f\u518d\u8a55\u4fa1\u304c\u6709\u52b9\u3067\u3059\u3002'
+    advice: '部署の異動やチームの変更を考えてみましょう。今の配置が自分の得意なことや考え方と合っているか、上司や人事に相談してみてください。'
   },
   {
     id: 'stagnation',
-    name: '\u505c\u6ede\u578b',
+    name: '行き詰まり型',
     nameEn: 'Stagnation',
     icon: '\u23F8\uFE0F',
-    description: '\u30ad\u30e3\u30ea\u30a2\u306e\u6210\u9577\u5b9f\u611f\u304c\u4e4f\u3057\u304f\u3001\u3084\u308a\u304c\u3044\u3084\u7d44\u7e54\u3068\u306e\u7d50\u3073\u3064\u304d\u3082\u4f4e\u4e0b\u3057\u3066\u3044\u308b\u72b6\u614b\u3067\u3059\u3002\u7de9\u3084\u304b\u3060\u304c\u78ba\u5b9f\u306b\u96e2\u8077\u306b\u5411\u304b\u3046\u30d1\u30bf\u30fc\u30f3\u3067\u3059\u3002',
+    description: '成長している実感がなく、やりがいや職場とのつながりも薄れている状態です。じわじわと退職に向かいやすいパターンです。',
     severity: 'warning',
     dimensions: ['career_dev', 'job_satisfaction', 'job_embeddedness'],
     threshold: 40,
-    advice: '\u30ad\u30e3\u30ea\u30a2\u958b\u767a\u8a08\u753b\u306e\u7b56\u5b9a\u304c\u5fc5\u8981\u3067\u3059\u3002\u65b0\u898f\u30d7\u30ed\u30b8\u30a7\u30af\u30c8\u3078\u306e\u30a2\u30b5\u30a4\u30f3\u3001\u30b9\u30ad\u30eb\u30a2\u30c3\u30d7\u7814\u4fee\u3001\u30e1\u30f3\u30bf\u30fc\u5236\u5ea6\u306e\u5c0e\u5165\u306a\u3069\u3001\u6210\u9577\u6a5f\u4f1a\u306e\u63d0\u4f9b\u304c\u52b9\u679c\u7684\u3067\u3059\u3002'
+    advice: '将来どうなりたいかを考え、上司に相談してみましょう。新しい仕事への挑戦、研修や資格取得の支援、先輩からのアドバイスなど、成長の機会を探すことが効果的です。'
   },
   {
     id: 'disengaged',
-    name: '\u96e2\u8131\u578b',
+    name: '心が離れている型',
     nameEn: 'Disengaged',
     icon: '\uD83D\uDCA4',
-    description: '\u7d44\u7e54\u30b3\u30df\u30c3\u30c8\u30e1\u30f3\u30c8\u3001\u8077\u52d9\u57cb\u3081\u8fbc\u307f\u3001\u96e2\u8077\u610f\u56f3\u306e\u3059\u3079\u3066\u304c\u4f4e\u8ff7\u3057\u3066\u304a\u308a\u3001\u7d44\u7e54\u3068\u306e\u5fc3\u7406\u7684\u3064\u306a\u304c\u308a\u304c\u5e0c\u8584\u306a\u72b6\u614b\u3067\u3059\u3002\u9759\u304b\u306b\u96e2\u8131\u304c\u9032\u884c\u3057\u3066\u3044\u307e\u3059\u3002',
+    description: '会社への愛着・職場とのつながり・働き続ける意欲のすべてが低い状態です。静かに気持ちが離れていっています。',
     severity: 'warning',
     dimensions: ['org_commitment', 'job_embeddedness', 'turnover_intention'],
     threshold: 40,
-    advice: '\u5f93\u696d\u54e1\u3068\u306e\u5bfe\u8a71\u3092\u901a\u3058\u3066\u3001\u7d44\u7e54\u3078\u306e\u5e30\u5c5e\u610f\u8b58\u3092\u518d\u69cb\u7bc9\u3059\u308b\u5fc5\u8981\u304c\u3042\u308a\u307e\u3059\u3002\u30c1\u30fc\u30e0\u6d3b\u52d5\u3078\u306e\u53c2\u753b\u3001\u8ca2\u732e\u306e\u53ef\u8996\u5316\u3001\u7d44\u7e54\u30d3\u30b8\u30e7\u30f3\u3078\u306e\u5171\u611f\u5f62\u6210\u304c\u91cd\u8981\u3067\u3059\u3002'
+    advice: 'まず、話を聞いてもらえる場を作ることが大切です。チームの活動に参加したり、自分の仕事が役立っていることを実感できると、気持ちが変わるきっかけになります。'
   }
 ];
 
@@ -225,10 +225,10 @@ const DEMOGRAPHIC_BASELINES = {
   },
   tenure: {
     '<1year': { modifier: 1.3, label: '\u5165\u793e1\u5e74\u672a\u6e80\u306f\u6700\u3082\u30ea\u30b9\u30af\u304c\u9ad8\u3044\u671f\u9593\u3067\u3059' },
-    '1-3years': { modifier: 1.1, label: '1-3\u5e74\u76ee\u306f\u30ea\u30a2\u30ea\u30c6\u30a3\u30b7\u30e7\u30c3\u30af\u304c\u8d77\u304d\u3084\u3059\u3044\u6642\u671f\u3067\u3059' },
-    '3-5years': { modifier: 0.95, label: '3-5\u5e74\u76ee\u306f\u30ad\u30e3\u30ea\u30a2\u306e\u8ee2\u63db\u70b9\u3067\u3059' },
+    '1-3years': { modifier: 1.1, label: '1〜3年目は理想と現実のギャップを感じやすい時期です' },
+    '3-5years': { modifier: 0.95, label: '3〜5年目は将来の方向性を考える時期です' },
     '5-10years': { modifier: 0.85, label: '5\u5e74\u4ee5\u4e0a\u5728\u7c4d\u3067\u5b9a\u7740\u50be\u5411\u304c\u5f37\u307e\u308a\u307e\u3059' },
-    '>10years': { modifier: 0.75, label: '10\u5e74\u4ee5\u4e0a\u306f\u9ad8\u3044\u7d44\u7e54\u30b3\u30df\u30c3\u30c8\u30e1\u30f3\u30c8\u3092\u793a\u3057\u307e\u3059' }
+    '>10years': { modifier: 0.75, label: '10年以上のベテランは会社への愛着が強い傾向です' }
   },
   industry: {
     'it': { modifier: 1.15, label: 'IT\u696d\u754c' },
@@ -461,15 +461,15 @@ const Scoring = {
    */
   getOverallInterpretation(score) {
     if (score >= 80) {
-      return '\u73fe\u5728\u306e\u8077\u5834\u3078\u306e\u5b9a\u7740\u5ea6\u306f\u975e\u5e38\u306b\u9ad8\u3044\u72b6\u614b\u3067\u3059\u3002\u7d44\u7e54\u3068\u306e\u9069\u5408\u6027\u304c\u9ad8\u304f\u3001\u5b89\u5b9a\u3057\u305f\u5c31\u696d\u304c\u898b\u8fbc\u307e\u308c\u307e\u3059\u3002\u73fe\u5728\u306e\u826f\u597d\u306a\u72b6\u614b\u3092\u7dad\u6301\u3059\u308b\u305f\u3081\u306b\u3001\u5f15\u304d\u7d9a\u304d\u8077\u5834\u74b0\u5883\u306e\u8cea\u3092\u4fdd\u3064\u3053\u3068\u304c\u91cd\u8981\u3067\u3059\u3002';
+      return '今の職場で安定して働けている状態です。会社との相性も良く、長く続けられる見込みがあります。この良い状態を保つために、今の職場環境を大切にしていきましょう。';
     }
     if (score >= 60) {
-      return '\u6982\u306d\u5b89\u5b9a\u3057\u3066\u3044\u307e\u3059\u304c\u3001\u4e00\u90e8\u306e\u9818\u57df\u306b\u6539\u5584\u306e\u4f59\u5730\u304c\u3042\u308a\u307e\u3059\u3002\u7279\u306b\u30b9\u30b3\u30a2\u306e\u4f4e\u3044\u6b21\u5143\u306b\u6ce8\u76ee\u3057\u3001\u65e9\u671f\u306e\u5bfe\u5fdc\u306b\u3088\u308a\u3001\u3055\u3089\u306a\u308b\u5b9a\u7740\u304c\u671f\u5f85\u3067\u304d\u307e\u3059\u3002';
+      return 'おおむね安定していますが、いくつか気になる点があります。スコアの低い項目に注目して、早めに対策すると、さらに安心して働けるようになります。';
     }
     if (score >= 40) {
-      return '\u8907\u6570\u306e\u9818\u57df\u3067\u30ea\u30b9\u30af\u8981\u56e0\u304c\u78ba\u8a8d\u3055\u308c\u3066\u3044\u307e\u3059\u3002\u7279\u306b\u30b9\u30b3\u30a2\u306e\u4f4e\u3044\u9818\u57df\u306b\u3064\u3044\u3066\u3001\u5177\u4f53\u7684\u306a\u6539\u5584\u7b56\u306e\u691c\u8a0e\u3092\u63a8\u5968\u3057\u307e\u3059\u3002\u7d44\u7e54\u3068\u3057\u3066\u65e9\u6025\u306b\u5bfe\u5fdc\u3092\u958b\u59cb\u3059\u308b\u3053\u3068\u304c\u671b\u307e\u3057\u3044\u72b6\u614b\u3067\u3059\u3002';
+      return 'いくつかの項目で注意が必要な状態です。スコアの低い項目について、具体的な改善を考えてみましょう。早めの対応が大切です。';
     }
-    return '\u9000\u8077\u30ea\u30b9\u30af\u304c\u9ad8\u3044\u72b6\u614b\u3067\u3059\u3002\u65e9\u6025\u306b\u8981\u56e0\u5206\u6790\u3068\u5bfe\u7b56\u306e\u5b9f\u65bd\u304c\u5fc5\u8981\u3067\u3059\u3002\u7279\u306b\u4f4e\u30b9\u30b3\u30a2\u306e\u9818\u57df\u3092\u512a\u5148\u7684\u306b\u6539\u5584\u3057\u3001\u5f93\u696d\u54e1\u3068\u306e\u5bfe\u8a71\u3092\u901a\u3058\u3066\u5177\u4f53\u7684\u306a\u30a2\u30af\u30b7\u30e7\u30f3\u30d7\u30e9\u30f3\u3092\u7b56\u5b9a\u3057\u3066\u304f\u3060\u3055\u3044\u3002';
+    return '退職のリスクが高い状態です。何が原因か確認し、すぐに対策を考えることが必要です。スコアの低い項目から優先的に改善し、上司や人事と話し合いましょう。';
   },
 
   /**
@@ -651,11 +651,11 @@ const Scoring = {
     // Build comparison text
     let comparison = '';
     if (modifier > 1.05) {
-      comparison = '\u540c\u5e74\u4ee3\u30fb\u540c\u696d\u754c\u3068\u6bd4\u8f03\u3057\u3066\u3084\u3084\u826f\u597d\u306a\u72b6\u614b\u3067\u3059\uff08\u5f53\u8a72\u5c64\u306f\u57fa\u790e\u30ea\u30b9\u30af\u304c\u9ad8\u3044\u305f\u3081\uff09';
+      comparison = '同じ年代・業界の人と比べると、やや良い状態です';
     } else if (modifier < 0.95) {
-      comparison = '\u540c\u5e74\u4ee3\u30fb\u540c\u696d\u754c\u3068\u6bd4\u8f03\u3057\u3066\u6ce8\u610f\u304c\u5fc5\u8981\u306a\u72b6\u614b\u3067\u3059\uff08\u5f53\u8a72\u5c64\u306f\u57fa\u790e\u30ea\u30b9\u30af\u304c\u4f4e\u3044\u305f\u3081\uff09';
+      comparison = '同じ年代・業界の人と比べると、注意が必要な状態です';
     } else {
-      comparison = '\u540c\u5e74\u4ee3\u30fb\u540c\u696d\u754c\u3068\u6bd4\u8f03\u3057\u3066\u6a19\u6e96\u7684\u306a\u72b6\u614b\u3067\u3059';
+      comparison = '同じ年代・業界の人と比べると、標準的な状態です';
     }
 
     return {
@@ -684,40 +684,40 @@ const Scoring = {
 
     // --- Weighted score interpretation ---
     if (weightedScore >= 80) {
-      text += '\u30a8\u30d3\u30c7\u30f3\u30b9\u52a0\u91cd\u5206\u6790\u306e\u7d50\u679c\u3001\u9000\u8077\u30ea\u30b9\u30af\u306f\u975e\u5e38\u306b\u4f4e\u3044\u3068\u5224\u5b9a\u3055\u308c\u307e\u3057\u305f\u3002\u30e1\u30bf\u5206\u6790\u3067\u5b9f\u969b\u306e\u96e2\u8077\u3068\u306e\u95a2\u9023\u304c\u5f37\u3044\u3068\u3055\u308c\u308b\u6b21\u5143\uff08\u96e2\u8077\u610f\u56f3\u30fb\u7d44\u7e54\u30b3\u30df\u30c3\u30c8\u30e1\u30f3\u30c8\u7b49\uff09\u3082\u826f\u597d\u306a\u72b6\u614b\u3067\u3059\u3002';
+      text += '科学的な分析の結果、退職のリスクは非常に低いと判定されました。退職に関わる重要な項目（転職への気持ち・会社への愛着など）も良好な状態です。';
     } else if (weightedScore >= 60) {
-      text += '\u30a8\u30d3\u30c7\u30f3\u30b9\u52a0\u91cd\u5206\u6790\u306e\u7d50\u679c\u3001\u6982\u306d\u5b89\u5b9a\u3057\u3066\u3044\u307e\u3059\u304c\u3001\u7814\u7a76\u4e0a\u96e2\u8077\u3068\u306e\u95a2\u9023\u304c\u5f37\u3044\u6b21\u5143\u306b\u4e00\u90e8\u8ab2\u984c\u304c\u898b\u3089\u308c\u307e\u3059\u3002\u91cd\u70b9\u7684\u306a\u6539\u5584\u304c\u63a8\u5968\u3055\u308c\u307e\u3059\u3002';
+      text += '科学的な分析の結果、おおむね安定していますが、退職に関わりやすい項目に一部課題が見られます。重点的な改善をおすすめします。';
     } else if (weightedScore >= 40) {
-      text += '\u30a8\u30d3\u30c7\u30f3\u30b9\u52a0\u91cd\u5206\u6790\u306e\u7d50\u679c\u3001\u8907\u6570\u306e\u91cd\u8981\u306a\u6b21\u5143\u3067\u30ea\u30b9\u30af\u304c\u78ba\u8a8d\u3055\u308c\u307e\u3057\u305f\u3002\u7279\u306b\u96e2\u8077\u4e88\u6e2c\u529b\u306e\u9ad8\u3044\u6b21\u5143\uff08\u96e2\u8077\u610f\u56f3\u30fb\u7d44\u7e54\u30b3\u30df\u30c3\u30c8\u30e1\u30f3\u30c8\uff09\u306e\u6539\u5584\u304c\u6025\u52d9\u3067\u3059\u3002';
+      text += '科学的な分析の結果、退職に関わる重要な項目にリスクが見つかりました。特に「転職への気持ち」や「会社への愛着」の改善が急がれます。';
     } else {
-      text += '\u30a8\u30d3\u30c7\u30f3\u30b9\u52a0\u91cd\u5206\u6790\u306e\u7d50\u679c\u3001\u9000\u8077\u30ea\u30b9\u30af\u304c\u6975\u3081\u3066\u9ad8\u3044\u72b6\u614b\u3067\u3059\u3002\u30e1\u30bf\u5206\u6790\u3067\u96e2\u8077\u3068\u306e\u95a2\u9023\u304c\u5f37\u3044\u3068\u3055\u308c\u308b\u6b21\u5143\u304c\u8edf\u4e26\u307f\u4f4e\u30b9\u30b3\u30a2\u3067\u3042\u308a\u3001\u7dca\u6025\u306e\u4ecb\u5165\u304c\u5fc5\u8981\u3067\u3059\u3002';
+      text += '科学的な分析の結果、退職のリスクが非常に高い状態です。退職に直結しやすい項目が全体的に低スコアであり、早急な対応が必要です。';
     }
 
     // --- Compound risk patterns ---
     if (compoundRisks && compoundRisks.length > 0) {
       text += '\n\n';
-      text += '\u307e\u305f\u3001\u4ee5\u4e0b\u306e\u8907\u5408\u30ea\u30b9\u30af\u30d1\u30bf\u30fc\u30f3\u304c\u691c\u51fa\u3055\u308c\u307e\u3057\u305f\uff1a';
+      text += 'また、以下の注意パターンが見つかりました：';
       for (let i = 0; i < compoundRisks.length; i++) {
         const cr = compoundRisks[i];
-        text += '\n' + cr.icon + ' ' + cr.name + '\uff08' + cr.nameEn + '\uff09';
+        text += '\n' + cr.icon + ' ' + cr.name;
         if (cr.severity === 'critical') {
-          text += ' - \u7dca\u6025\u5ea6\uff1a\u9ad8';
+          text += ' ― すぐに対応が必要';
         } else {
-          text += ' - \u7dca\u6025\u5ea6\uff1a\u4e2d';
+          text += ' ― 早めの対応を推奨';
         }
       }
-      text += '\n\u8907\u5408\u30ea\u30b9\u30af\u306f\u5358\u72ec\u306e\u6b21\u5143\u3088\u308a\u3082\u6df1\u523b\u306a\u72b6\u614b\u3092\u793a\u3057\u3066\u304a\u308a\u3001\u512a\u5148\u7684\u306a\u5bfe\u5fdc\u304c\u5fc5\u8981\u3067\u3059\u3002';
+      text += '\n複数の項目が同時に悪化しており、個別の問題よりも深刻な状態です。優先的に対応しましょう。';
     }
 
     // --- Trend information ---
     if (trend && trend.direction !== 'insufficient') {
       text += '\n\n';
       if (trend.direction === 'improving') {
-        text += '\u524d\u56de\u306e\u8a3a\u65ad\u3068\u6bd4\u8f03\u3057\u3066\u30b9\u30b3\u30a2\u304c' + Math.abs(trend.change) + '\u30dd\u30a4\u30f3\u30c8\u6539\u5584\u3057\u3066\u3044\u307e\u3059\u3002\u826f\u3044\u50be\u5411\u3067\u3059\u306e\u3067\u3001\u73fe\u5728\u306e\u53d6\u308a\u7d44\u307f\u3092\u7d99\u7d9a\u3057\u3066\u304f\u3060\u3055\u3044\u3002';
+        text += '前回の診断よりスコアが' + Math.abs(trend.change) + 'ポイント良くなっています。良い傾向ですので、今の取り組みを続けてください。';
       } else if (trend.direction === 'declining') {
-        text += '\u524d\u56de\u306e\u8a3a\u65ad\u3068\u6bd4\u8f03\u3057\u3066\u30b9\u30b3\u30a2\u304c' + Math.abs(trend.change) + '\u30dd\u30a4\u30f3\u30c8\u4f4e\u4e0b\u3057\u3066\u3044\u307e\u3059\u3002\u72b6\u6cc1\u304c\u60aa\u5316\u3057\u3066\u304a\u308a\u3001\u65e9\u6025\u306a\u5bfe\u5fdc\u304c\u6c42\u3081\u3089\u308c\u307e\u3059\u3002';
+        text += '前回の診断よりスコアが' + Math.abs(trend.change) + 'ポイント下がっています。状況が悪化しているため、早めの対応が必要です。';
       } else {
-        text += '\u524d\u56de\u306e\u8a3a\u65ad\u3068\u6bd4\u8f03\u3057\u3066\u3001\u30b9\u30b3\u30a2\u306f\u307b\u307c\u6a2a\u3070\u3044\u3067\u3059\u3002\u5b89\u5b9a\u3057\u3066\u3044\u307e\u3059\u304c\u3001\u4f4e\u30b9\u30b3\u30a2\u306e\u9818\u57df\u304c\u3042\u308c\u3070\u6539\u5584\u306b\u53d6\u308a\u7d44\u307f\u307e\u3057\u3087\u3046\u3002';
+        text += '前回の診断とほぼ同じスコアです。安定していますが、低い項目があれば改善に取り組みましょう。';
       }
     }
 
@@ -740,25 +740,25 @@ const Scoring = {
     const weightedScore = this.calculateWeightedOverallScore(dimensionScores);
     const compoundRisks = this.detectCompoundRisks(dimensionScores);
 
-    let text = '\u9000\u8077\u30ea\u30b9\u30af\u8a3a\u65ad\u7d50\u679c\n';
-    text += '\u7dcf\u5408\u30b9\u30b3\u30a2: ' + overallScore + '/100 (' + risk.label + ')\n';
-    text += '\u79d1\u5b66\u7684\u52a0\u91cd\u30b9\u30b3\u30a2: ' + weightedScore + '/100\n';
+    let text = '退職リスク診断結果\n';
+    text += '総合スコア: ' + overallScore + '/100 (' + risk.label + ')\n';
+    text += '科学的分析スコア: ' + weightedScore + '/100\n';
 
     if (compoundRisks.length > 0) {
-      text += '\n\u26A0\uFE0F \u691c\u51fa\u3055\u308c\u305f\u30ea\u30b9\u30af\u30d1\u30bf\u30fc\u30f3:\n';
+      text += '\n⚠️ 注意パターン:\n';
       for (let i = 0; i < compoundRisks.length; i++) {
         const cr = compoundRisks[i];
-        text += cr.icon + ' ' + cr.name + '\uff08' + cr.nameEn + '\uff09\n';
+        text += cr.icon + ' ' + cr.name + '\n';
       }
     }
 
-    text += '\n\u3010\u6b21\u5143\u5225\u30b9\u30b3\u30a2\u3011\n';
+    text += '\n【項目別スコア】\n';
     for (const dim of DIMENSIONS) {
       const score = dimensionScores[dim.id];
       const bar = this.getRiskLevel(score).emoji;
       text += bar + ' ' + dim.name + ': ' + score + '/100\n';
     }
-    text += '\n\u5b66\u8853\u7814\u7a76\u306b\u57fa\u3065\u304f\u9000\u8077\u30ea\u30b9\u30af\u8a3a\u65ad\u30c4\u30fc\u30eb';
+    text += '\n学術研究に基づく退職リスク診断';
     return text;
   },
 
@@ -1000,13 +1000,13 @@ const Scoring = {
     // Generate summary
     let summary;
     if (urgency === 'critical') {
-      summary = '緊急の対応が必要です。特に上位のアクションから優先的に取り組んでください。';
+      summary = 'すぐに対応が必要です。上から順に、できることから取り組んでください。';
     } else if (urgency === 'high') {
-      summary = '早期の改善が推奨されます。最も影響力の大きい次元から取り組むことで効率的な改善が見込めます。';
+      summary = '早めの改善をおすすめします。効果の大きい項目から取り組むと効率的です。';
     } else if (urgency === 'moderate') {
-      summary = 'いくつかの改善点があります。重点領域を絞って継続的に取り組みましょう。';
+      summary = 'いくつか改善できるところがあります。気になる項目から取り組んでみましょう。';
     } else {
-      summary = '全体的に良好な状態です。さらなる向上のために、以下のポイントに注目してください。';
+      summary = '全体的に良い状態です。さらに良くするために、以下のポイントも参考にしてください。';
     }
 
     return {

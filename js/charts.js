@@ -1,7 +1,7 @@
 /**
  * 退職リスク診断 - SVG Charts (Radar Chart & Gauge)
- * Enhanced for iPhone 16 Pro 120Hz ProMotion display
- * Smoother animations, spring/elastic easing, progressive reveals
+ * Universal smartphone support with smooth animations
+ * Spring/elastic easing, progressive reveals
  */
 
 const Charts = {

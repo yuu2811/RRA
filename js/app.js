@@ -1,7 +1,7 @@
 /**
  * 退職リスク診断 - Main Application Logic
  * Screen transitions, state management, event handling
- * Enhanced for iPhone 16 Pro 120Hz ProMotion display
+ * Universal smartphone support: iOS & Android, all screen sizes
  * Phase 1: Meta-analytic scoring, compound risks, demographics, history
  */
 
@@ -678,13 +678,13 @@
       link.download = 'retirement-risk-result.png';
       link.href = dataUrl;
 
-      // For iOS Safari which doesn't support download attribute well
-      if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
-        // Open in new tab for save
+      // iOS Safari doesn't support download attribute; Android/Desktop do
+      var isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+      if (isIOS) {
         var win = window.open();
         if (win) {
-          win.document.write('<img src="' + dataUrl + '" style="max-width:100%;height:auto;">');
-          win.document.title = '退職リスク診断結果';
+          win.document.write('<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>退職リスク診断結果</title></head><body style="margin:0;display:flex;justify-content:center;background:#000;"><img src="' + dataUrl + '" style="max-width:100%;height:auto;"></body></html>');
+          win.document.close();
         }
       } else {
         document.body.appendChild(link);

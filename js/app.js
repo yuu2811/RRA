@@ -72,7 +72,6 @@
     correlationCard: document.getElementById('correlation-card'),
     correlationContent: document.getElementById('correlation-content'),
     demographicContext: document.getElementById('demographic-context'),
-    whatifSliders: document.getElementById('whatif-sliders'),
     btnShareImage: document.getElementById('btn-share-image'),
     referencesContent: document.getElementById('references-content'),
     dimensionLabel: document.getElementById('dimension-label'),
@@ -178,7 +177,7 @@
     }
 
     var latest = history[history.length - 1];
-    var score = latest.weighted || latest.overall;
+    var score = Number(latest.weighted || latest.overall) || 0;
     var risk = Scoring.getRiskLevel(score);
     var d = new Date(latest.date);
     var dateStr = d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日';
@@ -580,9 +579,12 @@
         var pPerc = Scoring.getDimensionPercentile(pdim.id, pscore);
         var pRisk = Scoring.getRiskLevel(pscore);
         var topPct = 100 - pPerc.percentile;
+        var rankLabel = topPct <= 50
+          ? '上位' + topPct + '%'
+          : '下位' + pPerc.percentile + '%';
         chipHTML += '<span class="percentile-chip">';
         chipHTML += '<span class="percentile-chip-name">' + pdim.name + '</span>';
-        chipHTML += '<span class="percentile-chip-rank" style="color:' + pRisk.color + '">上位' + topPct + '%</span>';
+        chipHTML += '<span class="percentile-chip-rank" style="color:' + pRisk.color + '">' + rankLabel + '</span>';
         chipHTML += '</span>';
       }
       percSummary.innerHTML = chipHTML;
@@ -653,7 +655,7 @@
     // Trend summary text
     if (els.trendSummary && history.length > 0) {
       var prevEntry = history[history.length - 1];
-      var prevScore = prevEntry.weighted || prevEntry.overall;
+      var prevScore = Number(prevEntry.weighted || prevEntry.overall) || 0;
       var change = weightedScore - prevScore;
       var trendClass, trendText;
       if (change > 3) {
@@ -668,14 +670,6 @@
       }
       els.trendSummary.innerHTML = trendText;
     }
-
-    // What-If Scenario Simulator
-    if (Charts.initWhatIfSimulator) {
-      Charts.initWhatIfSimulator(els.whatifSliders, dimensionScores, weightedScore);
-    }
-
-    // Goal Setting
-    initGoalSetting(dimensionScores, weightedScore);
 
     // Team Mode: Generate and display score code
     var scoreCodeEl = document.getElementById('my-score-code');
@@ -847,79 +841,6 @@
       }
     }
     requestAnimationFrame(animate);
-  }
-
-  // ---------- Goal Setting ----------
-  function initGoalSetting(dimensionScores, weightedScore) {
-    var goalSlider = document.getElementById('goal-target');
-    var goalValueEl = document.getElementById('goal-target-value');
-    var goalBreakdown = document.getElementById('goal-breakdown');
-    if (!goalSlider || !goalBreakdown) return;
-
-    goalSlider.value = Math.min(Math.max(weightedScore + 10, 40), 90);
-    if (goalValueEl) goalValueEl.textContent = goalSlider.value;
-
-    function updateGoalBreakdown() {
-      var target = parseInt(goalSlider.value);
-      if (goalValueEl) goalValueEl.textContent = target;
-      var targetRisk = Scoring.getRiskLevel(target);
-
-      // Calculate how much each dimension needs to improve
-      // Use the meta-analytic weights to figure out contribution
-      var html = '';
-      var gap = target - weightedScore;
-
-      for (var i = 0; i < DIMENSIONS.length; i++) {
-        var dim = DIMENSIONS[i];
-        var current = dimensionScores[dim.id] || 0;
-        var risk = Scoring.getRiskLevel(current);
-
-        // Needed improvement is proportional to the gap and inverse to current score
-        // Focus improvements on lowest-scoring dimensions
-        var needed = 0;
-        if (gap > 0 && current < 90) {
-          // Weight by how much room for improvement
-          var room = 100 - current;
-          needed = Math.min(Math.round(gap * (room / 100) * 1.5), room);
-        }
-
-        var neededText, neededColor;
-        if (needed <= 0) {
-          neededText = '現状維持';
-          neededColor = 'var(--text-muted)';
-        } else if (needed <= 5) {
-          neededText = '+' + needed + 'pt';
-          neededColor = '#22c55e';
-        } else if (needed <= 15) {
-          neededText = '+' + needed + 'pt';
-          neededColor = '#eab308';
-        } else {
-          neededText = '+' + needed + 'pt';
-          neededColor = '#f97316';
-        }
-
-        html += '<div class="goal-dim-row">';
-        html += '<span class="goal-dim-name">' + dim.name + '</span>';
-        html += '<div class="goal-dim-bar-wrap">';
-        html += '<span class="goal-dim-current" style="color:' + risk.color + '">' + current + '</span>';
-        html += '<span class="goal-dim-arrow">→</span>';
-        html += '<span class="goal-dim-needed" style="color:' + neededColor + '">' + neededText + '</span>';
-        html += '</div>';
-        html += '</div>';
-      }
-
-      // Summary
-      if (gap > 0) {
-        html += '<div style="margin-top:10px;text-align:center;font-size:12px;color:var(--text-muted);">目標達成には全体で約 <strong style="color:' + targetRisk.color + '">' + gap + 'pt</strong> の改善が必要です</div>';
-      } else {
-        html += '<div style="margin-top:10px;text-align:center;font-size:12px;color:var(--green);">目標は既に達成されています</div>';
-      }
-
-      goalBreakdown.innerHTML = html;
-    }
-
-    goalSlider.addEventListener('input', updateGoalBreakdown);
-    updateGoalBreakdown();
   }
 
   // ---------- Event Listeners ----------
@@ -1311,20 +1232,27 @@
     try {
       var raw = localStorage.getItem(REMINDER_KEY);
       if (!raw) return null;
-      return JSON.parse(raw);
+      var parsed = JSON.parse(raw);
+      // Validate fields to prevent XSS via tampered localStorage
+      if (!parsed || typeof parsed !== 'object') return null;
+      if (typeof parsed.date !== 'string') return null;
+      if (typeof parsed.days !== 'number' || !isFinite(parsed.days)) return null;
+      return parsed;
     } catch (e) { return null; }
   }
 
   function showReminderStatus(statusEl, optionsEl, reminder) {
     var d = new Date(reminder.date);
     var dateStr = d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日';
+    var days = parseInt(reminder.days);
+    if (isNaN(days)) return;
     var labelMap = { 14: '2週間後', 30: '1ヶ月後', 90: '3ヶ月後' };
-    var label = labelMap[reminder.days] || reminder.days + '日後';
+    var label = labelMap[days] || days + '日後';
 
     // Update button states
     var btns = optionsEl.querySelectorAll('.reminder-btn');
     btns.forEach(function (b) {
-      b.classList.toggle('active', parseInt(b.dataset.interval) === reminder.days);
+      b.classList.toggle('active', parseInt(b.dataset.interval) === days);
     });
 
     statusEl.style.display = '';
@@ -1577,6 +1505,15 @@
     importFile.addEventListener('change', function () {
       var file = importFile.files[0];
       if (!file) return;
+
+      // File size limit (1MB) to prevent DoS via large files
+      if (file.size > 1024 * 1024) {
+        var orig0 = btnImport.innerHTML;
+        btnImport.textContent = 'ファイルが大きすぎます（1MB以下）';
+        setTimeout(function () { btnImport.innerHTML = orig0; }, 3000);
+        importFile.value = '';
+        return;
+      }
 
       var reader = new FileReader();
       reader.onload = function (e) {

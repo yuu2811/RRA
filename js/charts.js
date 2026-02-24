@@ -281,7 +281,8 @@ const Charts = {
         const angle = startAngle + i * angleStep;
         points.push(`${cx + r * Math.cos(angle)},${cy + r * Math.sin(angle)}`);
       }
-      gridHTML += `<polygon points="${points.join(' ')}" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>`;
+      var fillOpacity = li === levels.length - 1 ? 'rgba(255,255,255,0.02)' : 'none';
+      gridHTML += `<polygon points="${points.join(' ')}" fill="${fillOpacity}" stroke="rgba(255,255,255,0.12)" stroke-width="0.5"/>`;
 
       // Level label
       const labelY = cy - r - 4;
@@ -295,7 +296,7 @@ const Charts = {
       const angle = startAngle + i * angleStep;
       const x = cx + maxR * Math.cos(angle);
       const y = cy + maxR * Math.sin(angle);
-      axesHTML += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>`;
+      axesHTML += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="rgba(255,255,255,0.10)" stroke-width="0.5"/>`;
 
       // Label position (push further out)
       const labelR = maxR + 22;
@@ -372,8 +373,8 @@ const Charts = {
     svgElement.innerHTML = `
       <defs>
         <linearGradient id="radarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#818cf8" stop-opacity="0.3"/>
-          <stop offset="100%" stop-color="#6366f1" stop-opacity="0.1"/>
+          <stop offset="0%" stop-color="#818cf8" stop-opacity="0.45"/>
+          <stop offset="100%" stop-color="#6366f1" stop-opacity="0.2"/>
         </linearGradient>
       </defs>
       ${gridHTML}
@@ -771,10 +772,15 @@ const Charts = {
     var cycleDuration = 2000;
     var startTime = performance.now();
     var rafId = null;
+    var stopped = false;
 
     function pulse(now) {
-      // If the dot has been removed from DOM, stop
-      if (!dot.parentNode) { rafId = null; return; }
+      // If the dot has been removed from DOM or stopped, clean up
+      if (stopped || !dot.parentNode) {
+        stopped = true;
+        rafId = null;
+        return;
+      }
 
       var elapsed = (now - startTime) % cycleDuration;
       var t = elapsed / cycleDuration;
@@ -790,11 +796,12 @@ const Charts = {
 
     rafId = requestAnimationFrame(pulse);
 
-    // Pause when tab is hidden to save CPU
-    document.addEventListener('visibilitychange', function onVis() {
-      if (!dot.parentNode) {
+    // Pause when tab is hidden to save CPU; clean up when dot is removed
+    function onVis() {
+      if (stopped || !dot.parentNode) {
         document.removeEventListener('visibilitychange', onVis);
-        if (rafId) cancelAnimationFrame(rafId);
+        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+        stopped = true;
         return;
       }
       if (document.hidden) {
@@ -805,7 +812,18 @@ const Charts = {
           rafId = requestAnimationFrame(pulse);
         }
       }
-    });
+    }
+    document.addEventListener('visibilitychange', onVis);
+
+    // Periodic self-check: if dot is detached, stop and clean up listener
+    var checkInterval = setInterval(function () {
+      if (!dot.parentNode || stopped) {
+        stopped = true;
+        clearInterval(checkInterval);
+        document.removeEventListener('visibilitychange', onVis);
+        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+      }
+    }, 5000);
   },
 
   // ---------- Compound Risks ----------
@@ -1267,7 +1285,9 @@ const Charts = {
         mainHTML += '<div class="dim-header dim-header-tap">';
         mainHTML += '<div class="dim-header-left">';
         mainHTML += '<span class="dim-name">' + dim.name + '</span>';
-        mainHTML += '<span class="dim-percentile" style="color:var(--text-muted);font-size:10px;margin-left:6px;">上位' + (100 - percentile.percentile) + '%</span>';
+        var dimTopPct = 100 - percentile.percentile;
+        var dimRankLabel = dimTopPct <= 50 ? '上位' + dimTopPct + '%' : '下位' + percentile.percentile + '%';
+        mainHTML += '<span class="dim-percentile" style="color:var(--text-muted);font-size:10px;margin-left:6px;">' + dimRankLabel + '</span>';
         mainHTML += '</div>';
         mainHTML += '<div class="dim-header-right">';
         mainHTML += '<span class="dim-score-text" style="color:' + risk.color + '"><span class="dim-score-num" data-target="' + score + '">0</span><small>/100</small></span>';
@@ -1626,124 +1646,6 @@ const Charts = {
   },
 
   // ============================================================
-  // What-If Scenario Simulator
-  // ============================================================
-
-  /**
-   * Initialize the What-If scenario simulator.
-   * Creates sliders for each dimension, recalculates weighted score on change.
-   *
-   * @param {HTMLElement} slidersContainer - Container for sliders
-   * @param {Object<string, number>} dimensionScores - Current dimension scores
-   * @param {number} currentWeightedScore - Current weighted score
-   */
-  initWhatIfSimulator(slidersContainer, dimensionScores, currentWeightedScore) {
-    if (!slidersContainer) return;
-    slidersContainer.innerHTML = '';
-
-    var currentEl = document.getElementById('whatif-current');
-    var predictedEl = document.getElementById('whatif-predicted');
-    var riskChangeEl = document.getElementById('whatif-risk-change');
-
-    if (currentEl) {
-      var currentRisk = Scoring.getRiskLevel(currentWeightedScore);
-      currentEl.textContent = currentWeightedScore;
-      currentEl.style.color = currentRisk.color;
-    }
-    if (predictedEl) {
-      predictedEl.textContent = currentWeightedScore;
-      predictedEl.style.color = Scoring.getRiskLevel(currentWeightedScore).color;
-    }
-
-    var sliderState = {};
-
-    for (var i = 0; i < DIMENSIONS.length; i++) {
-      var dim = DIMENSIONS[i];
-      var score = dimensionScores[dim.id] || 0;
-      sliderState[dim.id] = score;
-
-      var row = document.createElement('div');
-      row.className = 'whatif-slider-row';
-      row.setAttribute('data-dim-id', dim.id);
-
-      var dimRisk = Scoring.getRiskLevel(score);
-
-      row.innerHTML =
-        '<div class="whatif-slider-header">' +
-          '<span class="whatif-slider-name">' + dim.name + '</span>' +
-          '<span class="whatif-slider-value" style="color:' + dimRisk.color + '">' +
-            '<span class="whatif-val">' + score + '</span>' +
-            '<span class="whatif-slider-change"></span>' +
-          '</span>' +
-        '</div>' +
-        '<input type="range" class="whatif-slider-track" min="0" max="100" value="' + score + '" data-dim-id="' + dim.id + '" data-original="' + score + '">';
-
-      slidersContainer.appendChild(row);
-    }
-
-    // Real-time recalculation on slider change
-    slidersContainer.addEventListener('input', function (e) {
-      if (!e.target.classList.contains('whatif-slider-track')) return;
-
-      var dimId = e.target.getAttribute('data-dim-id');
-      var original = parseInt(e.target.getAttribute('data-original'));
-      var newVal = parseInt(e.target.value);
-      sliderState[dimId] = newVal;
-
-      // Update display
-      var row = e.target.closest('.whatif-slider-row');
-      var valEl = row.querySelector('.whatif-val');
-      var changeEl = row.querySelector('.whatif-slider-change');
-      var newRisk = Scoring.getRiskLevel(newVal);
-      valEl.textContent = newVal;
-      valEl.parentElement.style.color = newRisk.color;
-
-      var diff = newVal - original;
-      if (diff > 0) {
-        changeEl.textContent = '+' + diff;
-        changeEl.style.color = '#22c55e';
-        row.classList.add('changed');
-      } else if (diff < 0) {
-        changeEl.textContent = String(diff);
-        changeEl.style.color = '#ef4444';
-        row.classList.add('changed');
-      } else {
-        changeEl.textContent = '';
-        row.classList.remove('changed');
-      }
-
-      // Recalculate weighted score with modified dimensions
-      var newWeighted = Scoring.calculateWeightedScore(sliderState);
-      var newRiskLevel = Scoring.getRiskLevel(newWeighted);
-      var currentRiskLevel = Scoring.getRiskLevel(currentWeightedScore);
-
-      if (predictedEl) {
-        predictedEl.textContent = newWeighted;
-        predictedEl.style.color = newRiskLevel.color;
-      }
-
-      // Show risk level change message
-      if (riskChangeEl) {
-        var totalDiff = newWeighted - currentWeightedScore;
-        if (totalDiff > 0) {
-          riskChangeEl.innerHTML =
-            '<span style="color:#22c55e">+' + totalDiff + '点の改善</span>';
-          if (newRiskLevel.level !== currentRiskLevel.level) {
-            riskChangeEl.innerHTML +=
-              '<br><span style="color:' + newRiskLevel.color + '">' +
-              currentRiskLevel.label + ' → ' + newRiskLevel.label + '</span>';
-          }
-        } else if (totalDiff < 0) {
-          riskChangeEl.innerHTML =
-            '<span style="color:#ef4444">' + totalDiff + '点の低下</span>';
-        } else {
-          riskChangeEl.innerHTML = '';
-        }
-      }
-    });
-  },
-
-  // ============================================================
   // Dimension Trend Heatmap
   // ============================================================
 
@@ -1790,7 +1692,7 @@ const Charts = {
       html += '<tr>';
       html += '<td class="heatmap-dim-name">' + dim.name + '</td>';
       for (var ei = 0; ei < n; ei++) {
-        var score = (entries[ei].dimensions && entries[ei].dimensions[dim.id]) || 0;
+        var score = Number((entries[ei].dimensions && entries[ei].dimensions[dim.id]) || 0) || 0;
         var cellColor = this._heatmapColor(score);
         var textColor = score > 60 ? 'rgba(0,0,0,0.7)' : '#fff';
         html += '<td class="heatmap-cell" style="background:' + cellColor + ';color:' + textColor + ';">' + score + '</td>';
@@ -1959,7 +1861,9 @@ const Charts = {
       html += '<div class="benchmark-dim">' + dim.name + '</div>';
       html += svgParts.join('');
       html += '<div class="benchmark-meta">';
-      html += '<span class="benchmark-percentile" style="color:' + risk.color + '">上位 ' + (100 - perc.percentile) + '%</span>';
+      var bmTopPct = 100 - perc.percentile;
+      var bmRankLabel = bmTopPct <= 50 ? '上位 ' + bmTopPct + '%' : '下位 ' + perc.percentile + '%';
+      html += '<span class="benchmark-percentile" style="color:' + risk.color + '">' + bmRankLabel + '</span>';
       html += '<span class="benchmark-label">' + perc.label + '</span>';
       html += '</div>';
       html += '</div>';
@@ -2115,6 +2019,9 @@ const Charts = {
     var ctx = canvas.getContext('2d');
     if (!ctx) return null;
 
+    // Compute risk BEFORE any usage (fix: was declared after first reference)
+    var risk = Scoring.getRiskLevel(results.weightedScore);
+
     // Background
     var bgGrad = ctx.createLinearGradient(0, 0, w, h);
     bgGrad.addColorStop(0, '#07071a');
@@ -2159,14 +2066,13 @@ const Charts = {
     ctx.textAlign = 'center';
     ctx.fillStyle = '#a5b4fc';
     ctx.font = 'bold 14px -apple-system, sans-serif';
-    ctx.fillText('\u9000\u8077\u30EA\u30B9\u30AF\u8A3A\u65AD', w / 2, 50);
+    ctx.fillText('はたらく環境診断', w / 2, 50);
 
     ctx.fillStyle = '#f0f0f5';
     ctx.font = 'bold 28px -apple-system, sans-serif';
-    ctx.fillText('\u9000\u8077\u30EA\u30B9\u30AF\u8A3A\u65AD\u7D50\u679C', w / 2, 90);
+    ctx.fillText('はたらく環境診断結果', w / 2, 90);
 
     // Gauge circle
-    var risk = Scoring.getRiskLevel(results.weightedScore);
     var cx = w / 2, cy = 200, gaugeR = 70;
     
     // Background arc

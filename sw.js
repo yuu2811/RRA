@@ -3,7 +3,7 @@
  * Cache-first strategy for offline support
  */
 
-const CACHE_NAME = 'rra-v16';
+const CACHE_NAME = 'rra-v19';
 const ASSETS = [
   './',
   './index.html',
@@ -77,8 +77,8 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((cached) => {
       return cached || fetch(event.request).then((response) => {
-        // Cache new successful responses
-        if (response.ok && event.request.method === 'GET') {
+        // Cache new successful same-origin responses only
+        if (response.ok && event.request.method === 'GET' && new URL(event.request.url).origin === self.location.origin) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         }

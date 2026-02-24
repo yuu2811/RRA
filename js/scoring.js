@@ -329,6 +329,14 @@ const DiagnosticHistory = {
       if (!raw) return [];
       var entries = JSON.parse(raw);
       if (!Array.isArray(entries)) return [];
+      // Validate each entry to prevent XSS via corrupted/malicious data
+      entries = entries.filter(function (e) {
+        if (!e || typeof e !== 'object') return false;
+        if (typeof e.date !== 'string') return false;
+        if (typeof e.weighted !== 'number' || !isFinite(e.weighted)) return false;
+        if (e.overall !== undefined && (typeof e.overall !== 'number' || !isFinite(e.overall))) return false;
+        return true;
+      });
       entries.sort(function (a, b) {
         return new Date(a.date).getTime() - new Date(b.date).getTime();
       });
@@ -369,8 +377,8 @@ const DiagnosticHistory = {
     }
     var current = entries[entries.length - 1];
     var previous = entries[entries.length - 2];
-    var currentScore = current.weighted;
-    var previousScore = previous.weighted;
+    var currentScore = Number(current.weighted || current.overall) || 0;
+    var previousScore = Number(previous.weighted || previous.overall) || 0;
     var change = currentScore - previousScore;
     var direction;
     if (change > 3) {
@@ -565,9 +573,29 @@ const DiagnosticHistory = {
       var imported = 0;
       for (var j = 0; j < data.entries.length; j++) {
         var entry = data.entries[j];
-        if (!entry.date || !entry.weighted) continue;
+        // Strict type validation to prevent XSS via malicious import
+        if (!entry || typeof entry !== 'object') continue;
+        if (typeof entry.date !== 'string') continue;
+        if (typeof entry.weighted !== 'number' || !isFinite(entry.weighted)) continue;
         if (existingDates[entry.date]) continue; // Skip duplicates
-        existing.push(entry);
+        // Sanitize dimensions: only accept numeric values for known dimension IDs
+        var cleanDims = {};
+        if (entry.dimensions && typeof entry.dimensions === 'object' && !Array.isArray(entry.dimensions)) {
+          for (var dk = 0; dk < DIMENSIONS.length; dk++) {
+            var dimKey = DIMENSIONS[dk].id;
+            if (typeof entry.dimensions[dimKey] === 'number' && isFinite(entry.dimensions[dimKey])) {
+              cleanDims[dimKey] = Math.max(0, Math.min(100, Math.round(entry.dimensions[dimKey])));
+            }
+          }
+        }
+        existing.push({
+          date: entry.date,
+          weighted: Math.max(0, Math.min(100, Math.round(entry.weighted))),
+          overall: typeof entry.overall === 'number' && isFinite(entry.overall) ? Math.max(0, Math.min(100, Math.round(entry.overall))) : 0,
+          dimensions: cleanDims,
+          demographic: null,
+          compoundRisks: []
+        });
         imported++;
       }
 
@@ -1212,8 +1240,8 @@ const Scoring = {
    * @returns {string} Formatted text for sharing
    */
   generateShareText(overallScore, dimensionScores) {
-    const risk = this.getRiskLevel(overallScore);
     const weightedScore = this.calculateWeightedOverallScore(dimensionScores);
+    const risk = this.getRiskLevel(weightedScore);
     const compoundRisks = this.detectCompoundRisks(dimensionScores);
 
     let text = 'はたらく環境診断結果\n';

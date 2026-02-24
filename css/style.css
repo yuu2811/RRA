@@ -830,7 +830,7 @@ body::after {
 .chart-card {
   max-width: var(--card-max-width);
   padding: 24px 16px;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .card-title {
@@ -1972,242 +1972,6 @@ body::after {
   font-variant-numeric: tabular-nums;
 }
 
-/* ---------- What-If Scenario Simulator ---------- */
-.whatif-card {
-  max-width: var(--card-max-width);
-}
-
-.whatif-desc {
-  font-size: clamp(13px, 3.5vw, 15px);
-  color: var(--text-muted);
-  line-height: 1.7;
-  margin-bottom: 16px;
-}
-
-.whatif-sliders {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  margin-bottom: 20px;
-}
-
-.whatif-slider-row {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.whatif-slider-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.whatif-slider-name {
-  font-size: clamp(12px, 3.2vw, 14px);
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-.whatif-slider-value {
-  font-size: clamp(13px, 3.5vw, 15px);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  min-width: 48px;
-  text-align: right;
-}
-
-.whatif-slider-change {
-  font-size: clamp(11px, 2.8vw, 13px);
-  font-weight: 600;
-  margin-left: 4px;
-}
-
-.whatif-slider-track {
-  width: 100%;
-  -webkit-appearance: none;
-  appearance: none;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 3px;
-  outline: none;
-  cursor: pointer;
-}
-
-.whatif-slider-track::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--accent-primary);
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  cursor: pointer;
-  box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
-}
-
-.whatif-slider-track::-moz-range-thumb {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--accent-primary);
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  cursor: pointer;
-  box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
-}
-
-.whatif-slider-row.changed .whatif-slider-name {
-  color: var(--accent-secondary);
-}
-
-.whatif-result {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: var(--radius-sm);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.whatif-result-row {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  flex: 1;
-}
-
-.whatif-result-label {
-  font-size: clamp(11px, 2.8vw, 13px);
-  color: var(--text-muted);
-  font-weight: 600;
-  text-align: center;
-}
-
-.whatif-current-score,
-.whatif-predicted-score {
-  font-size: clamp(28px, 7.5vw, 36px);
-  font-weight: 900;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-}
-
-.whatif-arrow-row {
-  display: flex;
-  align-items: center;
-}
-
-.whatif-arrow {
-  font-size: 24px;
-  color: var(--text-muted);
-}
-
-.whatif-risk-change {
-  text-align: center;
-  margin-top: 12px;
-  font-size: clamp(13px, 3.5vw, 15px);
-  font-weight: 600;
-  line-height: 1.6;
-  min-height: 24px;
-}
-
-/* ---------- Goal Setting ---------- */
-.goal-desc {
-  font-size: clamp(12px, 3.2vw, 14px);
-  color: var(--text-muted);
-  line-height: 1.7;
-  margin-bottom: 14px;
-}
-
-.goal-input-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.goal-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  white-space: nowrap;
-}
-
-.goal-slider {
-  flex: 1;
-  height: 6px;
-  -webkit-appearance: none;
-  appearance: none;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 3px;
-  outline: none;
-}
-
-.goal-slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--accent-primary);
-  cursor: pointer;
-}
-
-.goal-target-value {
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--accent-secondary);
-  min-width: 30px;
-  text-align: right;
-}
-
-.goal-breakdown {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.goal-dim-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 8px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.02);
-}
-
-.goal-dim-name {
-  font-size: 11px;
-  color: var(--text-secondary);
-  min-width: 70px;
-  flex-shrink: 0;
-}
-
-.goal-dim-bar-wrap {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.goal-dim-current {
-  font-size: 12px;
-  font-weight: 700;
-  min-width: 20px;
-  text-align: right;
-}
-
-.goal-dim-arrow {
-  font-size: 10px;
-  color: var(--text-muted);
-}
-
-.goal-dim-needed {
-  font-size: 12px;
-  font-weight: 700;
-  min-width: 40px;
-}
-
 /* ---------- Skip Navigation Link ---------- */
 .skip-link {
   position: absolute;
@@ -2522,6 +2286,11 @@ body::after {
   border-radius: 8px;
   user-select: all;
   -webkit-user-select: all;
+}
+
+.group-card {
+  text-align: left;
+  margin-top: 16px;
 }
 
 .group-desc {
@@ -3031,7 +2800,6 @@ body::after {
   .reminder-card,
   .team-card,
   .data-portability,
-  .whatif-card,
   .collapsible-toggle,
   .collapsible-toggle-icon,
   .card-title-hint,
@@ -3044,7 +2812,8 @@ body::after {
   #btn-retry,
   #btn-home,
   #btn-copy-code,
-  .social-proof-badge {
+  .social-proof-badge,
+  .result-divider {
     display: none !important;
   }
 
@@ -3076,11 +2845,7 @@ body::after {
     page-break-after: avoid !important;
   }
 
-  .result-summary-headline {
-    text-align: center !important;
-    color: #444 !important;
-    font-size: 12pt !important;
-  }
+  /* (result-summary-headline removed in v4.0) */
 
   /* Cards: remove glass effects, add borders */
   .glass-card {
@@ -3116,12 +2881,6 @@ body::after {
     overflow: visible !important;
   }
 
-  /* Dividers */
-  .result-divider {
-    border-color: #eee !important;
-    margin: 8pt 0 !important;
-  }
-
   /* Gauge - scale down for print */
   .gauge-container {
     transform: scale(0.8) !important;
@@ -3140,7 +2899,7 @@ body::after {
   }
 
   /* Dimension bars */
-  .dimension-bar-fill {
+  .dim-bar-fill {
     border-radius: 3px !important;
   }
 
